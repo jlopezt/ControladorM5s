@@ -13,10 +13,6 @@ struct tipo_respuestaHTTP
   long httpCode=-1;
   };
 
-void inicializaClienteHTTP() 
-  {
-  }
-
 struct tipo_respuestaHTTP ClienteHTTP(String URL) 
   {  
   struct tipo_respuestaHTTP respuestaHTTP;

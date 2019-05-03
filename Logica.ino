@@ -12,6 +12,9 @@
 #define MAPA_CONFIG_FILE             "/Mapa.json"
 #define TEMPERATURAS_CONFIG_FILE     "/Temperaturas.json"
 #define TEMPERATURAS_CONFIG_BAK_FILE "/Temperaturas.json.bak"
+#define RELES_CONFIG_FILE            "/RelesConfig.json"
+#define RELES_CONFIG_BAK_FILE        "/RelesConfig.json.bak"
+
 
 #define SEGUNDOS_EN_HORA         3600
 #define TICKS_CALEFACCION_MANUAL (SEGUNDOS_EN_HORA*1000)/(ANCHO_INTERVALO*FRECUENCIA_LOGICA_CONTROL)//1 hora
@@ -118,6 +121,46 @@ void inicializaLogica()
     
   leeFicheroMapa();
   leeFicheroTemperaturas();
+  leeFicheroReles();
+  }
+
+/*********************************************/
+/* Lee el fichero de configuracio de reles   */
+/*********************************************/
+void leeFicheroReles(void)
+  {
+  String cad="";
+  
+  if(leeFichero(RELES_CONFIG_FILE, cad)) parseaConfiguracionreles(cad);
+  else Serial.println("Configuracion de relesa por defecto");
+  }
+
+/*********************************************/
+/* Parsea el json leido del fichero de       */
+/* configuracio de reles                     */
+/*********************************************/
+boolean parseaConfiguracionreles(String contenido)
+  {  
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.parseObject(contenido.c_str());
+  //json.printTo(Serial);
+  if (json.success()) 
+    {
+    Serial.println("parsed json");
+//******************************Parte especifica del json a leer********************************
+    JsonArray& Reles = json["Reles"];
+    
+    for(int8_t i=0;i<MAX_RELES;i++)
+      { 
+      reles[i].nombre=String((const char *)Reles[i]["nombre"]);
+      }
+      
+    Serial.println("Reles:"); 
+    for(int8_t i=0;i<MAX_RELES;i++) Serial.printf("%02i: %s\n",i,reles[i].nombre.c_str()); 
+//************************************************************************************************
+    return true;
+    }
+  return false;
   }
 
 void leeFicheroMapa(void)
@@ -397,51 +440,6 @@ String leeEstadoReles(void)//ESTA A MEDIAS
     }
   return respuestaHTTP.payload;
   } 
-
-/******************************************************/
-/*                                                    */
-/* Activa el rele especificado                        */ 
-/*                                                    */
-/******************************************************/
-int activaRele(int8_t id)//ESTA A MEDIAS
-  {
-  struct tipo_respuestaHTTP respuestaHTTP;  
- 
-  if(id<0 || id>=MAX_RELES) return KO;
-
-  respuestaHTTP=ClienteHTTP("http://"+IPActuador.toString()+"/activaRele?id="+String(id));    
-
-  if(respuestaHTTP.httpCode==HTTP_CODE_OK) return OK;
-  else if(respuestaHTTP.httpCode<0)//error no HTTP=TimeOut
-    {
-    Serial.println("Error al activar rele.");
-    setError(ERROR_COM_RELES, "Error com. rele");
-    }
-
-  return KO;
-  }
-
-/******************************************************/
-/*                                                    */
-/* Desactiva el rele especificado                     */ 
-/*                                                    */
-/******************************************************/
-int desactivaRele(int8_t id)//ESTA A MEDIAS
-  {
-  struct tipo_respuestaHTTP respuestaHTTP;  
- 
-  if(id<0 || id>=MAX_RELES) return KO;
-
-  respuestaHTTP=ClienteHTTP("http://"+IPActuador.toString()+"/desactivaRele?id="+String(id));    
-  if(respuestaHTTP.httpCode==HTTP_CODE_OK) return OK;
-  else if(respuestaHTTP.httpCode<0)//error no HTTP=TimeOut
-    {
-    Serial.println("Error en la llamada.");
-    setError(ERROR_COM_RELES, "Error al desactivar rele.");
-    }
-
-  return KO;
-  }  
 
 /******************************************************/
 /*                                                    */

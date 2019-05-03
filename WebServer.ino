@@ -59,7 +59,6 @@ void handleRoot()
   server.send(200, "text/HTML", cad);  
   }
 
-
 /*********************************************/
 /*                                           */
 /*  Servicio de recarga del                  */
@@ -302,9 +301,9 @@ void handleConfigHabitaciones(void)
         cad += "\n";
 
         cad += "     Lectura: ";
-        cad += habitaciones[id].lectura;
+        cad += sateliteUltimaLectura(id); //habitaciones[id].lectura;
         cad += "ms, hace ";
-        cad += millis()-habitaciones[id].lectura;
+        cad += millis()-sateliteUltimaLectura(id); //habitaciones[id].lectura;
         cad += "ms";
         cad += "\n"; 
         }
@@ -361,7 +360,7 @@ void handleListaReles()
 void handleRestart(void)
   {
   String cad=cabeceraHTML;
-  cad += IDENTIFICACION //"Modulo " + String(direccion) + " Habitacion= " + nombres[direccion];
+  cad += IDENTIFICACION
   
   cad += "Reiniciando...<br>";
   cad += pieHTML;
@@ -380,7 +379,7 @@ void handleRestart(void)
 void handleInfo(void)
   {
   String cad=cabeceraHTML;
-  cad += IDENTIFICACION //"Modulo " + String(direccion) + " Habitacion= " + nombres[direccion];
+  cad += IDENTIFICACION
 
   cad += "<BR>-----------------info general-----------------<BR>";
   cad += "Uptime: " + String(uptime())+ "ms";
@@ -589,7 +588,6 @@ void handleInfoFS(void)
   server.send(200, "text/html", cad); 
   }
 
-
 /*********************************************/
 /*                                           */
 /*  Pagina no encontrada                     */
@@ -644,7 +642,7 @@ void inicializaWebServer(void)
   server.on("/borraFichero", HTTP_ANY, handleBorraFichero);  //URI de borrar fichero
   server.on("/leeFichero", HTTP_ANY, handleLeeFichero);  //URI de leer fichero
   server.on("/infoFS", HTTP_ANY, handleInfoFS);  //URI de info del FS
-
+  
   server.onNotFound(handleNotFound);//pagina no encontrada
 
   server.begin();

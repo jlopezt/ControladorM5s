@@ -124,8 +124,6 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length)
       habitaciones[id].humedad = root["Humedad"]; 
       habitaciones[id].luz = root["Luz"];
     /**********************Fin JSON***********************/    
-      //pongo a cero los errores
-      errores[id]=0;
       }
     }
   }

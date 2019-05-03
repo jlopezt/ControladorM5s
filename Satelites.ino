@@ -21,7 +21,7 @@ typedef struct{
   int8_t id;
   String nombre;
   int8_t peso;
-  time_t lectura;
+  unsigned long lectura;
   float  temperatura;
   float  humedad;
   float  luz;
@@ -29,21 +29,18 @@ typedef struct{
 
 habitacion_t habitaciones[MAX_SATELITES];
 
-String nombres[MAX_SATELITES]; //nombre por defecto de los satelites
-int8_t errores[MAX_SATELITES]; //numero de errores de comunicacion de cada satelite. si pasa del limite lo elimino
+String nombres[MAX_SATELITES]; //nombre por defecto de los satelites. Cuando se registra un satelite envia su nombre
 int8_t pesoSatelites[MAX_SATELITES]; //peso en el calculo de la temperatura ponderada
 
 //////////////////////////////////////////////////Funciones de configuracion de los satelites///////////////////////////////////////////////////////
 /*inicializa los satelites, pongo todo a cero*/
 void inicializaSatelites(void)
   {
-  //indiceLecturaSatelites=0;
-    
+  //Leo el nombre del fichero o lo inicializo por defecto. Nombres y pesos
+  leeFicheroNombres();
+      
   for(int8_t i=0;i<MAX_SATELITES; i++)
     {
-    errores[i]=0;
-    pesoSatelites[i]=1;
-      
     habitaciones[i].id=NO_REGISTRADO;
     habitaciones[i].nombre=nombres[i];
     habitaciones[i].peso=pesoSatelites[i];
@@ -52,8 +49,6 @@ void inicializaSatelites(void)
     habitaciones[i].humedad=0.0;
     habitaciones[i].luz=0.0;   
     }  
-    
-  leeFicheroNombres();
   }
 
 void leeFicheroNombres(void)
@@ -96,7 +91,10 @@ void leeFicheroNombres(void)
     //14 Diego
     nombres[14]="Diego2_def";  
     //15 Buhardilla
-    nombres[15]="Buhardilla2_def";    
+    nombres[15]="Buhardilla2_def";  
+
+    //Valor por defecto apra el peso de los satelites
+    for(int8_t i=0;i<MAX_SATELITES;i++) pesoSatelites[i]=1;
     }
   }
 
@@ -115,7 +113,7 @@ boolean parseaConfiguracionNombres(String contenido)
     Serial.println("parsed json");
 //******************************Parte especifica del json a leer********************************
     JsonArray& Termometros = json["Termometros"];
-    //for(int8_t i=0;i<MAX_SATELITES;i++) nombres[i]=String((const char *)json["Termometro"+String(i)]);
+    
     for(int8_t i=0;i<MAX_SATELITES;i++)
       { 
       nombres[i]=String((const char *)Termometros[i]["nombre"]);
@@ -232,7 +230,6 @@ int addSatelite(int8_t id, String nombre="")
   else habitaciones[id].nombre=nombres[id];//le pongo el nombre por defecto //"id_" + id;
 
   //inicializo los datos
-  errores[id]=0; //reseteo los errores
   habitaciones[id].peso=pesoSatelites[id];
   habitaciones[id].temperatura=NO_LEIDO; //NO_LEIDO=-100.0 significa que todavia no se ha leido y no debe tenerse en cuenta para promediar
   habitaciones[id].humedad=0.0;
@@ -297,7 +294,7 @@ void sateliteLeido(int8_t id)
 /*ultima lectura en bus desde el satelite                      */
 /* -1 si no se ha leido nunca
 /***************************************************************/
-time_t sateliteUltimaLectura(int8_t id)
+unsigned long sateliteUltimaLectura(int8_t id)
   {
   if(!sateliteRegistrado(id)) return -1;
   
@@ -308,9 +305,9 @@ time_t sateliteUltimaLectura(int8_t id)
 /* Devuelve el nombre de una habitacion                         */
 /* comprueba si el id esta registrado                           */
 /****************************************************************/
-void sateliteTimeOut(time_t time_out)
+void sateliteTimeOut(unsigned long time_out)
   {
-  time_t ahora=millis();
+  unsigned long ahora=millis();
   
   for(int8_t id=0;id<MAX_SATELITES;id++)
     {      

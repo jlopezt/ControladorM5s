@@ -282,26 +282,22 @@ void inicializaOrden(void)
   comandos[i].descripcion="Tiempo desde el ultimo reinicio";
   comandos[i++].p_func_comando=func_comando_uptime;  
   //Comando 37
-  comandos[i].comando="httpReq";
-  comandos[i].descripcion="peticion HTTP manual";
-  comandos[i++].p_func_comando=func_comando_httpReq;  
-  //Comando 38
   comandos[i].comando="json";
   comandos[i].descripcion="Activar IF JSON";
   comandos[i++].p_func_comando=func_comando_if_json;  
-  //Comando 39
+  //Comando 38
   comandos[i].comando="lisHab";
   comandos[i].descripcion="Listado de habitaciones";
   comandos[i++].p_func_comando=func_comando_habitaciones;  
-  //Comando 40
+  //Comando 39
   comandos[i].comando="vueltas";
   comandos[i].descripcion="valores de vueltas";
   comandos[i++].p_func_comando=func_comando_vueltas; 
-  //Comando 41
+  //Comando 40
   comandos[i].comando="pesos";
   comandos[i].descripcion="Peso de los satelites";
   comandos[i++].p_func_comando=func_comando_pesos; 
-  //Comando 42
+  //Comando 41
   comandos[i].comando="modo";
   comandos[i].descripcion="Modo Calefaccion(OFF|ON|AUTO)";
   comandos[i++].p_func_comando=func_comando_modo; 
@@ -547,13 +543,13 @@ void func_comando_staRele(int iParametro, char* sParametro, float fParametro)//"
 
 void func_comando_actRele(int iParametro, char* sParametro, float fParametro)//"actRele") 
   {
-  if(activaRele(iParametro)==OK) Serial.println("OK");  
+  if(controlaRele(iParametro,1)==OK) Serial.println("OK");    
   else Serial.println("KO");
   }
 
 void func_comando_desactRele(int iParametro, char* sParametro, float fParametro)//"desactRele") 
   {
-  if(desactivaRele(iParametro)==OK) Serial.println("OK");  
+  if(controlaRele(iParametro,0)==OK) Serial.println("OK");    
   else Serial.println("KO");
   }
 
@@ -677,11 +673,6 @@ void func_comando_habitaciones(int iParametro, char* sParametro, float fParametr
 void func_comando_vueltas(int iParametro, char* sParametro, float fParametro)//tipoPantalla
   {
   Serial.printf("vueltas loop %i\n",vuelta);
-  }
-  
-void func_comando_httpReq(int iParametro, char* sParametro, float fParametro)//tipoPantalla
-  {
-  struct tipo_respuestaHTTP respuesta;//struct tipo_respuestaHTTP WifiClienteHTTP(IPAddress IP, int puerto, String URL) 
   }
 
 void func_comando_pesos(int iParametro, char* sParametro, float fParametro) 

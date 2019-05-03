@@ -1,4 +1,4 @@
- /* 
+ /*
  * Termostato
  *
  * Controlador - Secuenciador del Termostato
@@ -9,13 +9,13 @@
  
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.4.0 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
+#define VERSION           "2.4.1 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
 #define OK                0
 #define MAX_VUELTAS       32767
-#define SATELITE_TIME_OUT 60000 //Milisegundos transcurridos entre dos peticiones del copntrolador antes de intentar registrarse
+#define SATELITE_TIME_OUT 100000 //Milisegundos transcurridos entre dos peticiones del controlador antes de intentar registrarse
 
 //Organizacion de pines de E/S
 #define RELES_PIN          8 //Pîn del primer rele, los demas consecutivos
