@@ -1,0 +1,62 @@
+<html>   
+ <head>
+  <title>Producto de matrices
+</title>
+   <script >
+     var a=new Array(3);b=new Array(3);c=new Array(3)
+     function producto()
+     {
+      for(i=1;i<=3;i++)
+       {   a[i]=[0,0,0,0];b[i]= [0,0,0,0];c[i]= [0,0,0,0]
+            for(j=1;j<=3;j++)
+             {  a[i][j]=parseFloat(document.matriza[3*i+j-4].value)
+                 b[i][j]=parseFloat(document.matrizb[3*i+j-4].value)    }    }
+      for(i=1;i<=3;i++)
+       {   for(j=1;j<=3;j++)
+              { c[i][j]=0
+                     for(k=1;k<=3;k++)
+                       {c[i][j]=c[i][j]+a[i][k]*b[k][j]  }
+                document.matrizc[3*i+j-4].value=c[i][j]  }    }
+      }
+    </script>
+ </head>
+<body text=white bgcolor=blue>
+Producto de matrices (3x3)
+<form name="matriza">
+A=<BR> <input type="text" size="3">
+            <input type="text" size="3">
+            <input type="text" size="3"><BR>
+            <input type="text" size="3">
+            <input type="text" size="3">
+            <input type="text" size="3"><BR>
+            <input type="text" size="3">
+            <input type="text" size="3">     
+            <input type="text" size="3">
+</form>
+<form name="matrizb">
+B=<BR> <input type="text" size="3">
+            <input type="text" size="3">
+            <input type="text" size="3"><BR>
+            <input type="text" size="3">
+            <input type="text" size="3">
+            <input type="text" size="3"><BR>
+            <input type="text" size="3">
+            <input type="text" size="3">     
+            <input type="text" size="3">
+            <input type="button" value="Hallar producto" onClick=" producto()">
+</form>
+ 
+<form name="matrizc">
+Matriz producto C=AxB<BR>
+            <input type="text" size="3">
+            <input type="text" size="3">
+            <input type="text" size="3"><BR>
+            <input type="text" size="3">
+            <input type="text" size="3">
+            <input type="text" size="3"><BR>
+            <input type="text" size="3">
+            <input type="text" size="3">     
+            <input type="text" size="3">
+  </form>
+ </body>
+</html>

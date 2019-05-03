@@ -1,0 +1,524 @@
+http://10.68.1.60/configTabla?cadena=0|0|0|0|0|0|0|0|0|0|0|0|0|0|127|127|127|127|96|96|96|96|96|96|96|96|96|96|96|96|96|96|96|96|127|127|127|127|127|127|127|127|127|127|127|127|127|127
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <title>Crear celdas tabla HMTL con JavaScript</title>
+
+    <script type="text/javascript">
+     var lunes     = new Array(48)
+     var martes    = new Array(48)
+     var miercoles = new Array(48)
+     var jueves    = new Array(48)
+     var viernes   = new Array(48)
+     var sabado    = new Array(48)
+     var domingo   = new Array(48)
+     var total     = new Array(48)
+     
+     function Agrupa()
+     {
+     var cadena="";
+     
+     for(i=0;i<48;i++)
+        {   
+        lunes[i]=parseFloat(document.lunes[i].value);
+        martes[i]=parseFloat(document.martes[i].value);
+        miercoles[i]=parseFloat(document.miercoles[i].value);
+        jueves[i]=parseFloat(document.jueves[i].value);
+        viernes[i]=parseFloat(document.viernes[i].value);
+        sabado[i]=parseFloat(document.sabado[i].value);
+        domingo[i]=parseFloat(document.domingo[i].value);
+        salida[i]=lunes[i]*1+martes[i]*2+miercoles[i]*4+jueves[i]*8+viernes[i]*16+sabado[i]*32+domingo[i]*64;
+        document.salida[i].value=salida[i];        
+        //document.salida[i].value=parseFloat(document.lunes[i].value)*1+parseFloat(document.martes[i].value)*2+parseFloat(document.miercoles[i].value)*4+parseFloat(document.jueves[i].value)*8+parseFloat(document.viernes[i].value)*16+parseFloat(document.sabado[i].value)*32+parseFloat(document.domingo[i].value)*64;         
+        cadena = cadena + salida[i];
+        if(i<48) cadena = cadena + "|";
+        }
+      document.location="http://10.68.1.60?cadena="+cadena;  
+      //location.assign
+      }
+
+     function Inicializa()
+     {
+     lunes=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     martes=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     miercoles=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     jueves=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     viernes=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     sabado=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     domingo=[1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+     salida=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+
+
+     for(i=0;i<48;i++)
+
+        {   
+
+        document.lunes[i].value=lunes[i];
+        document.martes[i].value=martes[i];
+        document.miercoles[i].value=miercoles[i];
+        document.jueves[i].value=jueves[i];
+        document.viernes[i].value=viernes[i];
+        document.sabado[i].value=sabado[i];
+        document.domingo[i].value=domingo[i];
+
+        document.salida[i].value=0;        
+        }     
+     }
+    </script>
+</head>
+<body onload="Inicializa()">
+    <form name='boton'> 
+          <input type="button" value="Agrupa" onClick="Agrupa()">
+    </form>
+    <table id="tabla" border="0">
+        <tbody>
+            <tr>
+              <form name="lunes">
+                <td>Lunes</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                </td>                
+               </form>                    
+            </tr>
+            <tr>
+              <form name="martes">              
+                <td>Martes</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">          
+                </td>                
+               </form>                    
+            </tr>
+            <tr>
+              <form name="miercoles">             
+                <td>Miercoles</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                </td>                
+               </form>                    
+            </tr>
+            <tr>
+              <form name="jueves">              
+                <td>Jueves</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                </td>                
+               </form>                    
+            </tr>
+            <tr>
+              <form name="viernes">             
+                <td>Viernes</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">          
+                </td>                
+               </form>                    
+            </tr>
+            <tr>
+              <form name="sabado">              
+                <td>Sabado</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">          
+                </td>                
+               </form>                    
+            </tr>
+            <tr>
+              <form name="domingo">             
+                <td>Domingo</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">          
+                </td>                
+               </form>                    
+            </tr>
+            
+            <tr>
+              <form name="salida">              
+                <td>Salida</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">     
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">          
+                </td>                
+               </form>                    
+            </tr>
+            
+        </tbody>
+    </table>
+    </body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+
+    <title>Crear celdas tabla HMTL con JavaScript</title>
+
+    <script type="text/javascript">
+     var total = new Array(48)
+
+     function Envia()
+     {
+     var cadena="";
+
+     cadena="consignaDia=" + document.consigna[0].value + "&consignaNoche=" + document.consigna[1].value;
+      document.location.href=document.location.origin+document.location.pathname+"?" + cadena;
+      //location.assign
+      }
+
+     function Inicializa()
+     {
+     document.consigna[0].value=22;
+     document.consigna[1].value=15;
+     }
+    </script>
+</head>
+<body onload="Inicializa()">
+    <form name='boton'> 
+          <input type="button" value="Envia" onClick="Envia()">
+    </form>
+    <table id="tabla" border="0">
+        <tbody>
+            <tr>
+              <form name="consigna">
+            <tr>              	
+                <td>Consignas:</td>
+            </tr>
+            <tr>            	                
+                <td>
+                    Dia:   <input name="Dia  :" type="text" size="4">
+                </td>
+            </tr>
+            <tr>            	                
+                <td>                	                    
+                    Noche: <input name="Noche:" type="text" size="4">
+                </td>
+            </tr>                
+               </form>
+            </tr>
+        </tbody>
+    </table>
+    </body>
+</html>

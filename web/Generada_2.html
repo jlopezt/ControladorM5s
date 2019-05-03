@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <title>Crear celdas tabla HMTL con JavaScript</title>
+
+    <script type="text/javascript">
+     var total     = new Array(48)
+     
+     function Agrupa()
+     {
+     var cadena="";
+     
+     for(i=0;i<48;i++)
+        {   
+        cadena = cadena + document.salida[i].value;
+        if(i<47) cadena = cadena + "|";
+        }
+      document.location.href=document.location.origin+document.location.pathname+"?cadena=" + cadena;
+      //location.assign
+      }
+
+     function Inicializa()
+     {
+     total={0,0,0,0,0,0,0,0,0,0,0,0,0,31,31,31,31,96,96,96,96,96,96,96,96,96,0,0,0,0,0,0,0,0,127,127,127,127,127,127,127,127,127,127,127,127,127,127};
+     for(i=0;i<48;i++) document.salida[i].value=total[i];
+     }
+    </script>
+</head>
+<body onload="Inicializa()">
+    <form name='boton'> 
+          <input type="button" value="Agrupa" onClick="Agrupa()">
+    </form>
+    <table id="tabla" border="0">
+        <tbody>
+            <tr>
+              <form name="salida">
+                <td>Salida</td>
+                <td>
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                    <input type="text" size="1">
+                </td>
+               </form>
+            </tr>
+        </tbody>
+    </table>
+    </body>
+</html>

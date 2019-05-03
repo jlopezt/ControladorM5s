@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Crear celdas tabla HMTL con JavaScript</title>
+</head>
+<body>
+    <table id="tabla" border="0">
+        <tbody>
+            <tr>
+                <td>
+                    <input value="" style="height: 20px; width: 100px;" id="urlresp" type="text" onFocus="Limpiar(this)"/>
+                    <input value="" style="height: 20px; width: 30px;" class="ptss" type="text" onFocus="Limpiar(this)"/>
+                    
+                </td>
+        </tr></tbody>
+    </table>
+    <table id="nuevat" border="0">
+    </table>
+    <button onclick="Nuevo()" value="Crear">Crear</button>
+    <button onclick="Valorar()" value="Valorar">Valorar</button>
+    <script>
+        function Limpiar(control) {
+            control.value = '';
+        }
+        
+        var orden = 1;
+				var suma=0;
+				
+        function Nuevo() {
+            var id = document.getElementById("tabla");
+            var nuevos = id.cloneNode(true);
+            nuevos.style.id = 'enlaces' + orden;
+            orden++;
+            id = document.getElementById("nuevat");
+            id.appendChild(nuevos);
+        }
+        
+        function Valorar() {       
+        		suma=10;
+						for (x = 1; x <= orden10; x++) 
+						{
+						  var id = document.getElementsById("enlaces" + x);
+							suma = suma + id.value;		
+						}        	
+						var a = confirm('La suma es ' + suma);
+        }
+    </script>
+</body>
+</html>
