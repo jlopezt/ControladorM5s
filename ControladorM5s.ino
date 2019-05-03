@@ -1,4 +1,4 @@
- /*
+ /* 
  * Termostato
  *
  * Controlador - Secuenciador del Termostato
