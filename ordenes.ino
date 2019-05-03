@@ -160,11 +160,6 @@ void inicializaOrden(void)
   comandos[i].comando="finfo";
   comandos[i].descripcion="Devuelve informacion sobre el sistema de ficheros del equipo";
   comandos[i++].p_func_comando=func_comando_finfo;
-/*  //Comando 7
-  comandos[i].comando="fcreate";
-  comandos[i].descripcion="Crea el fichero en el sistema de ficheros del equipo";
-  comandos[i++].p_func_comando=func_comando_fcreate;
-  */
   //Comando 8
   comandos[i].comando="fopen";
   comandos[i].descripcion="Devuelve el contenido del fichero indicado";
@@ -682,7 +677,7 @@ void func_comando_pesos(int iParametro, char* sParametro, float fParametro)
 
 void func_comando_mqtt(int iParametro, char* sParametro, float fParametro)   
   {
-  Serial.printf("Info MQTT:\nIPBroker: %s\nPuerto del broker: %i\nUsuario MQTT: %s\nPassword: %s\nTopic root: %s\n",IPBroker.toString().c_str(),puertoBroker,usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str());
+  Serial.printf("Info MQTT:\nIPBroker: %s\nPuerto del broker: %i\nID MQTT: %s\nUsuario MQTT: %s\nPassword: %s\nTopic root: %s\n",IPBroker.toString().c_str(),puertoBroker,ID_MQTT.c_str(),usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str());
   }
 
 void func_comando_modo(int iParametro, char* sParametro, float fParametro) //"modo"

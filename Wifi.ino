@@ -75,9 +75,8 @@ boolean recuperaDatosWiFi(boolean debug)
   //cargo el valores por defecto
   ////////No aplican en este caso
     
-  if(leeFichero(WIFI_CONFIG_FILE, cad)) parseaConfiguracionWifi(cad);
-
-  return true;
+  if(leeFichero(WIFI_CONFIG_FILE, cad)) return(parseaConfiguracionWifi(cad));
+  else return false;
   }
 
 /*********************************************/
@@ -217,11 +216,20 @@ boolean conectaMultibase(boolean debug)
     
   return TRUE; //se ha conectado y sale con OK
   }
+/**********************************************************************/
+/*            Devuelve la IP configurada en el dispositivo            */
+/**********************************************************************/ 
+String getIP(int debug) { return WiFi.localIP().toString();}
 
-String getIP(int debug)
-  {  
-  return WiFi.localIP().toString();
-  }
+/*********************************************************************/
+/*       Devuelve el nombre de la red a la que se ha conectado       */
+/*********************************************************************/ 
+String nombreSSID(void) {return WiFi.SSID();}  
+
+/*********************************************************************/
+/*             Watchdog de control para la conexion WiFi             */
+/*********************************************************************/ 
+void WifiWD(void) {if(WiFi.status() != WL_CONNECTED) ESP.restart();}
 
 /**********************************************************************/
 /* Salva la configuracion de las bases wifi conectada en formato json */
@@ -273,11 +281,4 @@ String generaJsonConfiguracionWifi(String configActual, String ssid, String pass
     }//la de parsear el json
 
   return salida;  
-  }
-
-String nombreSSID(void) {return WiFi.SSID();}  
-
-void WifiWD(void)
-  {
-  if(WiFi.status() != WL_CONNECTED) ESP.restart();
   }

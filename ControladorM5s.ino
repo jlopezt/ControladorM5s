@@ -9,7 +9,7 @@
  
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.4.1 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
+#define VERSION           "2.4.2 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -59,6 +59,7 @@
 #define FRECUENCIA_BOTONES            1 //cada cuantas vueltas de loop atiende los botones
 #define FRECUENCIA_SALVAR           600 //cada cuantas vueltas de loop salva la configuracion a los ficheros
 #define FRECUENCIA_MQTT              10 //cada cuantas vueltas de loop envia y lee del broket MQTT
+#define FRECUENCIA_ENVIA_DATOS      100 //cada cuantas vueltas de loop publica el estado en el broker MQTT
 #define FRECUENCIA_SATELITE_TIMEOUT  50 //cada cuantas vueltas de loop compruebo si ha habido time out en los satelites
 #define FRECUENCIA_WIFI_WATCHDOG    100 //cada cuantas vueltas comprueba si se ha perdido la conexion WiFi
 
@@ -69,7 +70,7 @@
 #define COLOR_FONDO TFT_NAVY
 #define COLOR_TITULO TFT_BLUE
 #define COLOR_LETRAS_TITULO TFT_WHITE
-#define TEXTO_TITULO "Termostatix 2.3"
+#define TEXTO_TITULO "Termostatix 2.4"
 #define COLOR_MENU TFT_LIGHTGREY
 #define COLOR_LETRAS_MENU TFT_WHITE
 
@@ -227,6 +228,7 @@ void  loop(void)
   if ((vuelta % FRECUENCIA_MQTT)==0) atiendeMQTT();    
   if ((vuelta % FRECUENCIA_SATELITE_TIMEOUT)==0) sateliteTimeOut(SATELITE_TIME_OUT); //verifica si algun saletile no comunica hace mucho
   //Prioridad 3: Interfaces externos de consulta
+  if ((vuelta % FRECUENCIA_ENVIA_DATOS)==0) enviaDatos(debugGlobal); //envia datos de estado al broker MQTT  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) webServer(debugGlobal); //atiende el servidor web  
   if ((vuelta % FRECUENCIA_ORDENES)==0) while(HayOrdenes(debugGlobal)) EjecutaOrdenes(debugGlobal); //Lee ordenes via serie
   if ((vuelta % FRECUENCIA_SALVAR)==0) salvaConfiguracion();

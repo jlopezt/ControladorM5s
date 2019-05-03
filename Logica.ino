@@ -551,43 +551,7 @@ String getModoManualTxt(void)
 String generaJson(void)
   {
   String cad="";
-  /***********************************************************************************
-  const size_t bufferSize = 2*JSON_ARRAY_SIZE(1) + 3*JSON_OBJECT_SIZE(2) + 5*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(6);
-  DynamicJsonBuffer jsonBuffer(bufferSize);
-  
-  JsonObject& root = jsonBuffer.createObject();
-  root["medida"] = getTemperaturaPromedio();
-  root["consigna"] = getConsigna();
-  root["estado"] = getModoManual();
-  root["tics"] = getDownCounter();
-  
-  JsonArray& jsonHhabitaciones = root.createNestedArray("habitaciones");
-  JsonObject& habitaciones_0 = jsonHhabitaciones.createNestedObject();
-  
-  for(int8_t id=0;id<MAX_SATELITES;id++) //para todas las habitaciones
-    {
-    if(sateliteRegistrado(id)) //Solo si esta registrada
-      {   
-      JsonObject& habitaciones_0_habitacion = habitaciones_0.createNestedObject(getNombre(id,debugGlobal));
-      habitaciones_0_habitacion["id"] = id;
-      habitaciones_0_habitacion["temperatura"] = getTemperatura(id,debugGlobal);
-      habitaciones_0_habitacion["humedad"] = getHumedad(id,debugGlobal);
-      habitaciones_0_habitacion["luz"] = getLuz(id,debugGlobal);
-      }
-    }
-  
-  JsonArray& jsonReles = root.createNestedArray("reles");
-  JsonObject& reles_0 = jsonReles.createNestedObject();
-  
-  for(int8_t i=0;i<MAX_RELES;i++) //para todos los reles
-    {
-    JsonObject& reles_0_rele = reles_0.createNestedObject(reles[i].nombre);
-    reles_0_rele["id"] = reles[i].id;
-    reles_0_rele["estado"] = reles[i].estado;    
-    }
-  
-  root.printTo(cad);//root.printTo(Serial);
-  **********************************************************************************************************/  
+
   /***********************************************************************************/
   const size_t bufferSize = JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(3) + 2*JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6);
   DynamicJsonBuffer jsonBuffer(bufferSize);
@@ -641,3 +605,14 @@ int seg2ticks(int seg) {return (seg*1000)/(ANCHO_INTERVALO*FRECUENCIA_LOGICA_CON
 /*                                                     */
 /*******************************************************/
 int ticks2seg(int tic) {return (tic*ANCHO_INTERVALO*FRECUENCIA_LOGICA_CONTROL)/1000;}
+
+/*******************************************************/
+/*                                                     */
+/* Genera el json con el estado delcontrolador,        */
+/* las habitaciones y las salidas                      */
+/*                                                     */
+/*******************************************************/
+String generaJsonEstado(void)
+  {
+  return generaJson();
+  } 
