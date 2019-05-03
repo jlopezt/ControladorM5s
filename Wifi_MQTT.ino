@@ -250,7 +250,6 @@ void atiendeMQTT(void)
   clienteMQTT.loop();
   }
 
-
 /********************************************/
 /*                                          */
 /* Funcion que envia datos de estado del    */
