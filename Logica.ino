@@ -45,6 +45,8 @@ int8_t diasSemana[7]={LUNES,MARTES,MIERCOLES,JUEVES,VIERNES,SABADO,DOMINGO};
 int8_t modoManual; //Puede valer OFF, ON o AUTO
 int8_t valoresModoManual[3]={MODO_OFF, MODO_ON, MODO_AUTO};
 String valoresModoManualTxt[3]={"Off \n","On  \n","Auto\n"};//Todos de longitud 4+1
+String topicOrdenes; //topic al que se va a enviar las ordenes de encendido y apagado de los reles, sera <topicRoot>/<topicOrdenes>
+String estadoReles="";
 
 /**********************************************************************************************************************************/
 /*                                                                                                                                */
@@ -132,7 +134,7 @@ void leeFicheroReles(void)
   String cad="";
   
   if(leeFichero(RELES_CONFIG_FILE, cad)) parseaConfiguracionreles(cad);
-  else Serial.println("Configuracion de relesa por defecto");
+  else Serial.println("Configuracion de reles por defecto");
   }
 
 /*********************************************/
@@ -302,7 +304,7 @@ void actualizaReles(void)
 
 /******************************************************/
 /*                                                    */
-/* Devuelve el estadoi logico del rele indicado       */ 
+/* Devuelve el estado logico del rele indicado        */ 
 /* No es el estado fisico en la placa de control      */
 /*                                                    */
 /******************************************************/
@@ -321,6 +323,17 @@ int getEstadoRele(int rele)
 int setEstadoRele(int rele, int estado)
   {
   if (rele<MAX_RELES) reles[rele].estado=estado;
+  }
+
+/******************************************************/
+/*                                                    */
+/* Establece el estado leido de los reles a traves    */ 
+/* de los mensajes de estaro MQTT                     */
+/*                                                    */
+/******************************************************/
+void setEstadoRelesLeido(String estado)
+  {
+  estadoReles=estado;
   }
 
 /******************************************************/
@@ -426,6 +439,7 @@ int8_t hayLuz(int8_t id)
 /******************************************************/
 String leeEstadoReles(void)//ESTA A MEDIAS
   {
+  /*  
   struct tipo_respuestaHTTP respuestaHTTP;  
 
   respuestaHTTP=ClienteHTTP("http://"+IPActuador.toString()+"/estado");  
@@ -439,6 +453,8 @@ String leeEstadoReles(void)//ESTA A MEDIAS
         }
     }
   return respuestaHTTP.payload;
+  */
+  return estadoReles;
   } 
 
 /******************************************************/
@@ -454,7 +470,7 @@ int controlaRele(int8_t id, int8_t estado)
   String topic;
   String payload;
 
-  topic="actuador";
+  topic=topicOrdenes;//"actuador";
   //{"id": "","estado": ""}
   if (estado) payload=String("{\"id\": \"")+ String(id) + String("\",\"estado\": \"on\"}");
   else payload=String("{\"id\": \"")+ String(id) + String("\",\"estado\": \"off\"}");

@@ -1,4 +1,4 @@
- /*
+/*
  * Termostato
  *
  * Controlador - Secuenciador del Termostato
@@ -291,46 +291,21 @@ boolean parseaConfiguracionGlobal(String contenido)
     {
     Serial.println("parsed json");
 //******************************Parte especifica del json a leer********************************    
-    if (json.containsKey("TimeOut")) TimeOut = (int)json["TimeOut"];             
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar TimeOut");
-    
-    if (json.containsKey("limiteSleep")) limiteSleep = (int)json["limiteSleep"];             
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar limiteSleep");
-    
-    if (json.containsKey("Brillo")) brilloPantalla = (int)json["Brillo"];             
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar Brillo");
-    
-    if (json.containsKey("IPControlador")) IPControlador.fromString((const char *)json["IPControlador"]);
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar IPControlador");
-   
-    if (json.containsKey("IPActuador"))IPActuador.fromString((const char *)json["IPActuador"]);          
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar IPActuador");
-
-    if (json.containsKey("IPGateway"))IPGateway.fromString((const char *)json["IPGateway"]);             
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar IPGateway"); 
-    
-    if (json.containsKey("IPPrimerTermometro"))
+    TimeOut = json.get<int>("TimeOut");
+    limiteSleep = json.get<int>("limiteSleep");
+    brilloPantalla = json.get<int>("Brillo");
+    IPControlador.fromString(json.get<String>("IPControlador"));
+    IPActuador.fromString(json.get<String>("IPActuador"));
+    IPGateway.fromString(json.get<String>("IPGateway"));
+    IPSatelites[0].fromString(json.get<String>("IPPrimerTermometro"));
+    for(int8_t id=1;id<MAX_SATELITES;id++)
       {
-      IPSatelites[0].fromString((const char *)json["IPPrimerTermometro"]);          
-    
-      for(int8_t id=1;id<MAX_SATELITES;id++)
-        {
-        IPSatelites[id]=IPSatelites[id-1];//copio la anterior
-        IPSatelites[id][3]++;//paso a la siguiente
-        }            
+      IPSatelites[id]=IPSatelites[id-1];//copio la anterior
+      IPSatelites[id][3]++;//paso a la siguiente
       }
-    else setError(ERROR_INTERNO_CONFIG, "Error al cargar IPPrimerTermometro");
 
-    if (getErrorNivel(ERROR_INTERNO_CONFIG))
-      {
-      Serial.printf("Errores en la configuracion:%s\n",getErroresNivel(ERROR_INTERNO_CONFIG).c_str());
-      return false;//si ahy errores retorno false
-      }
-    else //si no lo hay pinto la traza y retorno true
-      {
       Serial.printf("Configuracion leida:\nTimeOut: %i\nsleep: %i\nBrillo: %i\nIP controlador: %s\nIP actuador: %s\nIP primer satelite: %s\nIP Gateway: %s\n",TimeOut,limiteSleep,brilloPantalla,IPControlador.toString().c_str(),IPActuador.toString().c_str(),IPSatelites[0].toString().c_str(),IPGateway.toString().c_str());
-      return true;
-      }
+      return true;     
 //************************************************************************************************
     }
   return false;
