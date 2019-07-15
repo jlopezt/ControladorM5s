@@ -6,8 +6,8 @@
 	"usuarioMQTT": "usuario",
 	"passwordMQTT": "password",
 	"topicRoot": "casaPre",
-	"topicOrdenes": "actuador",
-	"topicMedidas": "/%2b/medidas",
+	"topicOrdenes": "actuadorPre",
+	"topicMedidas": "/+/medidas",
 	"topicReles":"actuadorPre/estado",	
 	"publicarEstado": 1
 }

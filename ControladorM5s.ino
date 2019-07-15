@@ -9,7 +9,7 @@
  
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.4.2 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
+#define VERSION           "2.5.0 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -20,10 +20,11 @@
 //Organizacion de pines de E/S
 #define RELES_PIN          8 //Pîn del primer rele, los demas consecutivos
 #define MAX_SATELITES     16 //numero maximo de satelites de 0 a 15 controlado por los DIP Switch
-#define MAX_RELES         2 //numero maximo de reles soportado
+#define MAX_RELES          2 //numero maximo de reles soportado
 
 
 //Nombres de ficheros
+#define FICHERO_CANDADO        "/Candado"
 #define GLOBAL_CONFIG_FILE     "/Config.json"
 #define GLOBAL_CONFIG_BAK_FILE "/Config.json.bak"
 #define WIFI_CONFIG_FILE       "/WiFiConfig.json"
@@ -63,10 +64,12 @@
 #define FRECUENCIA_SATELITE_TIMEOUT  50 //cada cuantas vueltas de loop compruebo si ha habido time out en los satelites
 #define FRECUENCIA_WIFI_WATCHDOG    100 //cada cuantas vueltas comprueba si se ha perdido la conexion WiFi
 
-#define INC_CONSIGNA              0.5 //Salto de la consigna cuando se ajusta con los botones
+//configuracion del watchdog del sistema
+#define TIMER_WATCHDOG        0 //Utilizo el timer 0 para el watchdog
+#define PREESCALADO_WATCHDOG 80 //el relog es de 80Mhz, lo preesalo entre 80 para pasarlo a 1Mhz
+#define TIEMPO_WATCHDOG      4*ANCHO_INTERVALO //Si en N ANCHO_INTERVALO no se atiende el watchdog, saltara
 
-#define VETE_A_DORMIR           10000 //Se va a reposo a los 10 segundos
-
+//Para la pantalla
 #define COLOR_FONDO TFT_NAVY
 #define COLOR_TITULO TFT_BLUE
 #define COLOR_LETRAS_TITULO TFT_WHITE
@@ -79,6 +82,10 @@
 #define REPOSO      2
 #define INFO        3
 #define MANUAL      4
+
+#define INC_CONSIGNA              0.5 //Salto de la consigna cuando se ajusta con los botones
+
+#define VETE_A_DORMIR           10000 //Se va a reposo a los 10 segundos
 
 #define FICHERO_CONSIGNAS_MODIFICADO 1
 
@@ -103,26 +110,24 @@ int getValorPrincipal(void);//Prototipo, declarada en Pantalla
 boolean enviarMQTT(String topic, String payload) ;
 
 //************ Valores configurables *************//
-//IPs de los diferentes dispositivos 
-IPAddress IPControlador;
-IPAddress IPActuador;
-IPAddress IPSatelites[MAX_SATELITES];
-IPAddress IPGateway;
-//TimeOut HTTP
 time_t TimeOut=DEFAULT_TIME_OUT;
 //Valores de la pantalla
 int brilloPantalla=DEFAULT_BRILLO_PANTALLA;
 //************ Fin valores configurables *************//
 
 /*-----------------Variables comunes---------------*/
-String nombre_dispoisitivo(NOMBRE_FAMILIA);//Nombre del dispositivo, por defecto el de la familia
+String nombre_dispositivo(NOMBRE_FAMILIA);//Nombre del dispositivo, por defecto el de la familia
 time_t SleepBucle=0;
-time_t limiteSleep=VETE_A_DORMIR;
+time_t limiteSleep=0;
 
 unsigned int vuelta = 32700;//0; //vueltas de loop del core 0
 
-int debugGlobal=0; //por defecto desabilitado
+hw_timer_t *timer = NULL;//Puntero al timer del watchdog
+
+int8_t debugGlobal=1; //por defecto desabilitado
 int8_t ficherosModificados=0;//Inicialmente no hay ficheros modificados
+boolean candado=false; //Candado de configuracion. true implica que la ultima configuracion fue mal
+/*-----------------Variables comunes---------------*/
 
 void setup()
   {
@@ -142,6 +147,25 @@ void setup()
   Serial.println("*                                                             *");    
   Serial.println("***************************************************************");
 
+  Serial.printf("\n\nInit Ficheros ---------------------------------------------------------------------\n");
+  //Ficheros - Lo primero para poder leer los demas ficheros de configuracion
+  inicializaFicheros(debugGlobal);
+
+  //Compruebo si existe candado, si existe la ultima configuracion fue mal
+  if(existeFichero(FICHERO_CANDADO)) 
+    {
+    Serial.printf("Candado puesto. Configuracion por defecto");
+    candado=true; 
+    debugGlobal=1;
+    }
+  else
+    {
+    candado=false;
+    //Genera candado
+    if(salvaFichero(FICHERO_CANDADO,"","JSD")) Serial.println("Candado creado");
+    else Serial.println("ERROR - No se pudo crear el candado");
+    }
+ 
   //Configuracion general
   Serial.printf("\n\nInit Config -----------------------------------------------------------------------\n");
   inicializaConfiguracion(debugGlobal);
@@ -190,12 +214,19 @@ void setup()
   Serial.printf("\n\nInit Ordenes ----------------------------------------------------------------------\n");  
   inicializaOrden();//Inicializa los buffers de recepcion de ordenes desde PC
 
+  //Si ha llegado hasta aqui, todo ha ido bien y borro el candado
+  if(borraFichero(FICHERO_CANDADO))Serial.println("Candado borrado");
+  else Serial.println("ERROR - No se pudo borrar el candado");
+  
   Serial.println("");
   Serial.println("***************************************************************");
   Serial.println("*                                                             *");
   Serial.println("*            Fin init del modulo Controlador                  *");
   Serial.println("*                                                             *");    
   Serial.println("***************************************************************");
+
+  //activo el watchdog
+  //configuraWatchdog();
   }  
 
 void  loop(void)
@@ -204,37 +235,53 @@ void  loop(void)
   time_t EntradaBucle=0;
   EntradaBucle=millis();//Hora de entrada en la rodaja de tiempo
 
+  //reinicio el watchdog del sistema
+  //timerWrite(timer, 0);
+  
   //Logica para ir a sleep
   if(EntradaBucle-SleepBucle>limiteSleep && getValorPrincipal()!=REPOSO) 
     {
     setValorPrincipal(REPOSO);
     SleepBucle=EntradaBucle;
     }
-  //else Serial.printf("Entrada %i, Sleep %i, Umbral %i\n",EntradaBucle,SleepBucle,limiteSleep);
 
   M5.update();
 
+int paso=0;
+//Serial.printf("paso: %i\n",paso++);
   //------------- EJECUCION DE TAREAS --------------------------------------  
   //Acciones a realizar en el bucle   
   //Prioridad 0: OTA es prioritario.
   if ((vuelta % FRECUENCIA_OTA)==0) ArduinoOTA.handle(); //Gestion de actualizacion OTA
+//Serial.printf("paso: %i\n",paso++);
   //Prioridad 1: Funciones de pantalla.
   if ((vuelta % FRECUENCIA_PANTALLA)==0) pintaPantalla(); //Pinta los datos en la pantalla
-  if ((vuelta % FRECUENCIA_HORA)==0) pintaFechaHora(); //Actualiza la fecha y la hora en la pantalla principal
+//Serial.printf("paso: %i\n",paso++);  
+  if ((vuelta % FRECUENCIA_HORA)==0) pintaFechaHora(); //Actualiza la fecha y la hora en la pantalla principal 
+//Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_BOTONES)==0) atiendeBotones();
+//Serial.printf("paso: %i\n",paso++);  
   //Prioridad 2: Funciones de control.
-  if ((vuelta % FRECUENCIA_LOGICA_CONTROL)==0) logicaControl(); //actua sobre los motores 
+  if ((vuelta % FRECUENCIA_LOGICA_CONTROL)==0) logicaControl(); //actua sobre los motores  
+//Serial.printf("paso: %i\n",paso++);  
   //if ((vuelta % FRECUENCIA_LOGICA_CONTROL)==0) actualizaReles(); //actua sobre los motores   
   if ((vuelta % FRECUENCIA_MQTT)==0) atiendeMQTT();    
+//Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SATELITE_TIMEOUT)==0) sateliteTimeOut(SATELITE_TIME_OUT); //verifica si algun saletile no comunica hace mucho
+//Serial.printf("enviaDatos paso: %i\n",paso++);  
   //Prioridad 3: Interfaces externos de consulta
   if ((vuelta % FRECUENCIA_ENVIA_DATOS)==0) enviaDatos(debugGlobal); //envia datos de estado al broker MQTT  
+//Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) webServer(debugGlobal); //atiende el servidor web  
+//Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_ORDENES)==0) while(HayOrdenes(debugGlobal)) EjecutaOrdenes(debugGlobal); //Lee ordenes via serie
+//Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SALVAR)==0) salvaConfiguracion();
+//Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_WIFI_WATCHDOG)==0) WifiWD();  
+//Serial.printf("paso: %i\n",paso++);  
   //------------- FIN EJECUCION DE TAREAS ---------------------------------  
-  
+//Serial.println("Fin");
   //sumo una vuelta de loop, si desborda inicializo vueltas a cero
   vuelta++;//sumo una vuelta de loop
   if (vuelta>=MAX_VUELTAS) vuelta=0;
@@ -257,7 +304,6 @@ boolean inicializaConfiguracion(boolean debug)
   String cad="";
 
   Serial.println("Inicializando pantalla M5Stack");  
-  //M5.Lcd.drawBitmap(0, 0, 320, 240, (uint16_t *)gImage_logoM5);
   M5.Lcd.drawJpgFile(SD, "/termostatix.jpg");
   Serial.println("Logo pintado");
     
@@ -266,16 +312,23 @@ boolean inicializaConfiguracion(boolean debug)
   //cargo el valores por defecto
   TimeOut=DEFAULT_TIME_OUT;
   brilloPantalla=DEFAULT_BRILLO_PANTALLA;
-  IPControlador.fromString("0.0.0.0");
-  IPActuador.fromString("0.0.0.0");
-  IPGateway.fromString("0.0.0.0");
-  for(int8_t id=0;id<MAX_SATELITES;id++) IPSatelites[id].fromString("0.0.0.0");  
-    
-  if(leeFichero(GLOBAL_CONFIG_FILE, cad))
+  limiteSleep=VETE_A_DORMIR;
+
+  if(!leeFicheroConfig(GLOBAL_CONFIG_FILE, cad))
+    {
+    Serial.printf("No existe fichero de configuracion global\n");
+    cad="{\"TimeOut\": 5000, \"limiteSleep\":20000, \"Brillo\": 10}";//config por defecto
+    //salvo la config por defecto
+    if(salvaFicheroConfig(GLOBAL_CONFIG_FILE, GLOBAL_CONFIG_BAK_FILE, cad)) Serial.printf("Fichero de configuracion global creado por defecto\n"); 
+    }
+
+  return parseaConfiguracionGlobal(cad);
+
+/*if(leeFichero(GLOBAL_CONFIG_FILE, cad))
     {
     if (!parseaConfiguracionGlobal(cad)) Serial.println("¡¡¡Error al cargar la configuracion general!!!");    
     }
-  return true;
+  return true;*/
   }
 
 /*********************************************/
@@ -294,51 +347,15 @@ boolean parseaConfiguracionGlobal(String contenido)
     TimeOut = json.get<int>("TimeOut");
     limiteSleep = json.get<int>("limiteSleep");
     brilloPantalla = json.get<int>("Brillo");
-    IPControlador.fromString(json.get<String>("IPControlador"));
-    IPActuador.fromString(json.get<String>("IPActuador"));
-    IPGateway.fromString(json.get<String>("IPGateway"));
-    IPSatelites[0].fromString(json.get<String>("IPPrimerTermometro"));
-    for(int8_t id=1;id<MAX_SATELITES;id++)
-      {
-      IPSatelites[id]=IPSatelites[id-1];//copio la anterior
-      IPSatelites[id][3]++;//paso a la siguiente
-      }
-
-      Serial.printf("Configuracion leida:\nTimeOut: %i\nsleep: %i\nBrillo: %i\nIP controlador: %s\nIP actuador: %s\nIP primer satelite: %s\nIP Gateway: %s\n",TimeOut,limiteSleep,brilloPantalla,IPControlador.toString().c_str(),IPActuador.toString().c_str(),IPSatelites[0].toString().c_str(),IPGateway.toString().c_str());
-      return true;     
+    
+    Serial.printf("Configuracion leida:\nTimeOut: %i\nsleep: %i\nBrillo: %i\n",TimeOut,limiteSleep,brilloPantalla);
+    return true;     
 //************************************************************************************************
     }
   return false;
   }
 
 ///////////////FUNCIONES COMUNES/////////////////////
-/********************************************/
-/*  Genera una cadena con todas las IPs     */
-/********************************************/
-String leerIPs(void)
-  {
-  String cad="";
-
-  cad =  IPControlador.toString();
-  cad += "\n";
-  cad += IPActuador.toString();
-  cad += "\n";
-  
-  for(int8_t i=0;i<MAX_SATELITES;i++)
-    {
-    cad += "IP " + String(i) + ": ";
-    cad += IPSatelites[i][0];
-    cad += ".";
-    cad += IPSatelites[i][1];
-    cad += ".";
-    cad += IPSatelites[i][2];
-    cad += ".";
-    cad += IPSatelites[i][3];
-    cad += "\n";
-    }
-  return cad;
-  }
-
 /*************************************************/
 /*  Dado un long, lo paso a binario y cambio los */
 /*  bits pares. Devuelve el nuevo valor          */ 
@@ -387,4 +404,36 @@ void salvaConfiguracion(void)
   ficherosModificados =0;
   }
 
+/***************************************************************/
+/*                                                             */
+/*  Devuelve el tiempo en millis que lleva el sistema activo   */
+/*                                                             */
+/***************************************************************/
 time_t uptime(void) {return millis();}  
+
+/***************************************************************/
+/*                                                             */
+/*  Funcion de interrupcion del watchdog                       */
+/*                                                             */
+/***************************************************************
+//funcion de interrupcion que reseteara el ESP si no se atiende el watchdog
+void IRAM_ATTR resetModule() {
+  Serial.printf("Watchdog!!!");
+  //ets_printf("reboot\n");
+  //esp_restart();
+}
+*/
+/***************************************************************/
+/*                                                             */
+/*  Configuracion del watchdog del sistema                     */
+/*                                                             */
+/***************************************************************
+void configuraWatchdog(void)
+{
+  timer = timerBegin(TIMER_WATCHDOG, PREESCALADO_WATCHDOG, true); //timer 0, div 80 para que cuente microsegundos y hacia arriba
+  timerAttachInterrupt(timer, &resetModule, true);                //asigno la funcion de interrupcion al contador
+  timerAlarmWrite(timer, TIEMPO_WATCHDOG, false);                 //configuro el limite del contador para generar interrupcion
+  timerWrite(timer, 0);                                           //lo pongo a cero
+  timerAlarmEnable(timer);                                        //habilito el contador 
+}
+*/

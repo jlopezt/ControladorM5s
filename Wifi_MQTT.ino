@@ -22,7 +22,7 @@
 #define WILL_TOPIC  "will"
 #define WILL_QOS    1
 #define WILL_RETAIN false
-#define WILL_MSG    String("¡"+ID_MQTT+" caido!").c_str()
+#define WILL_MSG    "¡" + ID_MQTT + " caido!" //String("¡" + ID_MQTT + " caido!")
 
 //Definicion de variables globales
 IPAddress IPBroker; //IP del bus MQTT
@@ -33,7 +33,7 @@ String passwordMQTT; //password parala conexion al broker
 String topicRoot; //raiz del topic a publicar. Util para separar mensajes de produccion y prepropduccion
 String ID_MQTT; //ID del modulo en su conexion al broker
 String topicMedidas; //topic al que se va a suscribir para recibir las medidas, sera <topicRoot>/<topicMedidas>
-String topicReles; //topic al que se va a suscribir para recibir el estado de losreles, sera <topicRoot>/<topic_Reles>
+String topicReles; //topic al que se va a suscribir para recibir el estado de los reles, sera <topicRoot>/<topic_Reles>
 //String topicOrdenes; //topic al que se va a enviar las ordenes de encendido y apagado de los reles, sera <topicRoot>/<topicOrdenes>
 int8_t publicarEstado; //Flag para determinar si se envia el json con los valores de las salidas
 
@@ -80,18 +80,15 @@ boolean recuperaDatosMQTT(boolean debug)
   topicReles="";
   publicarEstado=1;//por defecto publico
 
-  if(leeFichero(MQTT_CONFIG_FILE, cad))
-    if(parseaConfiguracionMQTT(cad)) 
-      return true;
+  if(!leeFicheroConfig(MQTT_CONFIG_FILE, cad)) 
+    {
+    //Confgiguracion por defecto
+    Serial.printf("No existe fichero de configuracion MQTT\n");
+    cad="{\"IPBroker\": \"0.0.0.0\", \"puerto\": 1883, \"timeReconnectMQTT\": 500, \"ID_MQTT\": \"controlador\", \"usuarioMQTT\": \"usuario\", \"passwordMQTT\": \"password\", \"topicRoot\": \"casa\", \"topicMedidas\": \"/+/medidas\", \"topicOrdenes\": \"actuador\", \"topicReles\": \"actuador\estado\", \"publicarEstado\": 1}";
+    if(salvaFicheroConfig(MQTT_CONFIG_FILE, MQTT_CONFIG_BAK_FILE, cad)) Serial.printf("Fichero de configuracion MQTT creado por defecto\n");    
+    }
 
-  //Algo salio mal, confgiguracion por defecto
-  Serial.printf("No existe fichero de configuracion MQTT o esta corrupto\n");
-  cad="{\"IPBroker\": \"10.68.1.100\", \"puerto\": 1883, \"timeReconnectMQTT\": 500, \"ID_MQTT\": \"controlador\", \"usuarioMQTT\": \"usuario\", \"passwordMQTT\": \"password\", \"topicRoot\": \"casa\", \"topicMedidas\": \"/+/medidas\", \"topicOrdenes\": \"actuador\", \"topicReles\": \"actuador\estado\", \"publicarEstado\": 1}";
-  salvaFichero(MQTT_CONFIG_FILE, MQTT_CONFIG_BAK_FILE, cad);
-  Serial.printf("Fichero de configuracion MQTT creado por defecto\n");
-  parseaConfiguracionMQTT(cad);
-      
-  return false;      
+  return parseaConfiguracionMQTT(cad);
   }  
 
 /*********************************************/
@@ -256,6 +253,7 @@ boolean conectaMQTT(void)
   {
   int8_t intentos=0;
   String topic;
+  if(debugGlobal) Serial.println("Inicio conectaMQTT.");
   
   while (!clienteMQTT.connected()) 
     {    
@@ -263,7 +261,8 @@ boolean conectaMQTT(void)
   
     // Attempt to connect
     //boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession);    
-    if (clienteMQTT.connect(ID_MQTT.c_str(), usuarioMQTT.c_str(), passwordMQTT.c_str(), (topicRoot+"/"+String(WILL_TOPIC)).c_str(), WILL_QOS, WILL_RETAIN, String(WILL_MSG).c_str(), CLEAN_SESSION))    
+    Serial.printf("Conectando con:\nid=%s\nuser=%s\npassword=%s\nwill topic=%s\nwillQoS=%i\nwillRetain=%i\nwillMessage=%s\ncleanSession=%i\n",ID_MQTT.c_str(), usuarioMQTT.c_str(), passwordMQTT.c_str(), (topicRoot+"/"+String(WILL_TOPIC)).c_str(), WILL_QOS, WILL_RETAIN, String(WILL_MSG).c_str(), CLEAN_SESSION);    
+    if (clienteMQTT.connect(ID_MQTT.c_str(), usuarioMQTT.c_str(), passwordMQTT.c_str(), (topicRoot+"/"+String(WILL_TOPIC)).c_str(), WILL_QOS, WILL_RETAIN, String(WILL_MSG).c_str(), CLEAN_SESSION))
       {
       if(debugGlobal) Serial.println("conectado");
 
@@ -281,8 +280,13 @@ boolean conectaMQTT(void)
       return(true);
       }
 
-    if(debugGlobal) Serial.printf("Error al conectar al broker. Estado: %s\n",stateTexto().c_str());
-    if(intentos++>3) return (false);
+    Serial.printf("Error al conectar al broker(%i). Estado: %s\n",intentos,stateTexto().c_str());
+    if(intentos++>=3) 
+      {
+      clienteMQTT.disconnect();
+      return (false);
+      }
+      
     delay(timeReconnectMQTT);      
     } 
   }
@@ -295,7 +299,12 @@ boolean conectaMQTT(void)
 boolean enviarMQTT(String topic, String payload)
   {
   //si no esta conectado, conecto
-  if (!clienteMQTT.connected()) conectaMQTT();
+  if(debugGlobal) Serial.println("Verifico si esta conectado");
+  if (!clienteMQTT.connected()) 
+  {
+    if(debugGlobal) Serial.println("No esta conectado");
+    conectaMQTT();
+  }
 
   //si y esta conectado envio, sino salgo con error
   if (clienteMQTT.connected()) 
@@ -337,6 +346,8 @@ void enviaDatos(boolean debug)
   if(publicarEstado==1)
     {
     payload=generaJsonEstado();//genero el json de estado
+    
+    if(debug)Serial.println("Inicio envio de json al broker.");
     
     //Lo envio al bus    
     if(enviarMQTT(topic, payload)) if(debug)Serial.println("Enviado json al broker con exito.");

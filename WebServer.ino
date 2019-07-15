@@ -1,24 +1,24 @@
 /************************************************************************************************
-Servicio                                  URL                                       Formato entrada         Formato salida                                              Comentario                                                                                    Ejemplo peticion                                                         Ejemplo respuesta
-Configuracion de la tabla de consignas    http://IPControlador/configTabla          cadena=<cadena>         HTML                                                        Pinta la tabla de consignas. Si la recibe la carga                                            http://IPControlador/configTabla?0|0|0...|127|127                        N/A
-Configuracion de las consignas de Tª      http://IPControlador/consignaTemperatura  cadena=<cadena>         HTML                                                        Pinta el formulario para introducir las consignas                                             http://IPControlador/consignaTemperatura?consignaDia=22&consignaNoche=15 N/A
-Numero de habitaciones                    http://IPControlador/numeroHabitaciones   N/A                     <numHabitaciones> entero 0..255                             Devuelve el numero de habitaciones con satelite registrado                                    http://IPControlador/numeroHabitaciones                                  4
-Lista de las habitaciones                 http://IPControlador/listaHabitaciones    N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_SATELITES  Devuelve la lista de los ids y nombres de las habitaciones que se han registrado su satelite  http://IPControlador/listaHabitaciones                                   1#Salon|2#despacho|3#DormitorioPpal
-Valores de las medida en las habitaciones http://IPControlador/valoresHabitaciones  id=<id>                 Temperatura|Humedad|Luz                                     Devuelve los valores de una habitacion                                                        http://IPControlador/valoresHabitaciones?id=4                            23.5|72|88
-Estado de los reles                       http://IPControlador/estadoReles          id=<id>                 <estadoRele> 1/0                                            Devuelve el estado del rele indicado                                                          http://IPControlador/estadoReles?id=1                                    1
-Lista de los reles                        http://IPControlador/listaReles           N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_RELES      Devuelve la lista de los ids y nombres de los reles declarados en el controlador              http://IPControlador/listaReles?id=1                                     1#Caldera|2#Riego
-Configuracion de habitaciones             http://IPControlador/configHabitaciones   id=<id>&nombre=<nombre> id|nombre                                                   Devuelve lo mismo pero de los valortes generados                                              http://IPControlador/registroHabitacion?id=1&nombre=Salon                1|Salon
-Errores de comunicacion                   http://IPControlador/erroresComunicacion  N/A                     id|errores                                                  Devuelve el numero de errores de comunicacion de cada satelite                                http://IPControlador/erroresComunicacion                                 1#2|3#0
-Configuracion tabala de temperatura       http://IPControlador/configTabla          cadena=<cadena>         {web configuracion}                                          Configura la tabla de temperaturas dia/noche y genera la pagina de configuracion          
-Configura las consignas dia/noche         http://IPControlador/consignaTemperatura  consignaDia/consignaNoche=<valor> {web configuracion}                               Configura la consigna de dida o de noche y genera la pagina de configuracion                  
-Recarga del mapa de temperaturas          http://IPControlador/recargaMapa
+Servicio                                  URL                            Formato entrada         Formato salida                                              Comentario                                                                                    Ejemplo peticion                                              Ejemplo respuesta
+Configuracion de la tabla de consignas    http://IP/configTabla          cadena=<cadena>         HTML                                                        Pinta la tabla de consignas. Si la recibe la carga                                            http://IP/configTabla?0|0|0...|127|127                        N/A
+Configuracion de las consignas de Tª      http://IP/consignaTemperatura  cadena=<cadena>         HTML                                                        Pinta el formulario para introducir las consignas                                             http://IP/consignaTemperatura?consignaDia=22&consignaNoche=15 N/A
+Numero de habitaciones                    http://IP/numeroHabitaciones   N/A                     <numHabitaciones> entero 0..255                             Devuelve el numero de habitaciones con satelite registrado                                    http://IP/numeroHabitaciones                                  4
+Lista de las habitaciones                 http://IP/listaHabitaciones    N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_SATELITES  Devuelve la lista de los ids y nombres de las habitaciones que se han registrado su satelite  http://IP/listaHabitaciones                                   1#Salon|2#despacho|3#DormitorioPpal
+Valores de las medida en las habitaciones http://IP/valoresHabitaciones  id=<id>                 Temperatura|Humedad|Luz                                     Devuelve los valores de una habitacion                                                        http://IP/valoresHabitaciones?id=4                            23.5|72|88
+Estado de los reles                       http://IP/estadoReles          id=<id>                 <estadoRele> 1/0                                            Devuelve el estado del rele indicado                                                          http://IP/estadoReles?id=1                                    1
+Lista de los reles                        http://IP/listaReles           N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_RELES      Devuelve la lista de los ids y nombres de los reles declarados en el controlador              http://IP/listaReles?id=1                                     1#Caldera|2#Riego
+Configuracion de habitaciones             http://IP/configHabitaciones   id=<id>&nombre=<nombre> id|nombre                                                   Devuelve lo mismo pero de los valortes generados                                              http://IP/registroHabitacion?id=1&nombre=Salon                1|Salon
+Errores de comunicacion                   http://IP/erroresComunicacion  N/A                     id|errores                                                  Devuelve el numero de errores de comunicacion de cada satelite                                http://IP/erroresComunicacion                                 1#2|3#0
+Configuracion tabala de temperatura       http://IP/configTabla          cadena=<cadena>         {web configuracion}                                          Configura la tabla de temperaturas dia/noche y genera la pagina de configuracion          
+Configura las consignas dia/noche         http://IP/consignaTemperatura  consignaDia/consignaNoche=<valor> {web configuracion}                               Configura la consigna de dida o de noche y genera la pagina de configuracion                  
+Recarga del mapa de temperaturas          http://IP/recargaMapa
 
-Reinicia el controlador                   http://IPControlador/restart
-Informacion del Hw del sistema            http://IPControlador/info
-Crea el fichero indicado                  http://IPControlador/creaFichero
-Borra el fichero indicado                 http://IPControlador/borraFichero
-Lee el fichero indicado                   http://IPControlador/leeFichero
-Informacion del sistema de ficheros       http://IPControlador/infoFS
+Reinicia el controlador                   http://IP/restart
+Informacion del Hw del sistema            http://IP/info
+Crea el fichero indicado                  http://IP/creaFichero
+Borra el fichero indicado                 http://IP/borraFichero
+Lee el fichero indicado                   http://IP/leeFichero
+Informacion del sistema de ficheros       http://IP/infoFS
 ************************************************************************************************/
 #define PUERTO_WEBSERVER  80
 #define IDENTIFICACION "<BR><BR><BR><BR><BR>Modulo controlador. Version " + String(VERSION) + ".";
@@ -29,8 +29,9 @@ WebServer server(PUERTO_WEBSERVER); //ESP8266WebServer server(PUERTO_WEBSERVER);
 
 String cabeceraHTML = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Termostato domestico</TITLE></HEAD><BODY><H1>Pagina de inicio</H1>\n";
 //String menuHTML = "<TABLE>\n<TR><TD>Opciones:</TD></TR>\n <TR><TD><a href=\"recargaMapa\" target=\"_blank\">Recarga del mapa de temperaturas</a></TD></TR>\n<TR><TD><a href=\"recargaFicheroNombres\" target=\"_blank\">Recarga del fichero de nombres de satelite</a></TD></TR>\n<TR><TD><a href=\"configTabla\" target=\"_blank\">Configuracion de la tabla de consignas</a></TD></TR>\n<TR><TD><a href=\"consignaTemperatura\" target=\"_blank\">Consigna de temperatura</a> </TD></TR> \n<TR><TD><a href=\"numeroHabitaciones\" target=\"_blank\">Numero de habitaciones</a> </TD></TR>\n<TR><TD><a href=\"listaHabitaciones\" target=\"_blank\">Lista de las habitaciones</a></TD></TR>\n<TR><TD><a href=\"valoresHabitaciones\" target=\"_blank\">Valores de las medida en las habitaciones</a></TD></TR>\n<TR><TD><a href=\"estadoReles\" target=\"_blank\">Estado de los reles</a></TD></TR>\n<TR><TD><a href=\"listaReles\" target=\"_blank\">Lista de los reles</a></TD></TR>\n<TR><TD><a href=\"configHabitaciones\" target=\"_blank\">Configuracion de habitaciones</a></TD></TR>\n<TR><TD><a href=\"modo\" target=\"_blank\">Modo?</a></TD><TD> | </TD><TD><a href=\"modo?modo=0 \" target=\"_blank\">Modo off</a></TD><TD> | </TD><TD><a href=\"modo?modo=1 \" target=\"_blank\">Modo on</a></TD><TD> | </TD><TD><a href=\"modo?modo=2 \" target=\"_blank\">Modo auto</a></TD></TR>\n</TABLE>\n";  
-String menuHTML = "<TABLE>\n<TR><TD>Opciones:</TD></TR>\n <TR><TD><a href=\"configTabla\" target=\"_blank\">Configuracion de la tabla de consignas</a></TD></TR>\n<TR><TD><a href=\"recargaMapa\" target=\"_blank\">Recarga del mapa de temperaturas</a></TD></TR>\n<TR><TD><a href=\"consignaTemperatura\" target=\"_blank\">Consigna de temperatura</a> </TD></TR> \n<TR><TD><a href=\"numeroHabitaciones\" target=\"_blank\">Numero de habitaciones</a> </TD></TR>\n<TR><TD><a href=\"listaHabitaciones\" target=\"_blank\">Lista de las habitaciones</a></TD></TR>\n<TR><TD><a href=\"valoresHabitaciones\" target=\"_blank\">Valores de las medida en las habitaciones</a></TD></TR>\n<TR><TD><a href=\"recargaFicheroNombres\" target=\"_blank\">Recarga del fichero de nombres de satelite</a></TD></TR>\n<TR><TD><a href=\"estadoReles\" target=\"_blank\">Estado de los reles</a></TD></TR>\n<TR><TD><a href=\"listaReles\" target=\"_blank\">Lista de los reles</a></TD></TR>\n<TR><TD><a href=\"configHabitaciones\" target=\"_blank\">Configuracion de habitaciones</a></TD></TR>\n<TR><TD><a href=\"modo\" target=\"_blank\">Modo?</a></TD><TD> | </TD><TD><a href=\"modo?modo=0 \" target=\"_blank\">Modo off</a></TD><TD> | </TD><TD><a href=\"modo?modo=1 \" target=\"_blank\">Modo on</a></TD><TD> | </TD><TD><a href=\"modo?modo=2 \" target=\"_blank\">Modo auto</a></TD></TR>\n</TABLE>\n";  
+String menuHTML = "<TABLE>\n<CAPTION>Opciones:</CAPTION>\n <TR><TD><a href=\"configTabla\" target=\"_blank\">Configuracion de la tabla de consignas</a></TD></TR>\n<TR><TD><a href=\"recargaMapa\" target=\"_blank\">Recarga del mapa de temperaturas</a></TD></TR>\n<TR><TD><a href=\"consignaTemperatura\" target=\"_blank\">Consigna de temperatura</a> </TD></TR> \n<TR><TD><a href=\"numeroHabitaciones\" target=\"_blank\">Numero de habitaciones</a> </TD></TR>\n<TR><TD><a href=\"listaHabitaciones\" target=\"_blank\">Lista de las habitaciones</a></TD></TR>\n<TR><TD><a href=\"valoresHabitaciones\" target=\"_blank\">Valores de las medida en las habitaciones</a></TD></TR>\n<TR><TD><a href=\"recargaFicheroNombres\" target=\"_blank\">Recarga del fichero de nombres de satelite</a></TD></TR>\n<TR><TD><a href=\"estadoReles\" target=\"_blank\">Estado de los reles</a></TD></TR>\n<TR><TD><a href=\"listaReles\" target=\"_blank\">Lista de los reles</a></TD></TR>\n<TR><TD><a href=\"configHabitaciones\" target=\"_blank\">Configuracion de habitaciones</a></TD></TR>\n<TR><TD><a href=\"modo\" target=\"_blank\">Modo?</a></TD><TD> | </TD><TD><a href=\"modo?modo=0 \" target=\"_blank\">Modo off</a></TD><TD> | </TD><TD><a href=\"modo?modo=1 \" target=\"_blank\">Modo on</a></TD><TD> | </TD><TD><a href=\"modo?modo=2 \" target=\"_blank\">Modo auto</a></TD></TR>\n</TABLE>\n";  
 String pieHTML = "</BODY>\n</HTML>";
+String enlaces="<TABLE>\n<CAPTION>Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_blank\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_blank\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_blank\">Restart</a></TD></TR>\n<TR><TD><a href=\"estado\" target=\"_blank\">Estado</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_blank\">Lista ficheros</a></TD></TR>\n<TR><TD><a href=\"estadoSalidas\" target=\"_blank\">Estado salidas</a></TD></TR>\n<TR><TD><a href=\"estadoEntradas\" target=\"_blank\">Estado entradas</a></TD></TR>\n<TR><TD><a href=\"planes\" target=\"_blank\">Planes del secuenciador</a></TD></TR></TABLE>\n"; 
 
 void handleRoot() 
   {
@@ -51,11 +52,14 @@ void handleRoot()
   cad += "</TABLE>";
   cad += "\n<BR>\n";
   cad += menuHTML;
-  cad += "\n<BR>\n";  
-  cad +="Modulo controlador. Version ";
-  cad += VERSION;
-  cad += "\n"; 
+    
+  //Enlaces
+  cad += "<BR><BR>\n";
+  cad += enlaces;
+  cad += "<BR><BR>" + nombre_dispositivo + " . Version " + String(VERSION) + ".";
+  
   cad += pieHTML;
+  
   server.send(200, "text/HTML", cad);  
   }
 
@@ -385,10 +389,6 @@ void handleInfo(void)
   cad += "Uptime: " + String(uptime())+ "ms";
   cad += "<BR>";
   cad += "IP: " + String(getIP(debugGlobal));
-  cad += "<BR>";
-  cad += "IP actuador: " + IPActuador.toString();
-  cad += "<BR>";  
-  cad += "IP primer satelite: " + IPSatelites[0].toString();
   cad += "<BR>";    
   cad += "Brillo: " + String(brilloPantalla);
   cad += "<BR>";
@@ -446,6 +446,77 @@ void handleInfo(void)
 
   cad += pieHTML;
   server.send(200, "text/html", cad);     
+  }
+
+/*********************************************/
+/*                                           */
+/*  Lista los ficheros en el sistema a       */
+/*  traves de una peticion HTTP              */ 
+/*                                           */
+/*********************************************/  
+void handleListaFicheros(void)
+  {
+  String cad=cabeceraHTML;
+  String nombreFichero="";
+  String contenidoFichero="";
+  boolean salvado=false;
+
+  cad += "<h1>" + nombre_dispositivo + "</h1>";
+  cad += "<h2>Lista de ficheros</h2>";
+
+  //Variables para manejar la lista de ficheros
+  String contenido="";
+  String fichero="";  
+  int16_t to=0;
+  
+  if(listaFicheros(contenido)) 
+    {
+    Serial.printf("contenido inicial= %s\n",contenido.c_str());      
+    //busco el primer separador
+    to=contenido.indexOf(SEPARADOR); 
+
+    cad +="<style> table{border-collapse: collapse;} th, td{border: 1px solid black; padding: 10px; text-align: left;}</style>";
+    cad += "<TABLE>";
+    while(to!=-1)
+      {
+      fichero=contenido.substring(0, to);//cojo el principio como el fichero
+      contenido=contenido.substring(to+1); //la cadena ahora es desde el separador al final del fichero anterior
+      to=contenido.indexOf(SEPARADOR); //busco el siguiente separador
+
+      cad += "<TR><TD>" + fichero + "</TD>";           
+      cad += "<TD>";
+      cad += "<form action=\"manageFichero\" target=\"_blank\">";
+      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + fichero + "\">";
+      cad += "    <input type=\"submit\" value=\"editar\">";
+      cad += "</form>";
+      cad += "</TD><TD>";
+      cad += "<form action=\"borraFichero\" target=\"_blank\">";
+      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + fichero + "\">";
+      cad += "    <input type=\"submit\" value=\"borrar\">";
+      cad += "</form>";
+      cad += "</TD></TR>";
+      //cad += "<TR><TD><a href=\"borraFichero?nombre="+ fichero +"\" target=\"_blank\">borrar</a></TD><TD><a href=\"manageFichero?nombre="+ fichero +"\" target=\"_blank\">" + fichero + "</a></TD></TR>\n";           
+      }
+    cad += "</TABLE>\n";
+    cad += "<BR>";
+    
+    //Para crear un fichero nuevo
+    cad += "<h2>Crear un fichero nuevo:</h2>";
+    cad += "<table><tr><td>";      
+    cad += "<form action=\"creaFichero\" target=\"_blank\">";
+    cad += "  <p>";
+    cad += "    Nombre:<input type=\"text\" name=\"nombre\" value=\"\">";
+    cad += "    <BR>";
+    cad += "    Contenido:<br><textarea cols=75 rows=20 name=\"contenido\"></textarea>";
+    cad += "    <BR>";
+    cad += "    <input type=\"submit\" value=\"salvar\">";
+    cad += "  </p>";
+    cad += "</td></tr></table>";      
+    }
+  else cad += "<TR><TD>No se pudo recuperar la lista de ficheros</TD></TR>"; 
+
+  cad += pieHTML;
+  server.send(200, "text/html", cad); 
   }
 
 
@@ -516,43 +587,83 @@ void handleLeeFichero(void)
   {
   String cad=cabeceraHTML;
   String nombreFichero="";
-
-  cad += "<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
+  String contenido="";
+	
+  cad += "<h1>" + String(NOMBRE_FAMILIA) + "</h1>";
   
   if(server.hasArg("nombre") ) //si existen esos argumentos
     {
     nombreFichero=server.arg("nombre");
 
-    //inicializo el sistema de ficheros
-    if (SPIFFS.begin(true)) 
+    if(leeFichero(nombreFichero, contenido))
       {
-      Serial.println("---------------------------------------------------------------\nmounted file system");  
-      //file exists, reading and loading
-      if(!SPIFFS.exists(nombreFichero)) cad += "El fichero " + nombreFichero + " no existe.\n";
-      else
-        {
-         File f = SPIFFS.open(nombreFichero, "r");
-         if (f) 
-           {
-           Serial.println("Fichero abierto");
-           size_t tamano_fichero=f.size();
-           Serial.printf("El fichero tiene un tamaño de %i bytes.\n",tamano_fichero);
-           cad += "El fichero tiene un tamaño de ";
-           cad += tamano_fichero;
-           cad += " bytes.<BR>";
-           char buff[tamano_fichero+1];
-           f.readBytes(buff,tamano_fichero);
-           buff[tamano_fichero+1]=0;
-           Serial.printf("El contenido del fichero es:\n******************************************\n%s\n******************************************\n",buff);
-           cad += "El contenido del fichero es:<BR>";
-           cad += buff;
-           cad += "<BR>";
-           f.close();
-           }
-         else cad += "Error al abrir el fichero " + nombreFichero + "<BR>";
-        }  
-      Serial.println("unmounted file system\n---------------------------------------------------------------");
-      }//La de abrir el sistema de ficheros
+      cad += "El fichero tiene un tama&ntilde;o de ";
+      cad += contenido.length();
+      cad += " bytes.<BR>";           
+      cad += "El contenido del fichero es:<BR>";
+      cad += "<textarea readonly=true cols=75 rows=20 name=\"contenido\">";
+      cad += contenido;
+      cad += "</textarea>";
+      cad += "<BR>";
+      }
+    else cad += "Error al abrir el fichero " + nombreFichero + "<BR>";   
+    }
+  else cad += "Falta el argumento <nombre de fichero>"; 
+
+  cad += pieHTML;
+  server.send(200, "text/html", cad); 
+  }
+
+/*********************************************/
+/*                                           */
+/*  Gestion de un fichero a traves de una    */
+/*  peticion HTTP                            */ 
+/*                                           */
+/*********************************************/  
+void handleManageFichero(void)
+  {
+  String cad=cabeceraHTML;
+  String nombreFichero="";
+  String contenido="";
+  
+  cad += "<h1>" + nombre_dispositivo + "</h1>";
+  
+  if(server.hasArg("nombre") ) //si existen esos argumentos
+    {
+    nombreFichero=server.arg("nombre");
+    cad += "<h2>Fichero: " + nombreFichero + "</h2><BR>";  
+
+    if(leeFichero(nombreFichero, contenido))
+      {
+      cad += "El fichero tiene un tama&ntilde;o de ";
+      cad += contenido.length();
+      cad += " bytes.<BR>";
+      cad += "El contenido del fichero es:<BR>";
+      cad += "<textarea readonly=true cols=75 rows=20 name=\"contenido\">";
+      cad += contenido;
+      cad += "</textarea>";
+      cad += "<BR>";
+
+      cad += "<table><tr><td>";
+      cad += "<form action=\"borraFichero\" target=\"_blank\">";
+      cad += "  <p>";
+      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + nombreFichero + "\">";
+      cad += "    <input type=\"submit\" value=\"borrar\">";
+      cad += "  </p>";
+      cad += "</form>";
+      cad += "</td></tr></table>";
+      
+      cad += "<table>Modificar fichero<tr><td>";      
+      cad += "<form action=\"creaFichero\" target=\"_blank\">";
+      cad += "  <p>";
+      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + nombreFichero + "\">";
+      cad += "    contenido del fichero: <br><textarea cols=75 rows=20 name=\"contenido\">" + contenido + "</textarea>";
+      cad += "    <BR>";
+      cad += "    <input type=\"submit\" value=\"salvar\">";
+      cad += "  </p>";
+      cad += "</td></tr></table>";
+      }
+    else cad += "Error al abrir el fichero " + nombreFichero + "<BR>";
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
@@ -638,9 +749,11 @@ void inicializaWebServer(void)
   server.on("/restart", HTTP_ANY, handleRestart);  //URI de test
   server.on("/info", HTTP_ANY, handleInfo);  //URI de test
     
+  server.on("/listaFicheros", HTTP_ANY, handleListaFicheros);  //URI de leer fichero
   server.on("/creaFichero", HTTP_ANY, handleCreaFichero);  //URI de crear fichero
   server.on("/borraFichero", HTTP_ANY, handleBorraFichero);  //URI de borrar fichero
   server.on("/leeFichero", HTTP_ANY, handleLeeFichero);  //URI de leer fichero
+  server.on("/manageFichero", HTTP_ANY, handleManageFichero);  //URI de leer fichero  
   server.on("/infoFS", HTTP_ANY, handleInfoFS);  //URI de info del FS
   
   server.onNotFound(handleNotFound);//pagina no encontrada

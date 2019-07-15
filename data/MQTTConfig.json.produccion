@@ -8,6 +8,6 @@
 	"topicRoot": "casa"
 	"topicOrdenes": "actuador",
 	"topicMedidas": "/%2b/medidas",
-	"topicReles":"actuadorPre/estado",
+	"topicReles":"actuador/estado",
 	"publicarEstado": 1
 }

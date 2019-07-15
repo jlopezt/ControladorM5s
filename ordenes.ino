@@ -193,9 +193,7 @@ void inicializaOrden(void)
   comandos[i].descripcion="Devuelve el numero de satelites registrados";
   comandos[i++].p_func_comando=func_comando_numSat;
   //Comando 16
-  comandos[i].comando="leeIP";
-  comandos[i].descripcion="Devuleve la lista de IPs del sistema configuradas en el equipo";
-  comandos[i++].p_func_comando=func_comando_leeIP;
+
   //Comando 17
   comandos[i].comando="consigna";
   comandos[i].descripcion="Devuleve la consigna de la hora actual";
@@ -489,11 +487,6 @@ void func_comando_numSat(int iParametro, char* sParametro, float fParametro)//"n
   {
   boolean debug=false;  
   Serial.println(numeroSatelites(debug));  
-  }
-
-void func_comando_leeIP(int iParametro, char* sParametro, float fParametro)//"leeIP") 
-  {
-  Serial.println(leerIPs());
   }
 
 void func_comando_consigna(int iParametro, char* sParametro, float fParametro)//"consigna") 

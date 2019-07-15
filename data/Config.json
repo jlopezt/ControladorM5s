@@ -1,9 +1,5 @@
 {
-"TimeOut": 5000, 
-"limiteSleep":20000, 
-"Brillo": 10, 
-"IPControlador": "10.68.1.60",
-"IPActuador": "10.68.1.61",
-"IPPrimerTermometro": "10.68.1.62",
-"IPGateway": "10.68.1.1"
+	"TimeOut": 5000, 
+	"limiteSleep":20000, 
+	"Brillo": 10
 }
