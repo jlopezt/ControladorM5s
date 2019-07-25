@@ -307,6 +307,7 @@ boolean enviarMQTT(String topic, String payload)
   }
 
   //si y esta conectado envio, sino salgo con error
+  if(debugGlobal) Serial.println("Vuelvo a verificar si esta conectado");
   if (clienteMQTT.connected()) 
     {
     if(!topic.startsWith("/")) topic = "/" + topic;  

@@ -9,7 +9,7 @@
  
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.5.0 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.2"
+#define VERSION           "2.5.0 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.4"
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -21,7 +21,6 @@
 #define RELES_PIN          8 //Pîn del primer rele, los demas consecutivos
 #define MAX_SATELITES     16 //numero maximo de satelites de 0 a 15 controlado por los DIP Switch
 #define MAX_RELES          2 //numero maximo de reles soportado
-
 
 //Nombres de ficheros
 #define FICHERO_CANDADO        "/Candado"
@@ -67,7 +66,7 @@
 //configuracion del watchdog del sistema
 #define TIMER_WATCHDOG        0 //Utilizo el timer 0 para el watchdog
 #define PREESCALADO_WATCHDOG 80 //el relog es de 80Mhz, lo preesalo entre 80 para pasarlo a 1Mhz
-#define TIEMPO_WATCHDOG      4*ANCHO_INTERVALO //Si en N ANCHO_INTERVALO no se atiende el watchdog, saltara
+#define TIEMPO_WATCHDOG      40*1000*ANCHO_INTERVALO //Si en N ANCHO_INTERVALO no se atiende el watchdog, saltara. ESTA EN microsegundos
 
 //Para la pantalla
 #define COLOR_FONDO TFT_NAVY
@@ -226,7 +225,7 @@ void setup()
   Serial.println("***************************************************************");
 
   //activo el watchdog
-  //configuraWatchdog();
+  configuraWatchdog();
   }  
 
 void  loop(void)
@@ -236,7 +235,7 @@ void  loop(void)
   EntradaBucle=millis();//Hora de entrada en la rodaja de tiempo
 
   //reinicio el watchdog del sistema
-  //timerWrite(timer, 0);
+  timerWrite(timer, 0);
   
   //Logica para ir a sleep
   if(EntradaBucle-SleepBucle>limiteSleep && getValorPrincipal()!=REPOSO) 
@@ -415,25 +414,23 @@ time_t uptime(void) {return millis();}
 /*                                                             */
 /*  Funcion de interrupcion del watchdog                       */
 /*                                                             */
-/***************************************************************
+/***************************************************************/
 //funcion de interrupcion que reseteara el ESP si no se atiende el watchdog
-void IRAM_ATTR resetModule() {
-  Serial.printf("Watchdog!!!");
-  //ets_printf("reboot\n");
-  //esp_restart();
+void IRAM_ATTR resetModule(void) {
+  ets_printf("Watchdog!!! reboot\n");
+  esp_restart();
 }
-*/
+
 /***************************************************************/
 /*                                                             */
 /*  Configuracion del watchdog del sistema                     */
 /*                                                             */
-/***************************************************************
+/***************************************************************/
 void configuraWatchdog(void)
 {
-  timer = timerBegin(TIMER_WATCHDOG, PREESCALADO_WATCHDOG, true); //timer 0, div 80 para que cuente microsegundos y hacia arriba
-  timerAttachInterrupt(timer, &resetModule, true);                //asigno la funcion de interrupcion al contador
-  timerAlarmWrite(timer, TIEMPO_WATCHDOG, false);                 //configuro el limite del contador para generar interrupcion
-  timerWrite(timer, 0);                                           //lo pongo a cero
-  timerAlarmEnable(timer);                                        //habilito el contador 
+  timer = timerBegin(TIMER_WATCHDOG, PREESCALADO_WATCHDOG, true); //timer 0, div 80 para que cuente microsegundos y hacia arriba         //hw_timer_t * timerBegin(uint8_t timer, uint16_t divider, bool countUp);
+  timerAttachInterrupt(timer, &resetModule, true);                //asigno la funcion de interrupcion al contador                        //void timerAttachInterrupt(hw_timer_t *timer, void (*fn)(void), bool edge);
+  timerAlarmWrite(timer, TIEMPO_WATCHDOG, false);                  //configuro el limite del contador para generar interrupcion en us    //void timerAlarmWrite(hw_timer_t *timer, uint64_t interruptAt, bool autoreload);
+  timerWrite(timer, 0);                                           //lo pongo a cero                                                      //void timerWrite(hw_timer_t *timer, uint64_t val);
+  timerAlarmEnable(timer);                                        //habilito el contador                                                 //void timerAlarmEnable(hw_timer_t *timer);
 }
-*/
