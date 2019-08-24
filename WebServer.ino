@@ -301,7 +301,7 @@ void handleConfigHabitaciones(void)
         cad += "\n";  
 
         cad += "     Peso: ";
-        cad += habitaciones[id].peso;
+        cad += habitaciones[id].peso[hora()];
         cad += "\n";
 
         cad += "     Lectura: ";

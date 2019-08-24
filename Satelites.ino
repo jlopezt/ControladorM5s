@@ -20,7 +20,7 @@ boolean IF_JSON=true;
 typedef struct{
   int8_t id;
   String nombre;
-  int8_t peso;
+  int8_t peso[HORAS_EN_DIA];
   unsigned long lectura;
   float  temperatura;
   float  humedad;
@@ -30,7 +30,7 @@ typedef struct{
 habitacion_t habitaciones[MAX_SATELITES];
 
 String nombres[MAX_SATELITES]; //nombre por defecto de los satelites. Cuando se registra un satelite envia su nombre
-int8_t pesoSatelites[MAX_SATELITES]; //peso en el calculo de la temperatura ponderada
+int8_t pesoSatelites[MAX_SATELITES][HORAS_EN_DIA]; //peso en el calculo de la temperatura ponderada
 
 //////////////////////////////////////////////////Funciones de configuracion de los satelites///////////////////////////////////////////////////////
 /*inicializa los satelites, pongo todo a cero*/
@@ -43,7 +43,7 @@ void inicializaSatelites(void)
     {
     habitaciones[i].id=NO_REGISTRADO;
     habitaciones[i].nombre=nombres[i];
-    habitaciones[i].peso=pesoSatelites[i];
+    for(int8_t h=0;h<HORAS_EN_DIA;h++) habitaciones[i].peso[h]=pesoSatelites[i][h];
     habitaciones[i].lectura=0;
     habitaciones[i].temperatura=NO_LEIDO;//0.0;
     habitaciones[i].humedad=0.0;
@@ -94,7 +94,9 @@ void leeFicheroNombres(void)
     nombres[15]="Buhardilla2_def";  
 
     //Valor por defecto apra el peso de los satelites
-    for(int8_t i=0;i<MAX_SATELITES;i++) pesoSatelites[i]=1;
+    for(int8_t i=0;i<MAX_SATELITES;i++)
+      for(int8_t j=0;i<HORAS_EN_DIA;j++)
+        pesoSatelites[i][j]=1;
     }
   }
 
@@ -117,11 +119,17 @@ boolean parseaConfiguracionNombres(String contenido)
     for(int8_t i=0;i<MAX_SATELITES;i++)
       { 
       nombres[i]=String((const char *)Termometros[i]["nombre"]);
-      pesoSatelites[i]=Termometros[i]["peso"];
+      JsonArray& peso = Termometros[i]["peso"];
+      for(int8_t h=0;h<HORAS_EN_DIA;h++) pesoSatelites[i][h]=peso[h];
       }
       
     Serial.println("Nombres:"); 
-    for(int8_t i=0;i<MAX_SATELITES;i++) Serial.printf("%02i: %s; peso: %i\n",i,nombres[i].c_str(),pesoSatelites[i]); 
+    for(int8_t i=0;i<MAX_SATELITES;i++) 
+      {
+      Serial.printf("%02i: %s; peso:\n",i,nombres[i].c_str()); 
+      for(int8_t h=0;h<HORAS_EN_DIA;h++) Serial.printf(" %i:%i | ",h,pesoSatelites[i][h]);
+      Serial.println();
+      }
 //************************************************************************************************
     return true;
     }
@@ -230,7 +238,7 @@ int addSatelite(int8_t id, String nombre="")
   else habitaciones[id].nombre=nombres[id];//le pongo el nombre por defecto //"id_" + id;
 
   //inicializo los datos
-  habitaciones[id].peso=pesoSatelites[id];
+  for(int8_t h=0;h<HORAS_EN_DIA;h++) habitaciones[id].peso[h]=pesoSatelites[id][h];
   habitaciones[id].temperatura=NO_LEIDO; //NO_LEIDO=-100.0 significa que todavia no se ha leido y no debe tenerse en cuenta para promediar
   habitaciones[id].humedad=0.0;
   habitaciones[id].luz=0.0;
@@ -249,7 +257,7 @@ int8_t delSatelite(int8_t id)
   habitaciones[id].id=NO_REGISTRADO;
   habitaciones[id].lectura=0;
   habitaciones[id].nombre="";
-  habitaciones[id].peso=0;
+  for(int8_t h=0;h<HORAS_EN_DIA;h++) habitaciones[id].peso[h]=0;
   habitaciones[id].temperatura=NO_LEIDO; //NO_LEIDO=-100.0 significa que todavia no se ha leido y no debe tenerse en cuenta para promediar
   habitaciones[id].humedad=0.0;
   habitaciones[id].luz=0.0;
@@ -272,7 +280,11 @@ int consultaSatelite(int8_t id)
     Serial.printf("Temperatura: %f\n", habitaciones[id].temperatura);
     Serial.printf("Humedad: %f\n", habitaciones[id].humedad);
     Serial.printf("Luz: %f\n", habitaciones[id].luz);
-    Serial.printf("Peso: %i\n", habitaciones[id].peso);
+
+    Serial.print("peso:"); 
+    for(int8_t h=0;h<HORAS_EN_DIA;h++) Serial.printf(" %i:%i | ",h,habitaciones[id].peso[h]);
+    Serial.println();
+    
     Serial.printf("Lectura: %i: tiempo: %i\n", habitaciones[id].lectura,millis()-habitaciones[id].lectura);
     }
    else Serial.printf("El satelite %i no se ha identificado.\n",id);
@@ -372,13 +384,14 @@ float promediaTemperatura(void)
   {
   float promedio=0;
   float pesoTotal=0;
-
+  int hora_actual=hora();
+  
   for(int8_t i=0;i<MAX_SATELITES;i++)
     {
-    if(sateliteRegistrado(i) && habitaciones[i].temperatura!=NO_LEIDO) //if(habitaciones[i].id!=NO_REGISTRADO)
+    if(sateliteRegistrado(i) && habitaciones[i].temperatura!=NO_LEIDO)
       {
-      promedio+=habitaciones[i].temperatura*habitaciones[i].peso;//promedio+=habitaciones[i].temperatura;
-      pesoTotal+=habitaciones[i].peso; //pesoTotal+=pesoSatelite[i];
+      promedio+=habitaciones[i].temperatura*habitaciones[i].peso[hora_actual];
+      pesoTotal+=habitaciones[i].peso[hora_actual];
       }
     }
 

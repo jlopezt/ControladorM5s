@@ -14,6 +14,8 @@
 #define SUBSEPARADOR      '#'
 #define KO                -1
 #define OK                0
+#define HORAS_EN_DIA      24
+#define SEGUNDOS_EN_HORA  3600
 #define MAX_VUELTAS       32767
 #define SATELITE_TIME_OUT 100000 //Milisegundos transcurridos entre dos peticiones del controlador antes de intentar registrarse
 
@@ -66,7 +68,7 @@
 //configuracion del watchdog del sistema
 #define TIMER_WATCHDOG        0 //Utilizo el timer 0 para el watchdog
 #define PREESCALADO_WATCHDOG 80 //el relog es de 80Mhz, lo preesalo entre 80 para pasarlo a 1Mhz
-#define TIEMPO_WATCHDOG      40*1000*ANCHO_INTERVALO //Si en N ANCHO_INTERVALO no se atiende el watchdog, saltara. ESTA EN microsegundos
+#define TIEMPO_WATCHDOG      1000*1000*ANCHO_INTERVALO //Si en N ANCHO_INTERVALO no se atiende el watchdog, saltara. ESTA EN microsegundos
 
 //Para la pantalla
 #define COLOR_FONDO TFT_NAVY
@@ -123,7 +125,7 @@ unsigned int vuelta = 32700;//0; //vueltas de loop del core 0
 
 hw_timer_t *timer = NULL;//Puntero al timer del watchdog
 
-int8_t debugGlobal=1; //por defecto desabilitado
+int8_t debugGlobal=0; //por defecto desabilitado
 int8_t ficherosModificados=0;//Inicialmente no hay ficheros modificados
 boolean candado=false; //Candado de configuracion. true implica que la ultima configuracion fue mal
 /*-----------------Variables comunes---------------*/

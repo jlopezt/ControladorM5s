@@ -15,8 +15,6 @@
 #define RELES_CONFIG_FILE            "/RelesConfig.json"
 #define RELES_CONFIG_BAK_FILE        "/RelesConfig.json.bak"
 
-
-#define SEGUNDOS_EN_HORA         3600
 #define TICKS_CALEFACCION_MANUAL (SEGUNDOS_EN_HORA*1000)/(ANCHO_INTERVALO*FRECUENCIA_LOGICA_CONTROL)//1 hora
 
 typedef struct{

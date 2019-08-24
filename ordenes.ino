@@ -665,7 +665,12 @@ void func_comando_vueltas(int iParametro, char* sParametro, float fParametro)//t
 
 void func_comando_pesos(int iParametro, char* sParametro, float fParametro) 
   {
-  for(int8_t i=0;i<MAX_SATELITES;i++) Serial.printf("%02i: %s; id: %i; peso: %i\n",i,nombres[i].c_str(),habitaciones[i].id,pesoSatelites[i]); 
+  for(int8_t i=0;i<MAX_SATELITES;i++) 
+    {
+    Serial.printf("%02i: %s; peso:\n",i,nombres[i].c_str()); 
+    for(int8_t h=0;h<HORAS_EN_DIA;h++) Serial.printf(" %i:%i | ",h,pesoSatelites[i][h]);
+    Serial.println();
+    }  
   }
 
 void func_comando_mqtt(int iParametro, char* sParametro, float fParametro)   
