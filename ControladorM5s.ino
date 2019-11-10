@@ -9,7 +9,7 @@
  
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.5.1 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.4"
+#define VERSION           "2.5.2 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.4" //Modificaciones en peso de los saletelites por horas y pequeños ajustes
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1

@@ -38,7 +38,8 @@ void inicializaSatelites(void)
   {
   //Leo el nombre del fichero o lo inicializo por defecto. Nombres y pesos
   leeFicheroNombres();
-      
+  
+  //Inicializo el valor de los satelites   
   for(int8_t i=0;i<MAX_SATELITES; i++)
     {
     habitaciones[i].id=NO_REGISTRADO;
@@ -51,53 +52,61 @@ void inicializaSatelites(void)
     }  
   }
 
-void leeFicheroNombres(void)
+boolean leeFicheroNombres(void)
   {
   String cad="";
   
-  if(leeFichero(NOMBRES_CONFIG_FILE, cad)) parseaConfiguracionNombres(cad);
-  else 
-    {
-    Serial.println("Configuracion de los satelites por defecto");
-    //preconfiguracion de fabrica de las habitaciones
-    //0 Salon
-    nombres[0]="Salon_def";
-    //1 Despacho
-    nombres[1]="Despacho_def";  
-    //2 Dormitorio Ppal
-    nombres[2]="DormitorioPpal_def";  
-    //3 Jorge
-    nombres[3]="Jorge_def";  
-    //4 Sara
-    nombres[4]="Sara_def";  
-    //5 Diego
-    nombres[5]="Diego_def";  
-    //6 Buhardilla
-    nombres[6]="Buhardilla_def";  
-    //7 Bodega
-    nombres[7]="Bodega_def";  
-    //8 Lavanderia
-    nombres[8]="Lavanderia_def"; 
-    //9 Salon
-    nombres[9]="Exterior_def";
-    //10 Despacho
-    nombres[10]="Despacho2_def";  
-    //11 Dormitorio Ppal
-    nombres[11]="DormitorioPpal2_def";  
-    //12 Jorge
-    nombres[12]="Jorge2_def";  
-    //13 Sara
-    nombres[13]="Sara2_def";  
-    //14 Diego
-    nombres[14]="Diego2_def";  
-    //15 Buhardilla
-    nombres[15]="Buhardilla2_def";  
+  if(leeFichero(NOMBRES_CONFIG_FILE, cad)) return parseaConfiguracionNombres(cad); 
 
-    //Valor por defecto apra el peso de los satelites
-    for(int8_t i=0;i<MAX_SATELITES;i++)
-      for(int8_t j=0;i<HORAS_EN_DIA;j++)
-        pesoSatelites[i][j]=1;
+  //Si falla la lectura del fichero, inicializo por defecto y devuelvo falso
+  Serial.println("Configuracion de los satelites por defecto");
+  //preconfiguracion de fabrica de las habitaciones
+  //0 Salon
+  nombres[0]="Salon_def";
+  //1 Despacho
+  nombres[1]="Despacho_def";  
+  //2 Dormitorio Ppal
+  nombres[2]="DormitorioPpal_def";  
+  //3 Jorge
+  nombres[3]="Jorge_def";  
+  //4 Sara
+  nombres[4]="Sara_def";  
+  //5 Diego
+  nombres[5]="Diego_def";  
+  //6 Buhardilla
+  nombres[6]="Buhardilla_def";  
+  //7 Bodega
+  nombres[7]="Bodega_def";  
+  //8 Lavanderia
+  nombres[8]="Lavanderia_def"; 
+  //9 Salon
+  nombres[9]="Exterior_def";
+  //10 Despacho
+  nombres[10]="Despacho2_def";  
+  //11 Dormitorio Ppal
+  nombres[11]="DormitorioPpal2_def";  
+  //12 Jorge
+  nombres[12]="Jorge2_def";  
+  //13 Sara
+  nombres[13]="Sara2_def";  
+  //14 Diego
+  nombres[14]="Diego2_def";  
+  //15 Buhardilla
+  nombres[15]="Buhardilla2_def";  
+  
+Serial.printf("A por el for\n");
+  //Valor por defecto apra el peso de los satelites
+  for(int8_t i=0;i<MAX_SATELITES;i++)
+    {
+Serial.printf("i=%i\n",i);        
+    for(int8_t j=0;j<HORAS_EN_DIA;j++)
+      {
+Serial.printf("j=%i\n",j);                  
+      pesoSatelites[i][j]=1;
+      }
     }
+Serial.printf("Fin\n");              
+  return false;
   }
 
 /*********************************************/

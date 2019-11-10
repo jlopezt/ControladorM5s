@@ -201,16 +201,23 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   char mensaje[length];    
   int id;  
   int estado;
-    
+
+  Serial.printf("topic: %s\nPayload: %s\nlongitud: %i\n",topic,(const char*)payload,length);
+
   //copio el payload en la cadena mensaje
   for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
   mensaje[length]=0;//acabo la cadena
-    
+
   /**********************Leo el JSON***********************/
   const size_t bufferSize = JSON_OBJECT_SIZE(3) + 50;
   DynamicJsonBuffer jsonBuffer(bufferSize);     
   JsonObject& root = jsonBuffer.parseObject(mensaje);
-  if (!root.success()) return; //si el mensaje es incorrecto sale  
+
+  if (!root.success()) 
+    {
+    Serial.printf("¡¡KO en el parseo del JSON!!\nJSON: %s",mensaje);    
+    return; //si el mensaje es incorrecto sale  
+    }
     
   //Registro el satelite y copio sobre la habitacion correspondiente del array los datos recibidos
   id=atoi(root["id"]);
@@ -227,6 +234,7 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   habitaciones[id].temperatura = root["Temperatura"];
   habitaciones[id].humedad = root["Humedad"]; 
   habitaciones[id].luz = root["Luz"];
+  Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz);
   /**********************Fin JSON***********************/    
   }
 
@@ -254,6 +262,12 @@ boolean conectaMQTT(void)
   int8_t intentos=0;
   String topic;
   if(debugGlobal) Serial.println("Inicio conectaMQTT.");
+
+  if(IPBroker==IPAddress(0,0,0,0)) 
+    {
+    Serial.println("IP del broker = 0.0.0.0, no se intenta conectar.");
+    return (false);//SI la IP del Broker es 0.0.0.0 (IP por defecto) no intentaq conectar y sale con error
+    }
   
   while (!clienteMQTT.connected()) 
     {    
@@ -281,7 +295,7 @@ boolean conectaMQTT(void)
       }
 
     Serial.printf("Error al conectar al broker(%i). Estado: %s\n",intentos,stateTexto().c_str());
-    if(intentos++>=3) 
+    if(intentos++>=2) 
       {
       clienteMQTT.disconnect();
       return (false);

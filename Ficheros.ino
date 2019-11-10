@@ -10,12 +10,16 @@
 /************************************************/
 boolean inicializaFicheros(int debug)
 {
+  String s="";
+  
   //inicializo el sistema de ficheros
   if (!SPIFFS.begin(true)) 
     {
     Serial.println("No se puede inicializar el sistema de ficheros");
     return (false);
     }
+  
+  listaFicheros(s);  
   return (true);
 }
 
@@ -78,7 +82,7 @@ boolean leeFichero(String nombre, String &contenido)
       }//la de abrir el fichero de configuracion del WiFi
       else Serial.println("Fichero no se puede abrir");
     }//la de existe fichero
-    else Serial.println("Fichero no existe");
+    else Serial.printf("Fichero [%s] no existe\n",nombre.c_str());
   
   return leido;
   }

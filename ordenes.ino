@@ -675,7 +675,7 @@ void func_comando_pesos(int iParametro, char* sParametro, float fParametro)
 
 void func_comando_mqtt(int iParametro, char* sParametro, float fParametro)   
   {
-  Serial.printf("\n\nInfo MQTT:\nIPBroker: %s\nPuerto del broker: %i\ntimeReconnectMQTT: %i\nID_MQTT: %s\nUsuario: %s\nPassword: %s\nTopic root: %s\nTopic medidas: %s\nPublicar estado: %i\n\n\n",IPBroker.toString().c_str(),puertoBroker,timeReconnectMQTT, ID_MQTT.c_str(),usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str(),topicMedidas.c_str(),publicarEstado);  
+  Serial.printf("\n\nInfo MQTT:\nIPBroker: %s\nPuerto del broker: %i\ntimeReconnectMQTT: %i\nID_MQTT: %s\nUsuario: %s\nPassword: %s\nTopic root: %s\nTopic medidas: %s\nTopic ordenes: %s\nTopic reles: %s\nPublicar estado: %i\n\n\n",IPBroker.toString().c_str(),puertoBroker,timeReconnectMQTT, ID_MQTT.c_str(),usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str(),topicMedidas.c_str(),topicOrdenes.c_str(),topicReles.c_str(),publicarEstado);  
   }
 
 void func_comando_modo(int iParametro, char* sParametro, float fParametro) //"modo"
