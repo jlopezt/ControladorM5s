@@ -32,6 +32,8 @@
 #define WIFI_CONFIG_BAK_FILE   "/WiFiConfig.json.bak"
 #define MQTT_CONFIG_FILE       "/MQTTConfig.json"
 #define MQTT_CONFIG_BAK_FILE   "/MQTTConfig.json.bak"
+#define GHN_CONFIG_FILE        "/GHNConfig.json"
+#define GHN_CONFIG_BAK_FILE    "/GHNConfig.json.bak"
 
 //Definicion de codigos de error
 #ifndef ERRORES //si no esta definido ERRORES
@@ -188,6 +190,9 @@ void setup()
     //WebServer
     Serial.printf("\n\nInit Web --------------------------------------------------------------------------\n");
     inicializaWebServer();
+    //Google Home Notifier
+    Serial.println("\n\nInit Google Home Notifier -------------------------------------------------------\n");
+    inicializaGHN();
     }
   else Serial.println("No se pudo conectar al WiFi");
  

@@ -32,6 +32,7 @@ String cabeceraHTML = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charse
 String menuHTML = "<TABLE>\n<CAPTION>Opciones:</CAPTION>\n <TR><TD><a href=\"configTabla\" target=\"_blank\">Configuracion de la tabla de consignas</a></TD></TR>\n<TR><TD><a href=\"recargaMapa\" target=\"_blank\">Recarga del mapa de temperaturas</a></TD></TR>\n<TR><TD><a href=\"consignaTemperatura\" target=\"_blank\">Consigna de temperatura</a> </TD></TR> \n<TR><TD><a href=\"numeroHabitaciones\" target=\"_blank\">Numero de habitaciones</a> </TD></TR>\n<TR><TD><a href=\"listaHabitaciones\" target=\"_blank\">Lista de las habitaciones</a></TD></TR>\n<TR><TD><a href=\"valoresHabitaciones\" target=\"_blank\">Valores de las medida en las habitaciones</a></TD></TR>\n<TR><TD><a href=\"recargaFicheroNombres\" target=\"_blank\">Recarga del fichero de nombres de satelite</a></TD></TR>\n<TR><TD><a href=\"estadoReles\" target=\"_blank\">Estado de los reles</a></TD></TR>\n<TR><TD><a href=\"listaReles\" target=\"_blank\">Lista de los reles</a></TD></TR>\n<TR><TD><a href=\"configHabitaciones\" target=\"_blank\">Configuracion de habitaciones</a></TD></TR>\n<TR><TD><a href=\"modo\" target=\"_blank\">Modo?</a></TD><TD> | </TD><TD><a href=\"modo?modo=0 \" target=\"_blank\">Modo off</a></TD><TD> | </TD><TD><a href=\"modo?modo=1 \" target=\"_blank\">Modo on</a></TD><TD> | </TD><TD><a href=\"modo?modo=2 \" target=\"_blank\">Modo auto</a></TD></TR>\n</TABLE>\n";  
 String pieHTML = "</BODY>\n</HTML>";
 String enlaces="<TABLE>\n<CAPTION>Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_blank\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_blank\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_blank\">Restart</a></TD></TR>\n<TR><TD><a href=\"estado\" target=\"_blank\">Estado</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_blank\">Lista ficheros</a></TD></TR>\n<TR><TD><a href=\"estadoSalidas\" target=\"_blank\">Estado salidas</a></TD></TR>\n<TR><TD><a href=\"estadoEntradas\" target=\"_blank\">Estado entradas</a></TD></TR>\n<TR><TD><a href=\"planes\" target=\"_blank\">Planes del secuenciador</a></TD></TR></TABLE>\n"; 
+String hablaHTML="<html><head></head><body><input type=\"text\"><button>speech</button><script>var d = document;d.querySelector('button').addEventListener('click',function(){xhr = new XMLHttpRequest();xhr.open('GET','/speech?phrase='+encodeURIComponent(d.querySelector('input').value));xhr.send();});</script></body></html>";
 
 void handleRoot() 
   {
@@ -755,7 +756,10 @@ void inicializaWebServer(void)
   server.on("/leeFichero", HTTP_ANY, handleLeeFichero);  //URI de leer fichero
   server.on("/manageFichero", HTTP_ANY, handleManageFichero);  //URI de leer fichero  
   server.on("/infoFS", HTTP_ANY, handleInfoFS);  //URI de info del FS
-  
+
+  server.on("/speech", handleSpeechPath);
+  server.on("/habla", handleHablaPath);
+    
   server.onNotFound(handleNotFound);//pagina no encontrada
 
   server.begin();
@@ -961,3 +965,25 @@ String preparaPaginaConsigna(void)
   
   return cad;
   }
+
+/****************************Google Home Notifier ******************************/
+void handleSpeechPath() 
+  {
+  String phrase = server.arg("phrase");
+  
+  if (phrase == "") 
+    {
+    server.send(401, "text / plain", "query 'phrase' is not found");
+    return;
+    }
+  
+  if(enviaNotificacion((char*)phrase.c_str())) server.send(200, "text / plain", "OK");
+  server.send(404, "text / plain", "KO");  
+  }
+
+void handleHablaPath() 
+  {
+  server.send(200, "text/html", hablaHTML);
+  }  
+
+  
