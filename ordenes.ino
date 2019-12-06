@@ -366,7 +366,7 @@ void func_comando_info(int iParametro, char* sParametro, float fParametro)//"inf
   Serial.printf("-----------------------------------------------\n");
 
   String cad;
-  cad += "<BR>-----------------info WiFi-----------------<BR>";
+  cad += "\n-----------------info WiFi-----------------\n";
   /*
   byte mac[6]; 
   WiFi.macAddress(mac);
@@ -374,7 +374,7 @@ void func_comando_info(int iParametro, char* sParametro, float fParametro)//"inf
   cad += "<BR>";  
   */
   cad += "Base: " + String(WiFi.SSID());
-  cad += "<BR>";
+  cad += "\n";
   /*
   byte bssid[6];
   WiFi.BSSID(bssid);
@@ -382,8 +382,7 @@ void func_comando_info(int iParametro, char* sParametro, float fParametro)//"inf
   cad += "<BR>";
   */
   cad += "Potencia: " + String(WiFi.RSSI());
-  cad += "<BR>";
-  cad += "----------------------------------<BR>";  
+  cad += "\n----------------------------------\n";  
   Serial.println(cad);
   }  
 

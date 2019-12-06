@@ -571,6 +571,7 @@ String generaJson(void)
   DynamicJsonBuffer jsonBuffer(bufferSize);
   
   JsonObject& root = jsonBuffer.createObject();
+  root["titulo"] = NOMBRE_FAMILIA;
   root["medida"] = getTemperaturaPromedio();
   root["consigna"] = getConsigna();
   root["modo"] = getModoManual();
@@ -619,14 +620,3 @@ int seg2ticks(int seg) {return (seg*1000)/(ANCHO_INTERVALO*FRECUENCIA_LOGICA_CON
 /*                                                     */
 /*******************************************************/
 int ticks2seg(int tic) {return (tic*ANCHO_INTERVALO*FRECUENCIA_LOGICA_CONTROL)/1000;}
-
-/*******************************************************/
-/*                                                     */
-/* Genera el json con el estado delcontrolador,        */
-/* las habitaciones y las salidas                      */
-/*                                                     */
-/*******************************************************/
-String generaJsonEstado(void)
-  {
-  return generaJson();
-  } 

@@ -421,7 +421,7 @@ void enviaDatos(boolean debug)
 
   if(publicarEstado==1)
     {
-    payload=generaJsonEstado();//genero el json de estado
+    payload=generaJson();//genero el json de estado
     
     if(debug)Serial.println("Inicio envio de json al broker.");
     

@@ -9,7 +9,7 @@
  
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.5.2 M5Stack (OTA|MQTT|LOGIC+) lib v0.2.4" //Modificaciones en peso de los saletelites por horas y pequeños ajustes
+#define VERSION           "2.5.3 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.2.4" //Modificaciones en peso de los saletelites por horas y pequeños ajustes
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -106,6 +106,7 @@
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
 #include <SPIFFS.h> //para el ESP32
+#include <WebSocketsServer.h> //Lo pongo aqui porque si lo pongo en su sitio no funciona... https://github.com/Links2004/arduinoWebSockets/issues/356
 
 //prototipo de funciones
 String getErroresNivel(int nivel=0);
@@ -190,6 +191,9 @@ void setup()
     //WebServer
     Serial.printf("\n\nInit Web --------------------------------------------------------------------------\n");
     inicializaWebServer();
+    //WebSockets
+    Serial.println("Init Web ------------------------------------------------------------------------");
+    inicializaWebSockets();
     //Google Home Notifier
     Serial.println("\n\nInit Google Home Notifier -------------------------------------------------------\n");
     inicializaGHN();
@@ -279,6 +283,7 @@ int paso=0;
   if ((vuelta % FRECUENCIA_ENVIA_DATOS)==0) enviaDatos(debugGlobal); //envia datos de estado al broker MQTT  
 //Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) webServer(debugGlobal); //atiende el servidor web  
+  if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) atiendeWebSocket(debugGlobal); //atiende el servidor web 
 //Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_ORDENES)==0) while(HayOrdenes(debugGlobal)) EjecutaOrdenes(debugGlobal); //Lee ordenes via serie
 //Serial.printf("paso: %i\n",paso++);  
