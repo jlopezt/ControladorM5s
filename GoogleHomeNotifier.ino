@@ -103,7 +103,7 @@ boolean parseaConfiguracionGHN(String contenido)
 /* conecto                                         */
 /*                                                 */
 /***************************************************/
-boolean enviaNotificacion(char *mensaje)
+boolean enviaNotificacion(const char *mensaje)
   {  
   if(activaGoogleHomeNotifier==NO_CONECTAR) return true; //Si se configura como nombre de equipo el valor de NO_CONECTAR, no se intenta la conexion
     

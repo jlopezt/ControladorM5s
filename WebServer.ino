@@ -1061,7 +1061,7 @@ void handleSpeechPath()
     return;
     }
   
-  if(enviaNotificacion((char*)phrase.c_str())) server.send(200, "text / plain", "OK");
+  if(enviaNotificacion(phrase.c_str())) server.send(200, "text / plain", "OK");
   server.send(404, "text / plain", "KO");  
   }
 

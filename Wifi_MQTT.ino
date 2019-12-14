@@ -39,7 +39,7 @@ String topicRoot; //raiz del topic a publicar. Util para separar mensajes de pro
 String ID_MQTT; //ID del modulo en su conexion al broker
 String topicMedidas; //topic al que se va a suscribir para recibir las medidas, sera <topicRoot>/<topicMedidas>
 String topicReles; //topic al que se va a suscribir para recibir el estado de los reles, sera <topicRoot>/<topic_Reles>
-//String topicOrdenes; //topic al que se va a enviar las ordenes de encendido y apagado de los reles, sera <topicRoot>/<topicOrdenes>
+String topicMensajes; //topic al que se va suscribir para recibir las solicitudes de mensaje a GHN, sera <topicRoot>/<topicMensajes>
 int8_t publicarEstado; //Flag para determinar si se envia el json con los valores de las salidas
 
 WiFiClient espClient;
@@ -83,6 +83,7 @@ boolean recuperaDatosMQTT(boolean debug)
   topicMedidas="";
   topicOrdenes="";
   topicReles="";
+  topicMensajes="";
   publicarEstado=1;//por defecto publico
 
   if(!leeFicheroConfig(MQTT_CONFIG_FILE, cad))
@@ -119,9 +120,10 @@ boolean parseaConfiguracionMQTT(String contenido)
     topicMedidas=json.get<String>("topicMedidas"); if(!topicMedidas.startsWith("/")) topicMedidas = "/" + topicMedidas;
     topicOrdenes=json.get<String>("topicOrdenes"); if(!topicOrdenes.startsWith("/")) topicOrdenes = "/" + topicOrdenes;
     topicReles=json.get<String>("topicReles"); if(!topicReles.startsWith("/")) topicReles = "/" + topicReles;    
+    topicMensajes=json.get<String>("topicMensajes"); if(!topicMensajes.startsWith("/")) topicMensajes = "/" + topicMensajes;    
     publicarEstado=json.get<int8_t>("publicarEstado");
     
-    Serial.printf("Configuracion leida:\nID_MQTT: %s\nIP broker: %s\nIP Puerto del broker: %i\ntimeReconnectMQTT: %i\nUsuario: %s\nPassword: %s\nTopic root: %s\nTopic medidas: %s\nTopic Ordenes: %s\nTopic Reles: %s\nPublicar estado: %i\n", ID_MQTT.c_str(),IPBroker.toString().c_str(),puertoBroker,timeReconnectMQTT,usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str(),topicMedidas.c_str(),topicOrdenes.c_str(),topicReles.c_str(),publicarEstado);
+    Serial.printf("Configuracion leida:\nID_MQTT: %s\nIP broker: %s\nIP Puerto del broker: %i\ntimeReconnectMQTT: %i\nUsuario: %s\nPassword: %s\nTopic root: %s\nTopic medidas: %s\nTopic Ordenes: %s\nTopic Reles: %s\nPublicar estado: %i\nMensajes GHN: %s\n", ID_MQTT.c_str(),IPBroker.toString().c_str(),puertoBroker,timeReconnectMQTT,usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str(),topicMedidas.c_str(),topicOrdenes.c_str(),topicReles.c_str(),publicarEstado,topicMensajes.c_str());
 //************************************************************************************************
     return true;
     }
@@ -145,6 +147,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length)
   //Para cada topic suscrito...  
   if(comparaTopics(topicRoot + topicMedidas, topic)) procesaTopicMedidas(topic,payload,length);  
   else if(comparaTopics(topicRoot + topicReles, topic)) procesaTopicReles(topic,payload,length);
+  else if(comparaTopics(topicRoot + topicMensajes, topic)) procesaTopicMensajes(topic,payload,length);  
   //elseif(comparaTopics(topicRoot + <topicSuscrito>, topic)) <funcion de gestion>(topic,payload,length);  
   else if(cad.equalsIgnoreCase(TOPIC_PING)) respondePingMQTT(topic,payload,length);      
   //Si no machea el topic recibido con los sucritos lo tira (no deberia ocurrir)
@@ -208,7 +211,7 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   int id;  
   int estado;
 
-  Serial.printf("topic: %s\nPayload: %s\nlongitud: %i\n",topic,(const char*)payload,length);
+  if(debugGlobal) Serial.printf("topic: %s\nPayload: %s\nlongitud: %i\n",topic,(const char*)payload,length);
 
   //copio el payload en la cadena mensaje
   for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
@@ -240,7 +243,7 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   habitaciones[id].temperatura = root["Temperatura"];
   habitaciones[id].humedad = root["Humedad"]; 
   habitaciones[id].luz = root["Luz"];
-  Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz);
+  if(debugGlobal) Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz);
   /**********************Fin JSON***********************/    
   }
 
@@ -257,6 +260,41 @@ void procesaTopicReles(char* topic, byte* payload, unsigned int length)
   mensaje[length]=0;//acabo la cadena
 
   setEstadoRelesLeido(String(mensaje));
+  }
+
+/***************************************************/
+/* Funcion que interpreta el mensaje de para el    */
+/* envio de notificaciones a GHN                   */
+/***************************************************/
+void procesaTopicMensajes(char* topic, byte* payload, unsigned int length)
+  {
+  char mensaje[length];    
+    
+  //copio el payload en la cadena mensaje
+  for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
+  mensaje[length]=0;//acabo la cadena
+   
+  /**********************Leo el JSON***********************/
+  String origen="";
+  String men="";
+  String cad="";
+  
+  const size_t bufferSize = JSON_OBJECT_SIZE(3) + 50;
+  DynamicJsonBuffer jsonBuffer(bufferSize);     
+  JsonObject& root = jsonBuffer.parseObject(mensaje);
+
+  if (!root.success()) 
+    {
+    Serial.printf("¡¡KO en el parseo del JSON!!\nJSON: %s",mensaje);    
+    return; //si el mensaje es incorrecto sale  
+    }
+
+  //Leo los valores y genero la cadena de salida
+  cad = root.get<String>("mensaje");
+  if(debugGlobal) Serial.printf("Mensaje a enviar: %s\n",cad.c_str());
+  /**********************Fin JSON***********************/ 
+
+  enviaNotificacion(cad.c_str());
   }
 
 /***************************************************/
@@ -349,6 +387,11 @@ boolean conectaMQTT(void)
 
       //topicReles: topic en el que el actuador publica el estado de los reles
       topic=topicRoot + topicReles;
+      if (clienteMQTT.subscribe(topic.c_str())) Serial.printf("Subscrito al topic %s\n", topic.c_str());
+      else Serial.printf("Error al subscribirse al topic %s\n", topic.c_str());       
+
+      //topicMensajes: topic en el que cualquiera publica la necesidad de comunicar por GHN algo
+      topic=topicRoot + topicMensajes;
       if (clienteMQTT.subscribe(topic.c_str())) Serial.printf("Subscrito al topic %s\n", topic.c_str());
       else Serial.printf("Error al subscribirse al topic %s\n", topic.c_str());       
 

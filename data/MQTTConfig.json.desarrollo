@@ -9,5 +9,6 @@
 	"topicOrdenes": "actuadorPre",
 	"topicMedidas": "/+/medidas",
 	"topicReles":"actuadorPre/estado",	
+	"topicMensajes": "mensajes",
 	"publicarEstado": 1
 }
