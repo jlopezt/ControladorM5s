@@ -1,5 +1,5 @@
 /*********************************************************************
-Funciones d egestion de la actualizacion OTA
+Funciones de gestion de la actualizacion OTA
 
 Manual: http://esp8266.github.io/Arduino/versions/2.0.0/doc/ota_updates/ota_updates.html
 Libreria: https://github.com/esp8266/Arduino/tree/master/libraries/ArduinoOTA
@@ -23,7 +23,7 @@ Funcines que provee al libreria:
 **********************************************************************/
 boolean flagOTA=false; //flag de si hay una actualizacion en curso
 
-boolean inicializaOTA(boolean debug)
+void inicializaOTA(boolean debug)
   {    
   flagOTA=false; //flag de si hay una actualizacion en curso
   

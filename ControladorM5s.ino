@@ -19,6 +19,9 @@
 #define MAX_VUELTAS       32767
 #define SATELITE_TIME_OUT 100000 //Milisegundos transcurridos entre dos peticiones del controlador antes de intentar registrarse
 
+#define TOP_TRAZA          1
+#define INC_TRAZA          14
+
 //Organizacion de pines de E/S
 #define RELES_PIN          8 //Pîn del primer rele, los demas consecutivos
 #define MAX_SATELITES     16 //numero maximo de satelites de 0 a 15 controlado por los DIP Switch
@@ -131,16 +134,25 @@ hw_timer_t *timer = NULL;//Puntero al timer del watchdog
 int8_t debugGlobal=0; //por defecto desabilitado
 int8_t ficherosModificados=0;//Inicialmente no hay ficheros modificados
 boolean candado=false; //Candado de configuracion. true implica que la ultima configuracion fue mal
+int16_t top=TOP_TRAZA;
 /*-----------------Variables comunes---------------*/
 
 void setup()
   {
+  boolean trazaInicio=false;  //Traza sobre la pantalla del M5 Stack
   ficherosModificados=0;
   
   //Inicializo el core del M5
   M5.begin();
   Serial.begin(115200);
   Wire.begin();//Lo he visto en los ejemplos...
+
+  if (M5.BtnA.isPressed()) 
+    {
+    debugGlobal=1; 
+    trazaInicio=true;
+    }
+  else debugGlobal=0;
 
   Serial.printf("\n\n\n");
   Serial.printf("*************** %s ***************\n",NOMBRE_FAMILIA);
@@ -174,60 +186,126 @@ void setup()
   Serial.printf("\n\nInit Config -----------------------------------------------------------------------\n");
   inicializaConfiguracion(debugGlobal);
 
+  //Traza de inicio
+  if(candado) pintaTrazaInicial(0, top, "candado encontrado", 9);
+  else pintaTrazaInicial(0, top, "candado puesto", 9);
+
+  //Traza de inicio
+  pintaTrazaInicial(0, top, "Iniciando Wifi",8);
+  
   //Wifi
   Serial.printf("\n\nInit WiFi -----------------------------------------------------------------------\n");
   if (inicializaWifi(true))//debugGlobal)) No tien esentido debugGlobal, no hay manera de activarlo
     {
     //----------------Inicializaciones que necesitan red-------------
+    //Traza de inicio
+    String sss="Wifi OK"+getIP(0);
+    pintaTrazaInicial(0, top,sss,8);
+
     //OTA
     Serial.printf("\n\nInit OTA -----------------------------------------------------------------------\n");
     inicializaOTA(debugGlobal);
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"OTA OK",8);
+
     //SNTP
     Serial.printf("\n\nInit SNTP ----------------------------------------------------------------------\n");
     inicializaReloj();
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"SNTP OK",8); 
+
     //MQTT
     Serial.println("Init MQTT -----------------------------------------------------------------------");
     inicializaMQTT();
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"MQTT OK",8); 
+
     //WebServer
     Serial.printf("\n\nInit Web --------------------------------------------------------------------------\n");
     inicializaWebServer();
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"Webserver OK",8); 
+
     //WebSockets
     Serial.println("Init Web ------------------------------------------------------------------------");
     inicializaWebSockets();
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"Websockets OK",8); 
+
     //Google Home Notifier
     Serial.println("\n\nInit Google Home Notifier -------------------------------------------------------\n");
     inicializaGHN();
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"GHN OK",8); 
     }
-  else Serial.println("No se pudo conectar al WiFi");
+  else 
+    {
+    //Traza de inicio
+     pintaTrazaInicial(0, top,"¡¡¡¡Wifi KO!!!!",8); 
+    Serial.println("No se pudo conectar al WiFi");
+    }
  
   //Logica
   Serial.printf("\n\nInit Logica -----------------------------------------------------------------------\n");
   inicializaLogica();
+  //Traza de inicio
+  pintaTrazaInicial(0, top,"Logica OK",8); 
   
   //Satelites
   Serial.printf("\n\nInit Sensores ---------------------------------------------------------------------\n");
   inicializaSatelites();
+  //Traza de inicio
+  pintaTrazaInicial(0, top,"Satelites OK",8);
 
   //Errores
   Serial.printf("\n\nInit Errores ----------------------------------------------------------------------\n");
   inicializaErrores();
+  //Traza de inicio
+  pintaTrazaInicial(0, top,"Errores OK",8); 
+
+  //Botones
+  Serial.printf("\n\nInit Botones ----------------------------------------------------------------------\n");  
+  inicializaBotones();//Inicializa los botones del M5Stack
+  //Traza de inicio
+  pintaTrazaInicial(0, top,"Botones OK",8); 
+  
+  //Ordenes serie
+  Serial.printf("\n\nInit Ordenes ----------------------------------------------------------------------\n");  
+  inicializaOrden();//Inicializa los buffers de recepcion de ordenes desde PC
+  //Traza de inicio
+  pintaTrazaInicial(0, top,"Ordenes OK",8); 
+
+  //Si ha llegado hasta aqui, todo ha ido bien y borro el candado
+  if(borraFichero(FICHERO_CANDADO))
+    {
+    Serial.println("Candado borrado");
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"Candado borrado",8); 
+    }
+  else 
+    {
+    Serial.println("ERROR - No se pudo borrar el candado");
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"¡No se pudo borrrar el candado!",8); 
+    }
+
+  //Traza de inicio
+  //Paro para revisar la pantalla si hay traza de incio activada
+  if (trazaInicio) 
+    {
+    Serial.printf("Traza inicio activada,esperando pulsacion de boton A\n");  
+    while(true)
+      {
+      delay(1);  
+      M5.update();       
+      if(M5.BtnA.wasPressed()) break;
+      }  
+    }
 
   //Pantalla
   Serial.printf("\n\nInit Pantalla -----------------------------------------------------------------------\n");
   inicializaPantalla(); 
 
-  //Botones
-  Serial.printf("\n\nInit Botones ----------------------------------------------------------------------\n");  
-  inicializaBotones();//Inicializa los botones del M5Stack
-  
-  //Ordenes serie
-  Serial.printf("\n\nInit Ordenes ----------------------------------------------------------------------\n");  
-  inicializaOrden();//Inicializa los buffers de recepcion de ordenes desde PC
-
-  //Si ha llegado hasta aqui, todo ha ido bien y borro el candado
-  if(borraFichero(FICHERO_CANDADO))Serial.println("Candado borrado");
-  else Serial.println("ERROR - No se pudo borrar el candado");
-  
   Serial.println("");
   Serial.println("***************************************************************");
   Serial.println("*                                                             *");
@@ -446,3 +524,10 @@ void configuraWatchdog(void)
   timerWrite(timer, 0);                                           //lo pongo a cero                                                      //void timerWrite(hw_timer_t *timer, uint64_t val);
   timerAlarmEnable(timer);                                        //habilito el contador                                                 //void timerAlarmEnable(hw_timer_t *timer);
 }
+
+void pintaTrazaInicial(int x, int y, String texto, int tamano)
+  {
+   if(!debugGlobal) return;
+   escribePantalla(x,y,texto,tamano);
+   top+=INC_TRAZA;
+   }

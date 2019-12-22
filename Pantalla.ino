@@ -430,10 +430,11 @@ void pintaLayout4(String valor, int satelite, String alarma="")//Informacion de 
   M5.Lcd.setFreeFont(FM18);//(CF_OL32);                 // Select the font
   M5.Lcd.drawString(String("Base: " + String(WiFi.SSID())).c_str(), x0,y0, GFXFF);// Print the string name of the font
   M5.Lcd.drawString(String("Potencia: " + String(WiFi.RSSI())).c_str(), x0, y0+alto, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString(String("IP: " + String(getIP(0))).c_str(), x0, y0+2*alto, GFXFF);// Print the string name of the font
 
   M5.Lcd.setTextDatum(BR_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
   M5.Lcd.setFreeFont(FM12);//(CF_OL32);                 // Select the font
-  M5.Lcd.drawString(String("Vueltas: " + String(vuelta)).c_str(), x0, y0+2*alto, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString(String("Vueltas: " + String(vuelta)).c_str(), x0, y0+3*alto, GFXFF);// Print the string name of the font
   }
 
 //Modo Tipo Calefaccion
