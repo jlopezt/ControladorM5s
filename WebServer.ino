@@ -444,6 +444,10 @@ void handleInfo(void)
   cad += IDENTIFICACION
 
   cad += "<BR>-----------------info general-----------------<BR>";
+  cad += "Hora actual: " + getHora(); 
+  cad += "<BR>";
+  cad += "Fecha actual: " + getFecha(); 
+  cad += "<BR>";
   cad += "Uptime: " + String(uptime())+ "ms";
   cad += "<BR>";
   cad += "IP: " + String(getIP(debugGlobal));

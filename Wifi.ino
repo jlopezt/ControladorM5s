@@ -42,7 +42,8 @@ void miSaveConfigCallback(void)
   Serial.print("Password : ");
   Serial.println(WiFi.psk());   
 
-  if(!leeFicheroConfig(WIFI_CONFIG_FILE, cad)) Serial.println("No se pudo leer el fichero");
+  //No uso aqui el config, porque sino, con candado no lee el fichero actual y lo machaca----if(!leeFicheroConfig(WIFI_CONFIG_FILE, cad)) Serial.println("No se pudo leer el fichero");
+  if(!leeFichero(WIFI_CONFIG_FILE, cad)) Serial.println("No se pudo leer el fichero");
   cad=generaJsonConfiguracionWifi(cad, WiFi.SSID(),WiFi.psk());
   if(!salvaFichero(WIFI_CONFIG_FILE, WIFI_CONFIG_BAK_FILE, cad)) Serial.println("No se pudo salvar el fichero");  
   Serial.println("---------------------Fin salvando configuracion---------------");
@@ -255,11 +256,11 @@ String generaJsonConfiguracionWifi(String configActual, String ssid, String pass
   boolean nuevo=true;
   String salida="";
 
-  if(configActual=="") 
-    {
-    Serial.println("No existe el fichero. Se genera uno nuevo");
-    return "{\"wifi\":[{\"ssid\":\"" + ssid + "\",\"password\":\"" + password + "\"}]}";;
-    }
+//  if(configActual=="") 
+//   {
+//    Serial.println("No existe el fichero. Se genera uno nuevo");
+//    return "{\"wifi\":[{\"ssid\":\"" + ssid + "\",\"password\":\"" + password + "\"}]}";;
+//    }
     
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.parseObject(configActual.c_str());
@@ -295,6 +296,11 @@ String generaJsonConfiguracionWifi(String configActual, String ssid, String pass
     Serial.printf("json creado:\n#%s#\n",salida.c_str());
 
     }//la de parsear el json
+  else
+    {
+    Serial.println("LA configuracion actual esta vacia o no es un JSON valido. Se genera uno nuevo");
+    return "{\"wifi\":[{\"ssid\":\"" + ssid + "\",\"password\":\"" + password + "\"}]}";;
+    }  
 
   return salida;  
   }

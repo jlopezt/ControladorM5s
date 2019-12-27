@@ -27,6 +27,7 @@ void inicializaOTA(boolean debug)
   {    
   flagOTA=false; //flag de si hay una actualizacion en curso
   
+  ArduinoOTA.setHostname(nombre_dispositivo.c_str());
   ArduinoOTA.setPassword((const char *)"88716");// No authentication by default
 
   //Configuramos las funciones CallBack
