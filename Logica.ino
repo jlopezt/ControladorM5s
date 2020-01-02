@@ -77,6 +77,7 @@ consigna_t consigna={23.0,15.6}; //Limite para encender el rele de dia y de noch
 float umbralLuz=10;//30; //porcentaje que se considera que hay luz en la habitacion
 
 float temperaturaPromedio=0;
+float humedadPromedio=0;
 
 /*********downCounter para modo manual************/
 int downCounter;//Contador de ticks en modo manual, se inicializa al pasar a modo manual y se decrementa en cada vuelta de logicaDeControl. Al quedar a cero se pasa  amodo auto
@@ -271,8 +272,10 @@ void logicaControl(void)
       if(numeroSatelitesLeidos(debugGlobal))
         {
         setEstadoRele(SEGURIDAD,1);//si hay satelites lo enciendo
-          
-        temperaturaPromedio=promediaTemperatura(); //si responde algun satelite, promedio  
+
+        //si responde algun satelite, promedio  
+        temperaturaPromedio=promediaTemperatura();
+        humedadPromedio=promediaHumedad();
           
         if(temperaturaPromedio<getConsigna()) setEstadoRele(CALDERA,1);//si esta por debajo de la consigna, enciendo el rele
         else setEstadoRele(CALDERA,0); //si no lo apago    
@@ -346,6 +349,16 @@ String getNombreRele(int rele)
   return reles[rele].nombre;
   }
       
+/******************************************************/
+/*                                                    */
+/* Devuelve la humedad promedio calculada             */ 
+/*                                                    */
+/******************************************************/
+float getHumedadPromedio(void)
+  {
+  return humedadPromedio;
+  }
+
 /******************************************************/
 /*                                                    */
 /* Devuelve la temperatura promedio calculada         */ 

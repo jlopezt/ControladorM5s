@@ -22,6 +22,16 @@
 #define FMBO12 &FreeMonoBoldOblique12pt7b
 #define FMBO18 &FreeMonoBoldOblique18pt7b
 #define FMBO24 &FreeMonoBoldOblique24pt7b
+
+#define FF17 &FreeSans9pt7b
+#define FF18 &FreeSans12pt7b
+#define FF19 &FreeSans18pt7b
+#define FF20 &FreeSans24pt7b
+
+#define FF21 &FreeSansBold9pt7b
+#define FF22 &FreeSansBold12pt7b
+#define FF23 &FreeSansBold18pt7b
+#define FF24 &FreeSansBold24pt7b
 */
 
 #define SEPARADOR_VERTICAL 5
@@ -372,13 +382,24 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   if (getEstadoRele(CALDERA)) M5.Lcd.setTextColor(TFT_RED, TFT_BLACK);// Set text colour to red with black background
   else M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to white with black background
   M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
-  M5.Lcd.setFreeFont(FF48);//(CF_OL32);                 // Select the font
+  M5.Lcd.setFreeFont(FF24);//(CF_OL32);                 // Select the font
   //M5.Lcd.drawString((String(getTemperaturaPromedio(),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
   float TP=getTemperaturaPromedio();
   String TPS;
   if(TP==-100.0) TPS="-.-";
   else TPS=String(getTemperaturaPromedio(),1);
   M5.Lcd.drawString((TPS+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+
+  //Humedad
+  x0=MARGEN_IZQUIERDO;
+  y0=ALTO_TITULO+SEPARADOR_VERTICAL+ALTO_PRINCIPAL;
+  ancho=ANCHO_TOTAL-2*MARGEN_IZQUIERDO;
+  alto=ALTO_PRINCIPAL;
+  M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to white with black background
+  M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
+  M5.Lcd.setFreeFont(FF18);//(CF_OL32);                 // Select the font
+  String Hum=String(getHumedadPromedio(),1);
+  M5.Lcd.drawString((Hum+"%").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
 
   //Hora
   x0=MARGEN_IZQUIERDO;// /2

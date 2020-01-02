@@ -386,7 +386,8 @@ float getLuz(int8_t id, int debug)
 
 /*******************************************************/
 /*                                                     */
-/* Promedia las medidas de los satelites segun el peso */ 
+/* Promedia las medidas de temperatura de los          */
+/* satelites segun el peso                             */ 
 /*                                                     */
 /*******************************************************/
 float promediaTemperatura(void)
@@ -410,6 +411,37 @@ float promediaTemperatura(void)
   Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
   Serial.printf("************************\n");
   for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, temp: %f, peso: %i\n",i,habitaciones[i].temperatura,habitaciones[i].peso);
+  Serial.printf("************************\n");  
+  return 9999;
+  }
+
+/*******************************************************/
+/*                                                     */
+/* Promedia las medidas de humedad de los              */
+/* satelites segun el peso                             */ 
+/*                                                     */
+/*******************************************************/
+float promediaHumedad(void)
+  {
+  float promedio=0;
+  float pesoTotal=0;
+  int hora_actual=hora();
+  
+  for(int8_t i=0;i<MAX_SATELITES;i++)
+    {
+    if(sateliteRegistrado(i) && habitaciones[i].temperatura!=NO_LEIDO)
+      {
+      promedio+=habitaciones[i].humedad*habitaciones[i].peso[hora_actual];
+      pesoTotal+=habitaciones[i].peso[hora_actual];
+      }
+    }
+
+  if(pesoTotal!=0 && numeroSatelites(0)) return (promedio/pesoTotal);
+  
+  //si llega aqui es que ha pasado algo raro
+  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("************************\n");
+  for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, humedad: %f, peso: %i\n",i,habitaciones[i].humedad,habitaciones[i].peso);
   Serial.printf("************************\n");  
   return 9999;
   }
