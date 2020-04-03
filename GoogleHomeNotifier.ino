@@ -36,8 +36,8 @@ void inicializaGHN(void)
     }
 
   Serial.println("conectando a Google Home...");
-  //if (ghn.device((const char*)nombreEquipo.c_str(), (const char*)idioma.c_str()) != true) 
-  if (ghn.device("Salon","es") != true) 
+  if (ghn.device((const char*)nombreEquipo.c_str(), (const char*)idioma.c_str()) != true) 
+  //if (ghn.device("Salon","es") != true) 
     {
     Serial.println(ghn.getLastError());
     return;
