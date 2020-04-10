@@ -88,9 +88,6 @@ void reinicializaWebServer(void)
   server.begin();  
   }
   
-
-
-
 void handleRoot() 
   {
   String cad="";
@@ -99,7 +96,7 @@ void handleRoot()
 
   cad = cabeceraHTML;
   cad += "<TABLE>\n";
-  cad += "<TR><TD>Temperatura:</TD><TD>" + String(getTemperaturaPromedio(),1) + "ºC</TD></TR>\n";
+  cad += "<TR><TD>Temperatura:</TD><TD>" + combierteTemperaturaPromedio() + "</TD></TR>\n";
   cad += "<TR><TD>Consigna:</TD><TD>" + String(getConsigna(),1) + "ºC</TD></TR>\n";  
   cad += "<TR><TD>Modo:</TD><TD>" + String(getModoManualTxt()) + "</TD>";
   if(getModoManual()!=MODO_AUTO) cad += "<TD>Ticks:</TD><TD>" + String(getDownCounter()) +  "</TD><TD>Segs:</TD><TD>" + String(ticks2seg(getDownCounter())) +  "</TD></TR>\n";
@@ -114,8 +111,9 @@ void handleRoot()
   //Enlaces
   cad += "<BR><BR>\n";
   cad += enlaces;
-  cad += "<BR><BR>" + nombre_dispositivo + " . Version " + String(VERSION) + ".";
-  
+  cad += "<BR><BR>" + nombre_dispositivo + ". Version " + String(VERSION) + ".";
+
+  cad += "vueltas= " + String(vuelta) + " / " + String(UINT16_MAX);
   cad += pieHTML;
   
   server.send(200, "text/HTML", cad);  

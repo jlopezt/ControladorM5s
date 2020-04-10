@@ -100,6 +100,21 @@ void borraPantalla(void) {M5.Lcd.fillScreen(COLOR_FONDO);}
 void pantallaNegra(void) {M5.Lcd.fillScreen(TFT_BLACK);}
 
 /*********************************************/
+/* Valida la temperatura promedio y la pasa  */
+/* a cadena. Si es NO_LEIDO devuelve -.-     */
+/*********************************************/
+String combierteTemperaturaPromedio(void)
+  {
+  float TP=getTemperaturaPromedio();
+  String TPS="";
+  
+  if(TP==NO_LEIDO) TPS="--.-ºC";
+  else TPS=String(TP,1)+"ºC";
+
+  return TPS;
+  }
+  
+/*********************************************/
 /* Pinta la cabecera de la pantalla          */
 /* comun a varios layouts                    */
 /*********************************************/
@@ -163,7 +178,13 @@ void pintaTemperaturaPromedio(void)
 
   M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
   M5.Lcd.setFreeFont(FMBO24);                 // Select the font
-  M5.Lcd.drawString((String(getTemperaturaPromedio(),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  /*
+  float TP=getTemperaturaPromedio();
+  String TPS;
+  if(TP==-100.0) TPS="-.-C";
+  else TPS=String(getTemperaturaPromedio(),1)+"C";  
+  */
+  M5.Lcd.drawString((combierteTemperaturaPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
   }
 
 /*********************************************/
@@ -384,11 +405,13 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
   M5.Lcd.setFreeFont(FF24);//(CF_OL32);                 // Select the font
   //M5.Lcd.drawString((String(getTemperaturaPromedio(),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  /*
   float TP=getTemperaturaPromedio();
   String TPS;
-  if(TP==-100.0) TPS="-.-";
-  else TPS=String(getTemperaturaPromedio(),1);
-  M5.Lcd.drawString((TPS+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  if(TP==-100.0) TPS="-.-C";
+  else TPS=String(getTemperaturaPromedio(),1)+"C";
+  */
+  M5.Lcd.drawString((combierteTemperaturaPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
 
   //Humedad
   x0=MARGEN_IZQUIERDO;

@@ -269,7 +269,7 @@ void logicaControl(void)
       setEstadoRele(CALDERA,1);
       break;
     case MODO_AUTO://Logica de control en funcion de la temperatura promedio
-      if(numeroSatelitesLeidos(debugGlobal))
+      if(pesoSatelitesLeidos(debugGlobal))//numeroSatelitesLeidos(debugGlobal))
         {
         setEstadoRele(SEGURIDAD,1);//si hay satelites lo enciendo
 

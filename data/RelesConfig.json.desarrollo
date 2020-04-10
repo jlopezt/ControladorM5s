@@ -1,0 +1,6 @@
+{
+"Reles": [
+	{"id":  "0", "nombre": "Calefaccion"},
+	{"id":  "1", "nombre": "Seguridad"  }
+	]
+}
