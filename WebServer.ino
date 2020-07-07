@@ -27,7 +27,9 @@ Informacion del sistema de ficheros       http://IP/infoFS
 
 WebServer server(PUERTO_WEBSERVER); //ESP8266WebServer server(PUERTO_WEBSERVER);
 
-String cabeceraHTML = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Termostato domestico</TITLE></HEAD><BODY><h1><a href=\"../\" target=\"_self\">" + nombre_dispositivo + "</a><br></h1>\n";
+//String cabeceraHTML = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Termostato domestico</TITLE></HEAD><BODY><h1><a href=\"../\" target=\"_self\">" + nombre_dispositivo + "</a><br></h1>\n";
+String cabeceraHTMLlight = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Termostato domestico</TITLE></HEAD><BODY>\n";
+String cabeceraHTML = cabeceraHTMLlight + "<h1><a href=\"../\" target=\"_self\">" + nombre_dispositivo + "</a><br></h1>\n";
 String menuHTML = "<TABLE>\n<CAPTION style=\"text-align:left\">Opciones:</CAPTION>\n <TR><TD><a href=\"configTabla\" target=\"_blank\">Configuracion de la tabla de consignas</a></TD></TR>\n<TR><TD><a href=\"recargaMapa\" target=\"_blank\">Recarga del mapa de temperaturas</a></TD></TR>\n<TR><TD><a href=\"consignaTemperatura\" target=\"_blank\">Consigna de temperatura</a> </TD></TR> \n<TR><TD><a href=\"numeroHabitaciones\" target=\"_blank\">Numero de habitaciones</a> </TD></TR>\n<TR><TD><a href=\"listaHabitaciones\" target=\"_blank\">Lista de las habitaciones</a></TD></TR>\n<TR><TD><a href=\"valoresHabitaciones\" target=\"_blank\">Valores de las medida en las habitaciones</a></TD></TR>\n<TR><TD><a href=\"recargaFicheroNombres\" target=\"_blank\">Recarga del fichero de nombres de satelite</a></TD></TR>\n<TR><TD><a href=\"estadoReles\" target=\"_blank\">Estado de los reles</a></TD></TR>\n<TR><TD><a href=\"listaReles\" target=\"_blank\">Lista de los reles</a></TD></TR>\n<TR><TD><a href=\"configHabitaciones\" target=\"_blank\">Configuracion de habitaciones</a></TD></TR>\n<TR><TD><a href=\"modo\" target=\"_blank\">Modo?</a></TD><TD> | </TD><TD><a href=\"modo?modo=0 \" target=\"_blank\">Modo off</a></TD><TD> | </TD><TD><a href=\"modo?modo=1 \" target=\"_blank\">Modo on</a></TD><TD> | </TD><TD><a href=\"modo?modo=2 \" target=\"_blank\">Modo auto</a></TD></TR>\n</TABLE>\n";  
 String pieHTML = "</BODY>\n</HTML>";
 String enlaces="<TABLE>\n<CAPTION style=\"text-align:left\">Enlaces</CAPTION>\n<TR><TD><a href=\"info\" target=\"_blank\">Info</a></TD></TR>\n<TR><TD><a href=\"test\" target=\"_blank\">Test</a></TD></TR>\n<TR><TD><a href=\"restart\" target=\"_blank\">Restart</a></TD></TR>\n<TR><TD><a href=\"estado\" target=\"_blank\">Estado</a></TD></TR>\n<TR><TD><a href=\"listaFicheros\" target=\"_blank\">Lista ficheros</a></TD></TR>\n<TR><TD><a href=\"estadoSalidas\" target=\"_blank\">Estado salidas</a></TD></TR>\n<TR><TD><a href=\"estadoEntradas\" target=\"_blank\">Estado entradas</a></TD></TR>\n<TR><TD><a href=\"planes\" target=\"_blank\">Planes del secuenciador</a></TD></TR></TABLE>\n"; 
@@ -67,6 +69,11 @@ void inicializaWebServer(void)
 
   server.on("/speech", handleSpeechPath);
   server.on("/habla", handleHablaPath);
+
+  server.on("/datos", handleDatos);
+  server.on("/version", handleVersion);
+  server.on("/listaFicheros2", handleListaFicheros2);
+  
 
   server.on("/edit.html",  HTTP_POST, []() {  // If a POST request is sent to the /edit.html address,
     server.send(200, "text/plain", ""); 
@@ -111,9 +118,42 @@ void handleRoot()
   //Enlaces
   cad += "<BR><BR>\n";
   cad += enlaces;
-  cad += "<BR><BR>" + nombre_dispositivo + ". Version " + String(VERSION) + ".";
+  cad += "<BR><BR>vueltas= " + String(vuelta) + " / " + String(UINT16_MAX);
+  cad += "<BR>Memoria libre: " + String(ESP.getFreeHeap());
+  cad += "<BR>" + nombre_dispositivo + " - Version " + String(VERSION) + ".";
 
-  cad += "vueltas= " + String(vuelta) + " / " + String(UINT16_MAX);
+  cad += pieHTML;
+  
+  server.send(200, "text/HTML", cad);  
+  }
+
+void handleDatos() 
+  {
+  String cad="";
+  
+  cad = cabeceraHTMLlight;  
+  cad += "<TABLE>\n";
+  cad += "<TR><TD>Temperatura:</TD><TD>" + combierteTemperaturaPromedio() + "</TD></TR>\n";
+  cad += "<TR><TD>Consigna:</TD><TD>" + String(getConsigna(),1) + "ºC</TD></TR>\n";  
+  cad += "<TR><TD>Modo:</TD><TD>" + String(getModoManualTxt()) + "</TD>";
+  if(getModoManual()!=MODO_AUTO) cad += "<TD>Ticks:</TD><TD>" + String(getDownCounter()) +  "</TD><TD>Segs:</TD><TD>" + String(ticks2seg(getDownCounter())) +  "</TD></TR>\n";
+  else cad += "</TR>\n";
+  cad += "<TR><TD>Reles</TD></TR>\n";
+  cad += "<TR><TD>Nombre:</TD><TD>" + getNombreRele(CALDERA)   + "</TD><TD>Estado:</TD><TD>" + getEstadoRele(CALDERA)   + "</TD></TR>\n";
+  cad += "<TR><TD>Nombre:</TD><TD>" + getNombreRele(SEGURIDAD) + "</TD><TD>Estado:</TD><TD>" + getEstadoRele(SEGURIDAD) + "</TD></TR>\n";
+  cad += "</TABLE>";
+  cad += "\n<BR>\n";
+  
+  server.send(200, "text/HTML", cad);  
+  }
+
+void handleVersion() 
+  {
+  String cad="";
+
+  cad = cabeceraHTMLlight;
+  cad += "<BR>" + nombre_dispositivo + ". Version " + String(VERSION) + ".";
+
   cad += pieHTML;
   
   server.send(200, "text/HTML", cad);  
@@ -781,6 +821,84 @@ void handleListaFicheros(void)
     cad += "    <input type=\"submit\" value=\"salvar\">";
     cad += "  </p>";
     cad += "</td></tr></table>";      
+    }
+  else cad += "<TR><TD>No se pudo recuperar la lista de ficheros</TD></TR>"; 
+
+  cad += pieHTML;
+  server.send(200, "text/html", cad); 
+  }
+
+/*********************************************/
+/*                                           */
+/*  Lista los ficheros en el sistema a       */
+/*  traves de una peticion HTTP              */ 
+/*                                           */
+/*********************************************/  
+void handleListaFicheros2(void)
+  {
+  String nombreFichero="";
+  String contenidoFichero="";
+  boolean salvado=false;
+  String cad=cabeceraHTMLlight;
+
+  cad += "<h2>Lista de ficheros</h2>";
+  
+  //Variables para manejar la lista de ficheros
+  String contenido="";
+  String fichero="";  
+  int16_t to=0;
+  
+  if(listaFicheros(contenido)) 
+    {
+    Serial.printf("contenido inicial= %s\n",contenido.c_str());      
+    //busco el primer separador
+    to=contenido.indexOf(SEPARADOR); 
+
+    cad +="<style>";
+    cad +="table{border-collapse: collapse;}";
+    cad += "th, td{border: 1px solid black; padding: 10px; text-align: left;}";
+    cad +="</style>";
+    
+    cad += "<table style=\"border: 0px; border-color: #FFFFFF;\"><tr style=\"border: 0px; border-color: #FFFFFF;\"><td style=\"border: 0px; border-color: #FFFFFF;\">";
+    cad += "<TABLE>";
+    while(to!=-1)
+      {
+      fichero=contenido.substring(0, to);//cojo el principio como el fichero
+      contenido=contenido.substring(to+1); //la cadena ahora es desde el separador al final del fichero anterior
+      to=contenido.indexOf(SEPARADOR); //busco el siguiente separador
+
+      cad += "<TR><TD>" + fichero + "</TD>";           
+      cad += "<TD>";
+      cad += "<form action=\"manageFichero\" target=\"_self\">";
+      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + fichero + "\">";
+      cad += "    <input type=\"submit\" value=\"editar\">";
+      cad += "</form>";
+      cad += "</TD><TD>";
+      cad += "<form action=\"borraFichero\" target=\"_self\">";
+      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + fichero + "\">";
+      cad += "    <input type=\"submit\" value=\"borrar\">";
+      cad += "</form>";
+      cad += "</TD></TR>";
+      }
+    cad += "</TABLE>\n";
+    cad += "</td>";
+    
+    //Para crear un fichero nuevo
+    cad += "<td style=\"border: 0px; border-color: #FFFFFF;\">";
+    cad += "<h2>Crear un fichero nuevo:</h2>";
+    cad += "<table><tr><td>";      
+    cad += "<form action=\"creaFichero\" target=\"_self\">";
+    cad += "  <p>";
+    cad += "    Nombre:<input type=\"text\" name=\"nombre\" value=\"\">";
+    cad += "    <BR>";
+    cad += "    Contenido:<br><textarea cols=75 rows=20 name=\"contenido\"></textarea>";
+    cad += "    <BR>";
+    cad += "    <input type=\"submit\" value=\"salvar\">";
+    cad += "  </p>";
+    cad += "</td></tr></table>";      
+    cad += "</td>";
+    cad += "</tr></table>";
+
     }
   else cad += "<TR><TD>No se pudo recuperar la lista de ficheros</TD></TR>"; 
 

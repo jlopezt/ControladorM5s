@@ -16,7 +16,7 @@
 #define OK                0
 #define HORAS_EN_DIA      24
 #define SEGUNDOS_EN_HORA  3600
-#define MAX_VUELTAS       32767
+#define MAX_VUELTAS       UINT16_MAX //32767
 #define SATELITE_TIME_OUT 100000 //Milisegundos transcurridos entre dos peticiones del controlador antes de intentar registrarse
 
 #define TOP_TRAZA          1
@@ -127,7 +127,7 @@ String nombre_dispositivo(NOMBRE_FAMILIA);//Nombre del dispositivo, por defecto 
 time_t SleepBucle=0;
 time_t limiteSleep=0;
 
-unsigned int vuelta = 32700;//0; //vueltas de loop del core 0
+unsigned int vuelta = UINT16_MAX-50; //vueltas de loop del core 0
 
 hw_timer_t *timer = NULL;//Puntero al timer del watchdog
 

@@ -17,6 +17,7 @@
 #define WIFI_PORTAL_TIMEOUT 5*60 //5 minutos en segundos
 #define TIME_OUT 30000
 #define DELAY 1000
+#define LIMITE_FALLOS_CONEXION 5
 
 IPAddress wifiIP(0, 0, 0, 0);//0.0.0.0 significa que no hay IP fija
 IPAddress wifiNet(0, 0, 0, 0);
@@ -250,7 +251,11 @@ String nombreSSID(void) {return WiFi.SSID();}
 /*********************************************************************/
 /*             Watchdog de control para la conexion WiFi             */
 /*********************************************************************/ 
-void WifiWD(void) {if(WiFi.status() != WL_CONNECTED) ESP.restart();}
+void WifiWD(void) {
+  static uint8_t fallos=0;
+  if(WiFi.status() != WL_CONNECTED) fallos++;
+  if (fallos>LIMITE_FALLOS_CONEXION) ESP.restart();
+  }
 
 /**********************************************************************/
 /* Salva la configuracion de las bases wifi conectada en formato json */
