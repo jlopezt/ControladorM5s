@@ -7,9 +7,10 @@
  *
  */
  
+/***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.5.6 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.2.9" //servicio tts para leer la temperatura promedio
+#define VERSION           "2.5.7 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.2.9" //servicio tts para leer la temperatura promedio
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -69,17 +70,18 @@
 #define FRECUENCIA_ENVIA_DATOS      100 //cada cuantas vueltas de loop publica el estado en el broker MQTT
 #define FRECUENCIA_SATELITE_TIMEOUT  50 //cada cuantas vueltas de loop compruebo si ha habido time out en los satelites
 #define FRECUENCIA_WIFI_WATCHDOG    100 //cada cuantas vueltas comprueba si se ha perdido la conexion WiFi
+#define FRECUENCIA_FREEHEAP          50 //cada cuantas vueltas publica la memoria libre
 
 //configuracion del watchdog del sistema
 #define TIMER_WATCHDOG        0 //Utilizo el timer 0 para el watchdog
 #define PREESCALADO_WATCHDOG 80 //el relog es de 80Mhz, lo preesalo entre 80 para pasarlo a 1Mhz
-#define TIEMPO_WATCHDOG      1000*1000*ANCHO_INTERVALO //Si en N ANCHO_INTERVALO no se atiende el watchdog, saltara. ESTA EN microsegundos
+#define TIEMPO_WATCHDOG      100*1000*1000 //Si en este numero de microsegundos no se atiende el watchdog, saltara. Esta microsegundos
 
 //Para la pantalla
 #define COLOR_FONDO TFT_NAVY
 #define COLOR_TITULO TFT_BLUE
 #define COLOR_LETRAS_TITULO TFT_WHITE
-#define TEXTO_TITULO "Termostatix 2.4"
+#define TEXTO_TITULO "Termostatix 2.5"
 #define COLOR_MENU TFT_LIGHTGREY
 #define COLOR_LETRAS_MENU TFT_WHITE
 
@@ -100,6 +102,11 @@
 #define DEFAULT_TIME_OUT 5000 //en milisegundos
 #define DEFAULT_BRILLO_PANTALLA 10
 
+#define LED_BUILTIN      21 //GPIO del led de la placa en los ESP32   
+/***************************** Defines *****************************/
+
+/***************************** Includes *****************************/
+//Includes generales
 #include <M5Stack.h>
 #include <FS.h>                   //this needs to be first, or it all crashes and burns...
 #include <TimeLib.h>  // download from: http://www.arduino.cc/playground/Code/Time
@@ -110,6 +117,7 @@
 #include <ArduinoJson.h>
 #include <SPIFFS.h> //para el ESP32
 #include <WebSocketsServer.h> //Lo pongo aqui porque si lo pongo en su sitio no funciona... https://github.com/Links2004/arduinoWebSockets/issues/356
+#include <rom/rtc.h>
 
 //prototipo de funciones
 String getErroresNivel(int nivel=0);
@@ -136,6 +144,19 @@ int8_t ficherosModificados=0;//Inicialmente no hay ficheros modificados
 boolean candado=false; //Candado de configuracion. true implica que la ultima configuracion fue mal
 int16_t top=TOP_TRAZA;
 /*-----------------Variables comunes---------------*/
+/************************* FUNCIONES PARA EL BUITIN LED ***************************/
+void configuraLed(void){pinMode(LED_BUILTIN, OUTPUT);}
+void enciendeLed(void){digitalWrite(LED_BUILTIN, LOW);}//En esp8266 es al reves que en esp32
+void apagaLed(void){digitalWrite(LED_BUILTIN, HIGH);}//En esp8266 es al reves que en esp32
+void parpadeaLed(uint8_t veces, uint16_t espera=100)
+  {
+  for(uint8_t i=0;i<2*veces;i++)
+    {
+    delay(espera/2);
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    }
+  }
+/***********************************************************************************/  
 
 void setup()
   {
@@ -369,6 +390,7 @@ int paso=0;
 //Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_WIFI_WATCHDOG)==0) WifiWD();  
 //Serial.printf("paso: %i\n",paso++);  
+  if ((vuelta % FRECUENCIA_FREEHEAP)==0) enviarMQTT("freeheap", "{\"IP\": \"" + String(getIP(debugGlobal)) + "\" , \"Uptime\":" + String(uptime())+ ", \"freeHeap\": " + String(ESP.getFreeHeap()) + ", \"potencia\": \"" + String(WiFi.RSSI()) + "\", \"lastResetReason0\": " + rtc_get_reset_reason(0) + ", \"lastResetReason1\": " + rtc_get_reset_reason(1) + "}");  
   //------------- FIN EJECUCION DE TAREAS ---------------------------------  
 //Serial.println("Fin");
   //sumo una vuelta de loop, si desborda inicializo vueltas a cero
@@ -444,16 +466,34 @@ boolean parseaConfiguracionGlobal(String contenido)
   return false;
   }
 
-///////////////FUNCIONES COMUNES/////////////////////
-/*************************************************/
-/*  Dado un long, lo paso a binario y cambio los */
-/*  bits pares. Devuelve el nuevo valor          */ 
-/*************************************************/
-int generaId(int id_in)
+/*****************************************FUNCIONES COMUNES********************************************************/
+/***************************************************************/
+/*                                                             */
+/*  Decodifica el motivo del ultimo reset                      */
+/*                                                             */
+/***************************************************************/
+const char* reset_reason(RESET_REASON reason)
+{
+  switch ( reason)
   {
-  const long mascara=43690;
-  return (id_in^mascara);
+    case 1 : return ("POWERON_RESET");break;          /**<1,  Vbat power on reset*/
+    case 3 : return ("SW_RESET");break;               /**<3,  Software reset digital core*/
+    case 4 : return ("OWDT_RESET");break;             /**<4,  Legacy watch dog reset digital core*/
+    case 5 : return ("DEEPSLEEP_RESET");break;        /**<5,  Deep Sleep reset digital core*/
+    case 6 : return ("SDIO_RESET");break;             /**<6,  Reset by SLC module, reset digital core*/
+    case 7 : return ("TG0WDT_SYS_RESET");break;       /**<7,  Timer Group0 Watch dog reset digital core*/
+    case 8 : return ("TG1WDT_SYS_RESET");break;       /**<8,  Timer Group1 Watch dog reset digital core*/
+    case 9 : return ("RTCWDT_SYS_RESET");break;       /**<9,  RTC Watch dog Reset digital core*/
+    case 10 : return ("INTRUSION_RESET");break;       /**<10, Instrusion tested to reset CPU*/
+    case 11 : return ("TGWDT_CPU_RESET");break;       /**<11, Time Group reset CPU*/
+    case 12 : return ("SW_CPU_RESET");break;          /**<12, Software reset CPU*/
+    case 13 : return ("RTCWDT_CPU_RESET");break;      /**<13, RTC Watch dog Reset CPU*/
+    case 14 : return ("EXT_CPU_RESET");break;         /**<14, for APP CPU, reseted by PRO CPU*/
+    case 15 : return ("RTCWDT_BROWN_OUT_RESET");break;/**<15, Reset when the vdd voltage is not stable*/
+    case 16 : return ("RTCWDT_RTC_RESET");break;      /**<16, RTC Watch dog reset digital core and rtc module*/
+    default : return ("NO_MEAN");
   }
+}
 
 /***************************************************************/
 /*                                                             */
@@ -508,14 +548,15 @@ time_t uptime(void) {return millis();}
 //funcion de interrupcion que reseteara el ESP si no se atiende el watchdog
 void IRAM_ATTR resetModule(void) {
   ets_printf("Watchdog!!! reboot\n");
+  enviarMQTT("freeheap", "{\"IP\": \"" + String(getIP(debugGlobal)) + "\" , \"Uptime\": 1970, \"freeHeap\": " + String(ESP.getFreeHeap()) + ", \"potencia\": \"" + String(WiFi.RSSI()) + "\", \"lastResetReason0\": " + rtc_get_reset_reason(0) + ", \"lastResetReason1\": " + rtc_get_reset_reason(1) + "}");  
   esp_restart();
 }
 
-/***************************************************************/
-/*                                                             */
-/*  Configuracion del watchdog del sistema                     */
-/*                                                             */
-/***************************************************************/
+/**************************************************************************/
+/*                                                                        */
+/*  Configuracion del watchdog del sistema                                */
+/*  https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/ */
+/**************************************************************************/
 void configuraWatchdog(void)
 {
   timer = timerBegin(TIMER_WATCHDOG, PREESCALADO_WATCHDOG, true); //timer 0, div 80 para que cuente microsegundos y hacia arriba         //hw_timer_t * timerBegin(uint8_t timer, uint16_t divider, bool countUp);
