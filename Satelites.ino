@@ -34,10 +34,10 @@ int8_t pesoSatelites[MAX_SATELITES][HORAS_EN_DIA]; //peso en el calculo de la te
 
 //////////////////////////////////////////////////Funciones de configuracion de los satelites///////////////////////////////////////////////////////
 /*inicializa los satelites, pongo todo a cero*/
-void inicializaSatelites(void)
+boolean inicializaSatelites(void)
   {
   //Leo el nombre del fichero o lo inicializo por defecto. Nombres y pesos
-  leeFicheroNombres();
+  boolean salida=leeFicheroNombres();
   
   //Inicializo el valor de los satelites   
   for(int8_t i=0;i<MAX_SATELITES; i++)
@@ -50,6 +50,7 @@ void inicializaSatelites(void)
     habitaciones[i].humedad=0.0;
     habitaciones[i].luz=0.0;   
     }  
+  return salida;  
   }
 
 boolean leeFicheroNombres(void)

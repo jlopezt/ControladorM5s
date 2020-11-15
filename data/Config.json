@@ -1,5 +1,6 @@
 {
-	"TimeOut": 5000, 
-	"limiteSleep":20000, 
-	"Brillo": 10
+  "nombre_dispositivo": "Termostato",
+  "TimeOut": 5000, 
+  "limiteSleep":20000, 
+  "Brillo": 10
 }

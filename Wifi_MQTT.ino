@@ -26,11 +26,16 @@
 #define TOPIC_PING "ping"
 #define TOPIC_PING_RESPUESTA "ping/respuesta"
 
+#define DIR_CA_CERT "/ca.crt"
+
 //Includes MQTT
 #include <PubSubClient.h>
+#include <WiFiClientSecure.h>
 
 //Definicion de variables globales
+String modoMQTT="";
 IPAddress IPBroker; //IP del bus MQTT
+String BrokerDir;
 uint16_t puertoBroker; //Puerto del bus MQTT
 uint16_t timeReconnectMQTT; //Tiempo de espera en la reconexion al bus
 String usuarioMQTT; //usuario par ala conxion al broker
@@ -43,7 +48,9 @@ String topicMensajes; //topic al que se va suscribir para recibir las solicitude
 int8_t publicarEstado; //Flag para determinar si se envia el json con los valores de las salidas
 
 WiFiClient espClient;
-PubSubClient clienteMQTT(espClient);
+WiFiClientSecure espClientSSL;
+PubSubClient clienteMQTT;
+String caCert;
 
 /************************************************/
 /* Inicializa valiables y estado del bus MQTT   */
@@ -54,12 +61,31 @@ void inicializaMQTT(void)
   if (!recuperaDatosMQTT(false)) Serial.printf("error al recuperar config MQTT.\nConfiguracion por defecto.\n");
 
   //Si va bien inicializo con los valores correstoc, si no con valores por defecto
+
+  if(modoMQTT=="TLS")
+    {
+    Serial.printf("Modo de conexion: %s\n", modoMQTT.c_str());
+    
+    //Leo el fichero con el certificado de CA
+    if(!leeFichero(DIR_CA_CERT,caCert)) Serial.printf("No se pudo leer el certificado CA\n");
+
+    /* set SSL/TLS certificate */
+    espClientSSL.setCACert(caCert.c_str());
+    clienteMQTT.setClient(espClientSSL);
+    }
+  else
+    {
+    clienteMQTT.setClient(espClient);
+    }
+
   //confituro el servidor y el puerto
-  clienteMQTT.setServer(IPBroker, puertoBroker);
+  if (BrokerDir==String("")) clienteMQTT.setServer(IPBroker, puertoBroker);
+  else clienteMQTT.setServer(BrokerDir.c_str(), puertoBroker);
+
   //configuro el callback, si lo hay
   clienteMQTT.setCallback(callbackMQTT);
 
-  if (conectaMQTT()) Serial.println("connectado al broker");  
+  if (conectaMQTT()) Serial.println("conectado al broker");  
   else Serial.printf("error al conectar al broker con estado %i\n",clienteMQTT.state());
   }
 
@@ -73,7 +99,9 @@ boolean recuperaDatosMQTT(boolean debug)
   if (debug) Serial.println("Recupero configuracion de archivo...");
 
   //cargo el valores por defecto
+  modoMQTT=""; //Sin encriptacion SSL/TLS
   IPBroker.fromString("0.0.0.0");
+  BrokerDir="";
   puertoBroker=0;
   timeReconnectMQTT=100;
   ID_MQTT=String(NOMBRE_FAMILIA); //ID del modulo en su conexion al broker
@@ -110,8 +138,10 @@ boolean parseaConfiguracionMQTT(String contenido)
     {
     Serial.println("parsed json");
 //******************************Parte especifica del json a leer********************************
+    if (json.containsKey("modoMQTT"))  modoMQTT=json.get<String>("modoMQTT");
     ID_MQTT=json.get<String>("ID_MQTT");
-    IPBroker.fromString(json.get<String>("IPBroker"));
+    if (json.containsKey("IPBroker")) IPBroker.fromString(json.get<String>("IPBroker"));
+    if (json.containsKey("BrokerDir")) BrokerDir=json.get<String>("BrokerDir");
     puertoBroker=json.get<uint16_t>("puerto");
     timeReconnectMQTT=json.get<uint16_t>("timeReconnectMQTT");
     usuarioMQTT=json.get<String>("usuarioMQTT");
@@ -123,7 +153,7 @@ boolean parseaConfiguracionMQTT(String contenido)
     topicMensajes=json.get<String>("topicMensajes"); if(!topicMensajes.startsWith("/")) topicMensajes = "/" + topicMensajes;    
     publicarEstado=json.get<int8_t>("publicarEstado");
     
-    Serial.printf("Configuracion leida:\nID_MQTT: %s\nIP broker: %s\nIP Puerto del broker: %i\ntimeReconnectMQTT: %i\nUsuario: %s\nPassword: %s\nTopic root: %s\nTopic medidas: %s\nTopic Ordenes: %s\nTopic Reles: %s\nPublicar estado: %i\nMensajes GHN: %s\n", ID_MQTT.c_str(),IPBroker.toString().c_str(),puertoBroker,timeReconnectMQTT,usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str(),topicMedidas.c_str(),topicOrdenes.c_str(),topicReles.c_str(),publicarEstado,topicMensajes.c_str());
+    Serial.printf("Configuracion leida:\nID_MQTT: %s\nIP broker: %s\nbroker URL: %s\nIP Puerto del broker: %i\ntimeReconnectMQTT: %i\nUsuario: %s\nPassword: %s\nTopic root: %s\nTopic medidas: %s\nTopic Ordenes: %s\nTopic Reles: %s\nPublicar estado: %i\nMensajes GHN: %s\n", ID_MQTT.c_str(),IPBroker.toString().c_str(),BrokerDir.c_str(),puertoBroker,timeReconnectMQTT,usuarioMQTT.c_str(),passwordMQTT.c_str(),topicRoot.c_str(),topicMedidas.c_str(),topicOrdenes.c_str(),topicReles.c_str(),publicarEstado,topicMensajes.c_str());
 //************************************************************************************************
     return true;
     }
@@ -362,9 +392,9 @@ boolean conectaMQTT(void)
   String topic;
   if(debugGlobal) Serial.println("Inicio conectaMQTT.");
 
-  if(IPBroker==IPAddress(0,0,0,0)) 
+  if(IPBroker==IPAddress(0,0,0,0) && BrokerDir==String("")) 
     {
-    if(debugGlobal) Serial.println("IP del broker = 0.0.0.0, no se intenta conectar.");
+    if(debugGlobal) Serial.println("IP del broker = 0.0.0.0 y BrokerDir = "", no se intenta conectar.");
     return (false);//SI la IP del Broker es 0.0.0.0 (IP por defecto) no intentaq conectar y sale con error
     }
   

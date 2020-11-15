@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "2.5.7 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.2.9" //servicio tts para leer la temperatura promedio
+#define VERSION           "3.0.0 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" //servicio tts para leer la temperatura promedio
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -23,8 +23,6 @@
 #define TOP_TRAZA          1
 #define INC_TRAZA          14
 
-//Organizacion de pines de E/S
-#define RELES_PIN          8 //Pîn del primer rele, los demas consecutivos
 #define MAX_SATELITES     16 //numero maximo de satelites de 0 a 15 controlado por los DIP Switch
 #define MAX_RELES          2 //numero maximo de reles soportado
 
@@ -131,7 +129,7 @@ int brilloPantalla=DEFAULT_BRILLO_PANTALLA;
 //************ Fin valores configurables *************//
 
 /*-----------------Variables comunes---------------*/
-String nombre_dispositivo(NOMBRE_FAMILIA);//Nombre del dispositivo, por defecto el de la familia
+String nombre_dispositivo="";//Nombre del dispositivo, por defecto el de la familia
 time_t SleepBucle=0;
 time_t limiteSleep=0;
 
@@ -189,7 +187,7 @@ void setup()
   inicializaFicheros(debugGlobal);
 
   //Compruebo si existe candado, si existe la ultima configuracion fue mal
-  if(existeFichero(FICHERO_CANDADO)) 
+/*  if(existeFichero(FICHERO_CANDADO)) 
     {
     Serial.printf("Candado puesto. Configuracion por defecto");
     candado=true; 
@@ -202,7 +200,7 @@ void setup()
     if(salvaFichero(FICHERO_CANDADO,"","JSD")) Serial.println("Candado creado");
     else Serial.println("ERROR - No se pudo crear el candado");
     }
- 
+*/ 
   //Configuracion general
   Serial.printf("\n\nInit Config -----------------------------------------------------------------------\n");
   inicializaConfiguracion(debugGlobal);
@@ -235,12 +233,6 @@ void setup()
     //Traza de inicio
     pintaTrazaInicial(0, top,"SNTP OK",8); 
 
-    //MQTT
-    Serial.println("Init MQTT -----------------------------------------------------------------------");
-    inicializaMQTT();
-    //Traza de inicio
-    pintaTrazaInicial(0, top,"MQTT OK",8); 
-
     //WebServer
     Serial.printf("\n\nInit Web --------------------------------------------------------------------------\n");
     inicializaWebServer();
@@ -252,6 +244,12 @@ void setup()
     inicializaWebSockets();
     //Traza de inicio
     pintaTrazaInicial(0, top,"Websockets OK",8); 
+
+    //MQTT
+    Serial.println("Init MQTT -----------------------------------------------------------------------");
+    inicializaMQTT();
+    //Traza de inicio
+    pintaTrazaInicial(0, top,"MQTT OK",8); 
 
     //Google Home Notifier
     Serial.println("\n\nInit Google Home Notifier -------------------------------------------------------\n");
@@ -434,12 +432,6 @@ boolean inicializaConfiguracion(boolean debug)
     }
 
   return parseaConfiguracionGlobal(cad);
-
-/*if(leeFichero(GLOBAL_CONFIG_FILE, cad))
-    {
-    if (!parseaConfiguracionGlobal(cad)) Serial.println("¡¡¡Error al cargar la configuracion general!!!");    
-    }
-  return true;*/
   }
 
 /*********************************************/
@@ -455,6 +447,9 @@ boolean parseaConfiguracionGlobal(String contenido)
     {
     Serial.println("parsed json");
 //******************************Parte especifica del json a leer********************************    
+    if (json.containsKey("nombre_dispositivo")) nombre_dispositivo=String((const char *)json["nombre_dispositivo"]);    
+    if(nombre_dispositivo=="") nombre_dispositivo=String(NOMBRE_FAMILIA);
+ 
     TimeOut = json.get<int>("TimeOut");
     limiteSleep = json.get<int>("limiteSleep");
     brilloPantalla = json.get<int>("Brillo");
