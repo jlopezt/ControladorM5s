@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "3.0.0 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" //servicio tts para leer la temperatura promedio
+#define VERSION           "3.0.1 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" //servicio tts para leer la temperatura promedio
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -115,6 +115,7 @@
 #include <SPIFFS.h> //para el ESP32
 #include <WebSocketsServer.h> //Lo pongo aqui porque si lo pongo en su sitio no funciona... https://github.com/Links2004/arduinoWebSockets/issues/356
 #include <rom/rtc.h>
+#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
 
 //prototipo de funciones
 String getErroresNivel(int nivel=0);
@@ -172,8 +173,8 @@ void setup()
   else debugGlobal=0;
 
   //Traza de inicio
-  pintaTrazaInicial("Iniciando setup",8);
-  pintaTrazaInicial(String(NOMBRE_FAMILIA) + " - " + VERSION,8);
+  pintaTrazaInicial("Iniciando setup");
+  pintaTrazaInicial(String(NOMBRE_FAMILIA) + " - " + VERSION);
     
   Serial.printf("\n\n\n");
   Serial.printf("*************** %s ***************\n",NOMBRE_FAMILIA);
@@ -192,7 +193,7 @@ void setup()
   Serial.printf("\n\nInit Config -----------------------------------------------------------------------\n");
   inicializaConfiguracion(debugGlobal);
   //Traza de inicio
-  pintaTrazaInicial("Configuracion global OK",8);
+  pintaTrazaInicial("Configuracion global OK");
   
   //Wifi
   Serial.printf("\n\nInit WiFi -----------------------------------------------------------------------\n");
@@ -201,48 +202,48 @@ void setup()
     //----------------Inicializaciones que necesitan red-------------
     //Traza de inicio
     String sss="Wifi OK. IP: "+getIP(0);
-    pintaTrazaInicial(sss,8);
+    pintaTrazaInicial(sss);
 
     //OTA
     Serial.printf("\n\nInit OTA -----------------------------------------------------------------------\n");
     inicializaOTA(debugGlobal);
     //Traza de inicio
-    pintaTrazaInicial("OTA OK",8);
+    pintaTrazaInicial("OTA OK");
 
     //SNTP
     Serial.printf("\n\nInit SNTP ----------------------------------------------------------------------\n");
     inicializaReloj();
     //Traza de inicio
-    pintaTrazaInicial("SNTP OK",8); 
+    pintaTrazaInicial("SNTP OK"); 
 
     //WebServer
     Serial.printf("\n\nInit Web --------------------------------------------------------------------------\n");
     inicializaWebServer();
     //Traza de inicio
-    pintaTrazaInicial("Webserver OK",8); 
+    pintaTrazaInicial("Webserver OK"); 
 
     //WebSockets
     Serial.println("Init Web ------------------------------------------------------------------------");
     inicializaWebSockets();
     //Traza de inicio
-    pintaTrazaInicial("Websockets OK",8); 
+    pintaTrazaInicial("Websockets OK"); 
 
     //MQTT
     Serial.println("Init MQTT -----------------------------------------------------------------------");
     inicializaMQTT();
     //Traza de inicio
-    pintaTrazaInicial("MQTT OK",8); 
+    pintaTrazaInicial("MQTT OK"); 
 
     //Google Home Notifier
     Serial.println("\n\nInit Google Home Notifier -------------------------------------------------------\n");
     inicializaGHN();
     //Traza de inicio
-    pintaTrazaInicial("GHN OK",8); 
+    pintaTrazaInicial("GHN OK"); 
     }
   else 
     {
     //Traza de inicio
-     pintaTrazaInicial("¡¡¡¡Wifi KO!!!!",8); 
+     pintaTrazaInicial("¡¡¡¡Wifi KO!!!!"); 
     Serial.println("No se pudo conectar al WiFi");
     }
  
@@ -250,31 +251,31 @@ void setup()
   Serial.printf("\n\nInit Logica -----------------------------------------------------------------------\n");
   inicializaLogica();
   //Traza de inicio
-  pintaTrazaInicial("Logica OK",8); 
+  pintaTrazaInicial("Logica OK"); 
   
   //Satelites
   Serial.printf("\n\nInit Sensores ---------------------------------------------------------------------\n");
   inicializaSatelites();
   //Traza de inicio
-  pintaTrazaInicial("Satelites OK",8);
+  pintaTrazaInicial("Satelites OK");
 
   //Errores
   Serial.printf("\n\nInit Errores ----------------------------------------------------------------------\n");
   inicializaErrores();
   //Traza de inicio
-  pintaTrazaInicial("Errores OK",8); 
+  pintaTrazaInicial("Errores OK"); 
 
   //Botones
   Serial.printf("\n\nInit Botones ----------------------------------------------------------------------\n");  
   inicializaBotones();//Inicializa los botones del M5Stack
   //Traza de inicio
-  pintaTrazaInicial("Botones OK",8); 
+  pintaTrazaInicial("Botones OK"); 
   
   //Ordenes serie
   Serial.printf("\n\nInit Ordenes ----------------------------------------------------------------------\n");  
   inicializaOrden();//Inicializa los buffers de recepcion de ordenes desde PC
   //Traza de inicio
-  pintaTrazaInicial("Ordenes OK",8); 
+  pintaTrazaInicial("Ordenes OK"); 
 
   //Traza de inicio
   //Paro para revisar la pantalla si hay traza de incio activada
@@ -529,10 +530,11 @@ void configuraWatchdog(void)
   timerAlarmEnable(timer);                                        //habilito el contador                                                 //void timerAlarmEnable(hw_timer_t *timer);
 }
 
-void pintaTrazaInicial(String texto, int tamano)
+void pintaTrazaInicial(String texto)
   {
   static int x=0;
   static int y=TOP_TRAZA;
+  int tamano=8;
    
   if(!debugGlobal) return;
   escribePantalla(x,y,texto,tamano);

@@ -1,0 +1,17 @@
+{
+  "xxxmodoMQTT": "TLS",
+  "xxxBrokerDir": "mqtt.lopeztola.com",
+  "xxxpuerto": 8883, 	
+  "IPBroker": "10.68.1.100",
+  "puerto": 1883, 
+  "timeReconnectMQTT": 100, 
+  "ID_MQTT": "controlador",
+  "usuarioMQTT": "usuario",
+  "passwordMQTT": "password",
+  "topicRoot": "casa",
+  "topicOrdenes": "actuador",
+  "topicMedidas": "/+/medidas",
+  "xxxtopicReles":"actuador/estado",	
+  "topicMensajes": "mensajes",
+  "publicarEstado": 1
+}

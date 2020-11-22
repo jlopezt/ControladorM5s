@@ -1,12 +1,8 @@
-move MQTTConfig.json MQTTConfig.json.sav
-move WiFiConfig.json WiFiConfig.json.sav
+del D:\arduino\desarrollos\Sketchs\Termostato\Codigo\ControladorM5s\data\*.* /q /s
 
-copy WiFiConfig.json.produccion WiFiConfig.json
-copy MQTTConfig.json.produccion MQTTConfig.json
+xcopy .\produccion\*.* D:\arduino\desarrollos\Sketchs\Termostato\Codigo\ControladorM5s\data /S /Y
 
-del MQTTConfig.json.sav
-del WiFiConfig.json.sav
- 
 date /T>AA_PRODUCCION
 time /t>>AA_PRODUCCION
+xcopy AA_PRODUCCION D:\arduino\desarrollos\Sketchs\Termostato\Codigo\ControladorM5s\data /Y
 del AA_DESARROLLO 

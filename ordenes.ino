@@ -193,7 +193,9 @@ void inicializaOrden(void)
   comandos[i].descripcion="Devuelve el numero de satelites registrados";
   comandos[i++].p_func_comando=func_comando_numSat;
   //Comando 16
-
+  comandos[i].comando="nombre";
+  comandos[i].descripcion="Devuelve el nombre del dispoditivo";
+  comandos[i++].p_func_comando=func_comando_nombre;  
   //Comando 17
   comandos[i].comando="consigna";
   comandos[i].descripcion="Devuleve la consigna de la hora actual";
@@ -679,3 +681,9 @@ void func_comando_modo(int iParametro, char* sParametro, float fParametro) //"mo
   if(iParametro>=0) setModoManual(iParametro);
   Serial.printf("Modo calefaccion: %s\n",getModoManualTxt().c_str());
   }
+
+void func_comando_nombre(int iParametro, char* sParametro, float fParametro) //"modo"
+  {
+  Serial.printf("%s\n",nombre_dispositivo.c_str());
+  }
+  

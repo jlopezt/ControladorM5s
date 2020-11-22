@@ -106,7 +106,7 @@ void handleRoot()
   cad += "<META HTTP-EQUIV=\"REFRESH\" CONTENT=\"10;URL=/\">\n";//Para que se recargue cada 10sg
 
   //Valores medidos
-  cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
+  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
   cad += "<CAPTION>Valores</CAPTION>\n";    
   cad += "<TR class=\"modo2\"><TD>Temperatura:</TD><TD>" + combierteTemperaturaPromedio() + "</TD></TR>\n";
   cad += "<TR class=\"modo2\"><TD>Consigna:</TD><TD>" + String(getConsigna(),1) + "ºC</TD></TR>\n";  
@@ -120,7 +120,7 @@ void handleRoot()
   /* MODO_AUTO=2 */  
   cad += "<form action=\"/modo\" id=\"form_id\">\n";
   cad += "<input type=\"hidden\" id=\"modo\" name=\"modo\" value=\"0\">\n";
-  cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
+  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
   cad += "<caption>Modo de funcionamiento</caption>\n";
   cad += "<TR class=\"modo2\">";
   switch (getModoManual())
@@ -176,7 +176,7 @@ void handleRoot()
   cad += "\n<BR>\n";
 
   //Reles
-  cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
+  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
   cad += "<caption>Reles</caption>\n";
   cad += "<TR class=\"modo2\"><TD>" + getNombreRele(CALDERA)   + "</TD><TD>" + (getEstadoRele(CALDERA)?"on":"off")  + "</TD></TR>\n";
   cad += "<TR class=\"modo2\"><TD>" + getNombreRele(SEGURIDAD) + "</TD><TD>" + (getEstadoRele(SEGURIDAD)?"on":"off") + "</TD></TR>\n";

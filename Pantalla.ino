@@ -524,6 +524,30 @@ void pintaLayout5(String valor, int satelite, String alarma="")//Informacion de 
   }
 /***************************************************************FIN LAYOUTS************************************************************************************/      
 
+//Modo WifiManager
+void pintaWifiManager(String miSSID, String miIP, String miNombre)//Activado como base wifi esperando configuracion. Informa del SSID, IP y del nombre mDNS
+  {
+  int x0,y0;
+  int ancho,alto;
+
+  //Temperatura media
+  x0=MARGEN_IZQUIERDO;
+  y0=ALTO_TITULO+SEPARADOR_VERTICAL;
+  alto=ALTO_PRINCIPAL;
+
+  pantallaNegra();
+
+  M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to orange with black background
+  M5.Lcd.setTextDatum(ML_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
+  M5.Lcd.setFreeFont(FM12);                 // Select the font
+  M5.Lcd.drawString("Configuracion WiFi", x0,y0, GFXFF);// Print the string name of the font
+  M5.Lcd.setFreeFont(FM9);                 // Select the font
+  M5.Lcd.drawString((String("SSID: ") + miSSID).c_str(), x0, y0+alto, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString((String("IP: ") + miIP).c_str(), x0, y0+2*alto, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString((String("mDNS: ") + miNombre).c_str(), x0, y0+2*alto, GFXFF);// Print the string name of the font
+  }
+
+
     
 void escribePantalla(int x, int y, String texto, int tamano)
   {

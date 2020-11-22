@@ -1,3 +1,4 @@
-#excluye los .bak
+#excluye los .bak y los .zip
 *.bak
+*.zip
 data/AA_DESARROLLO

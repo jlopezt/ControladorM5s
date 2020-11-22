@@ -74,15 +74,22 @@ void salvaConfiguracionWiFi(void)
   conectado=true;
   }
 
-/*
-void miAPCallback(WiFiManager *myWifiManager)
+
+/************************************************/
+/*    Funcion de callback invocada              */ 
+/*    cuando se levanta el porta                */ 
+/*    de autoconfiguracion                      */
+/*                                              */
+/* setAPCallback( void (*func)(WiFiManager*) ); */
+/************************************************/
+void configModeCallback(WiFiManager *myWiFiManager)
   {
   Serial.println("Portal de configuracion levantado");  
-  Serial.print("Base activada con el nombre ");
-  Serial.println(myWifiManager->getConfigPortalSSID());  
+  Serial.printf("Base activada con el nombre %s",myWiFiManager->getConfigPortalSSID().c_str());
+  //Serial.println(myWiFiManager->getConfigPortalSSID());  
+  pintaWifiManager(myWiFiManager->getConfigPortalSSID(), String(WiFi.softAPIP()), mDNS);
   }
-*/
-
+  
 /************************************************/
 /* Recupera los datos de configuracion          */
 /* del archivo de Wifi                          */
@@ -237,7 +244,8 @@ boolean conectaAutodetect(boolean debug)
 
   //preparo la llamada a la funcion para salvar configuracion, 
   //wifiManager.setSaveConfigCallback(miSaveConfigCallback);//Preparo la funcion para salvar la configuracion
-  //wifiManager.setAPCallback(miAPCallback);//llamada cuando se actie el portal de configuracion
+  
+  wifiManager.setAPCallback(configModeCallback);//llamada cuando se actie el portal de configuracion
   wifiManager.setConfigPortalTimeout(WIFI_PORTAL_TIMEOUT);
   
   //Si se ha configurado IP fija
