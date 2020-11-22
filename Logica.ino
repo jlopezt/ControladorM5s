@@ -44,7 +44,7 @@ int8_t modoManual; //Puede valer OFF, ON o AUTO
 int8_t valoresModoManual[3]={MODO_OFF, MODO_ON, MODO_AUTO};
 String valoresModoManualTxt[3]={"Off \n","On  \n","Auto\n"};//Todos de longitud 4+1
 String topicOrdenes; //topic al que se va a enviar las ordenes de encendido y apagado de los reles, sera <topicRoot>/<topicOrdenes>
-String estadoReles="";
+float umbral=0; //umbral para la logica de comparacion con la consigna y evitar que el regulador oscile
 
 /**********************************************************************************************************************************/
 /*                                                                                                                                */
@@ -100,6 +100,8 @@ void inicializaLogica()
   //Inicializa el modo de calefaccion  
   downCounter=0;//Contador de tics en modo manual. Despues de un tiempo TICKS_CALEFACCION_MANUAL vuelve a MODO_AUTO   
   setModoManual(MODO_AUTO);
+
+  umbral=0;
     
   consigna.dia=22.5;
   consigna.noche=15.6;  
@@ -148,9 +150,10 @@ boolean parseaConfiguracionreles(String contenido)
   if (json.success()) 
     {
     Serial.println("parsed json");
-//******************************Parte especifica del json a leer********************************
-    JsonArray& Reles = json["Reles"];
-    
+//******************************Parte especifica del json a leer********************************   
+    if (json.containsKey("umbral")) umbral=json.get<float>("umbral");
+
+    JsonArray& Reles = json["Reles"];    
     for(int8_t i=0;i<MAX_RELES;i++)
       { 
       reles[i].nombre=String((const char *)Reles[i]["nombre"]);
@@ -277,9 +280,16 @@ void logicaControl(void)
         //si responde algun satelite, promedio  
         temperaturaPromedio=promediaTemperatura();
         humedadPromedio=promediaHumedad();
-          
+
+        float dif=temperaturaPromedio-getConsigna();
+        if(abs(dif)<umbral) break;//si la diferencia es menor del umbral, lo dejo como esta y salgo del case MODO_AUTOMATICO
+        
+        if(dif<0) setEstadoRele(CALDERA,1);//si esta por debajo de la consigna, enciendo el rele  
+        else setEstadoRele(CALDERA,0); //si esta por debajo, apago la caldera         
+        /*
         if(temperaturaPromedio<getConsigna()) setEstadoRele(CALDERA,1);//si esta por debajo de la consigna, enciendo el rele
         else setEstadoRele(CALDERA,0); //si no lo apago    
+        */
         }
       else 
         {
@@ -325,17 +335,6 @@ int getEstadoRele(int rele)
 int setEstadoRele(int rele, int estado)
   {
   if (rele<MAX_RELES) reles[rele].estado=estado;
-  }
-
-/******************************************************/
-/*                                                    */
-/* Establece el estado leido de los reles a traves    */ 
-/* de los mensajes de estaro MQTT                     */
-/*                                                    */
-/******************************************************/
-void setEstadoRelesLeido(String estado)
-  {
-  estadoReles=estado;
   }
 
 /******************************************************/
@@ -443,31 +442,6 @@ int8_t hayLuz(int8_t id)
   if(getLuz(id,false)>=umbralLuz) return true;
   return false;
   }
-
-/******************************************************/
-/*                                                    */
-/* Lee el estado de los reles en el actuador          */ 
-/*                                                    */
-/******************************************************/
-String leeEstadoReles(void)//ESTA A MEDIAS
-  {
-  /*  
-  struct tipo_respuestaHTTP respuestaHTTP;  
-
-  respuestaHTTP=ClienteHTTP("http://"+IPActuador.toString()+"/estado");  
-  if(debugGlobal)
-    {
-    if(respuestaHTTP.httpCode==HTTP_CODE_OK) Serial.printf("Respuesta: %s\n",respuestaHTTP.payload.c_str());
-    else if(respuestaHTTP.httpCode<0)//error no HTTP=TimeOut
-        {
-        Serial.println("Error en la lectura de los reles.");
-        setError(ERROR_COM_RELES, "Error com. rele");
-        }
-    }
-  return respuestaHTTP.payload;
-  */
-  return estadoReles;
-  } 
 
 /******************************************************/
 /*                                                    */

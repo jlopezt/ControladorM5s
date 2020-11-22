@@ -544,7 +544,7 @@ void escribePantalla(int x, int y, String texto, int tamano)
     otherwise:
       M5.Lcd.setFreeFont(FM9);
     }
-  M5.Lcd.setTextDatum(TL_DATUM);// Set text datum to middle centre
+  M5.Lcd.setTextDatum(TL_DATUM);// Set text datum to TL: top left, TM: top middle, TR: top right, ML: middle left,... BR: bottom right
   M5.Lcd.setTextColor(TFT_WHITE, TFT_NAVY);// Set text colour to orange with black background
   M5.Lcd.drawString(texto, x, y, GFXFF);// Print the string name of the font        
   }

@@ -114,12 +114,12 @@ boolean recuperaDatosMQTT(boolean debug)
   topicMensajes="";
   publicarEstado=1;//por defecto publico
 
-  if(!leeFicheroConfig(MQTT_CONFIG_FILE, cad))
+  if(!leeFichero(MQTT_CONFIG_FILE, cad))
     {
     //Algo salio mal, Confgiguracion por defecto
     Serial.printf("No existe fichero de configuracion MQTT o esta corrupto\n");
     cad="{\"IPBroker\": \"0.0.0.0\", \"puerto\": 1883, \"timeReconnectMQTT\": 500, \"ID_MQTT\": \"controlador\", \"usuarioMQTT\": \"usuario\", \"passwordMQTT\": \"password\", \"topicRoot\": \"casa\", \"topicMedidas\": \"/+/medidas\", \"topicOrdenes\": \"actuador\", \"topicReles\": \"actuador\estado\", \"publicarEstado\": 1}";
-    //if (salvaFicheroConfig(MQTT_CONFIG_FILE, MQTT_CONFIG_BAK_FILE, cad)) Serial.printf("Fichero de configuracion MQTT creado por defecto\n");    
+    //if (salvaFichero(MQTT_CONFIG_FILE, MQTT_CONFIG_BAK_FILE, cad)) Serial.printf("Fichero de configuracion MQTT creado por defecto\n");    
     }
 
   return parseaConfiguracionMQTT(cad);
@@ -176,7 +176,6 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length)
   
   //Para cada topic suscrito...  
   if(comparaTopics(topicRoot + topicMedidas, topic)) procesaTopicMedidas(topic,payload,length);  
-  else if(comparaTopics(topicRoot + topicReles, topic)) procesaTopicReles(topic,payload,length);
   else if(comparaTopics(topicRoot + topicMensajes, topic)) procesaTopicMensajes(topic,payload,length);  
   //elseif(comparaTopics(topicRoot + <topicSuscrito>, topic)) <funcion de gestion>(topic,payload,length);  
   else if(cad.equalsIgnoreCase(TOPIC_PING)) respondePingMQTT(topic,payload,length);      
@@ -275,21 +274,6 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   habitaciones[id].luz = root["Luz"];
   if(debugGlobal) Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz);
   /**********************Fin JSON***********************/    
-  }
-
-/***************************************************/
-/* Funcion que interpreta el mensaje de estado de  */
-/* los reles                                       */
-/***************************************************/
-void procesaTopicReles(char* topic, byte* payload, unsigned int length)
-  {  
-  char mensaje[length];    
-    
-  //copio el payload en la cadena mensaje
-  for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
-  mensaje[length]=0;//acabo la cadena
-
-  setEstadoRelesLeido(String(mensaje));
   }
 
 /***************************************************/
@@ -414,12 +398,6 @@ boolean conectaMQTT(void)
       topic=topicRoot + topicMedidas;
       if (clienteMQTT.subscribe(topic.c_str())) Serial.printf("Subscrito al topic %s\n", topic.c_str());
       else Serial.printf("Error al subscribirse al topic %s\n", topic.c_str());       
-
-      //topicReles: topic en el que el actuador publica el estado de los reles
-      topic=topicRoot + topicReles;
-      if (clienteMQTT.subscribe(topic.c_str())) Serial.printf("Subscrito al topic %s\n", topic.c_str());
-      else Serial.printf("Error al subscribirse al topic %s\n", topic.c_str());       
-
       //topicMensajes: topic en el que cualquiera publica la necesidad de comunicar por GHN algo
       topic=topicRoot + topicMensajes;
       if (clienteMQTT.subscribe(topic.c_str())) Serial.printf("Subscrito al topic %s\n", topic.c_str());

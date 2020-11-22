@@ -219,9 +219,11 @@ void inicializaOrden(void)
   comandos[i].descripcion="Devuelve la temperatura promedio";
   comandos[i++].p_func_comando=func_comando_temPro;
   //Comando 23
-  comandos[i].comando="staRele";
-  comandos[i].descripcion="Devuleve el estado de los reles";
-  comandos[i++].p_func_comando=func_comando_staRele;
+/*
+  comandos[i].comando="";
+  comandos[i].descripcion="";
+  comandos[i++].p_func_comando=func_comando_;
+*/
   //Comando 24
   comandos[i].comando="actRele";
   comandos[i].descripcion="Activa el rele indicado";
@@ -521,11 +523,6 @@ void func_comando_setConN(int iParametro, char* sParametro, float fParametro)//"
 void func_comando_temPro(int iParametro, char* sParametro, float fParametro)//"temPro") 
   {
   Serial.println(getTemperaturaPromedio());
-  }
-
-void func_comando_staRele(int iParametro, char* sParametro, float fParametro)//"staRele") 
-  {
-  Serial.println(leeEstadoReles());
   }
 
 void func_comando_actRele(int iParametro, char* sParametro, float fParametro)//"actRele") 

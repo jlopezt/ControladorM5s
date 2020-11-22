@@ -5,7 +5,6 @@ Configuracion de las consignas de Tª      http://IP/consignaTemperatura  cadena
 Numero de habitaciones                    http://IP/numeroHabitaciones   N/A                     <numHabitaciones> entero 0..255                             Devuelve el numero de habitaciones con satelite registrado                                    http://IP/numeroHabitaciones                                  4
 Lista de las habitaciones                 http://IP/listaHabitaciones    N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_SATELITES  Devuelve la lista de los ids y nombres de las habitaciones que se han registrado su satelite  http://IP/listaHabitaciones                                   1#Salon|2#despacho|3#DormitorioPpal
 Valores de las medida en las habitaciones http://IP/valoresHabitaciones  id=<id>                 Temperatura|Humedad|Luz                                     Devuelve los valores de una habitacion                                                        http://IP/valoresHabitaciones?id=4                            23.5|72|88
-Estado de los reles                       http://IP/estadoReles          id=<id>                 <estadoRele> 1/0                                            Devuelve el estado del rele indicado                                                          http://IP/estadoReles?id=1                                    1
 Lista de los reles                        http://IP/listaReles           N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_RELES      Devuelve la lista de los ids y nombres de los reles declarados en el controlador              http://IP/listaReles?id=1                                     1#Caldera|2#Riego
 Configuracion de habitaciones             http://IP/configHabitaciones   id=<id>&nombre=<nombre> id|nombre                                                   Devuelve lo mismo pero de los valortes generados                                              http://IP/registroHabitacion?id=1&nombre=Salon                1|Salon
 Errores de comunicacion                   http://IP/erroresComunicacion  N/A                     id|errores                                                  Devuelve el numero de errores de comunicacion de cada satelite                                http://IP/erroresComunicacion                                 1#2|3#0
@@ -21,7 +20,7 @@ Lee el fichero indicado                   http://IP/leeFichero
 Informacion del sistema de ficheros       http://IP/infoFS
 ************************************************************************************************/
 #define PUERTO_WEBSERVER  80
-#define IDENTIFICACION "<BR><BR><BR><BR><BR>Modulo controlador. Version " + String(VERSION) + ".";
+//#define IDENTIFICACION "<BR><BR><BR><BR><BR>Modulo controlador. Version " + String(VERSION) + ".";
 
 #include <WebServer.h> //#include <ESP8266WebServer.h>
 
@@ -29,19 +28,19 @@ WebServer server(PUERTO_WEBSERVER); //ESP8266WebServer server(PUERTO_WEBSERVER);
 
 //Cadenas HTML precargadas
 String cabeceraHTML="";
-String hablaHTML="<html><head></head><body><input type=\"text\"><button>speech</button><script>var d = document;d.querySelector('button').addEventListener('click',function(){xhr = new XMLHttpRequest();xhr.open('GET','/speech?phrase='+encodeURIComponent(d.querySelector('input').value));xhr.send();});</script></body></html>";
+const String hablaHTML="<html><head></head><body><input type=\"text\"><button>speech</button><script>var d = document;d.querySelector('button').addEventListener('click',function(){xhr = new XMLHttpRequest();xhr.open('GET','/speech?phrase='+encodeURIComponent(d.querySelector('input').value));xhr.send();});</script></body></html>";
 
 //version de la web propia del cacharro
-String pagina_a = "<!DOCTYPE html>\n<html lang=\"es\">\n <head>\n <meta charset=\"UTF-8\">\n <TITLE>Domoticae</TITLE>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\">\n </HEAD>\n <BODY>\n <table style=\"width:100%;\" cellpadding=\"10\" cellspacing=\"0\">\n  <tr style=\"height:20%; background-color:black\">\n  <th align=\"left\">\n   <span style=\"font-family:verdana;font-size:30px;color:white\">DOMOTI</span><span style=\"font-family:verdana;font-size:30px;color:red\">C</span><span style=\"font-family:verdana;font-size:30px;color:white\">AE - ";
+const String pagina_a = "<!DOCTYPE html>\n<html lang=\"es\">\n <head>\n <meta charset=\"UTF-8\">\n <TITLE>Domoticae</TITLE>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\">\n </HEAD>\n <BODY>\n <table style=\"width:100%;\" cellpadding=\"10\" cellspacing=\"0\">\n  <tr style=\"height:20%; background-color:black\">\n  <th align=\"left\">\n   <span style=\"font-family:verdana;font-size:30px;color:white\">DOMOTI</span><span style=\"font-family:verdana;font-size:30px;color:red\">C</span><span style=\"font-family:verdana;font-size:30px;color:white\">AE - ";
 //en medio va el nombre_dispositivo
-String pagina_b = "</span>   \n  </th>\n  </tr>\n  <tr style=\"height:10%;\">\n    <td>";
-String enlaces = "<table class=\"tabla\">\n<tr class=\"modo1\">\n<td><a href=\"..\" target=\"_self\" style=\"text-decoration:none; color: black;\">Home</a></td>\n<td><a href=\"configHabitaciones\" target=\"_self\" style=\"text-decoration:none; color: black;\">Estado</a></td>\n<td><a href=\"consignaTemperatura\" target=\"_self\" style=\"text-decoration:none; color: black;\">Consignas</a></td>\n<td><a href=\"listaFicheros\" target=\"_self\" style=\"text-decoration:none; color: black;\">Lista ficheros</a></td>\n<td><a href=\"info\" target=\"_self\" style=\"text-decoration:none; color: black;\">Info</a></td>\n<td><a href=\"restart\" target=\"_self\" style=\"text-decoration:none; color: black;\">Restart</a></td>\n</tr>\n</table>";
-String pagina_c = "</td></tr><TR style=\"height:60%\"><TD>";
+const String pagina_b = "</span>   \n  </th>\n  </tr>\n  <tr style=\"height:10%;\">\n    <td>";
+const String enlaces = "<table class=\"tabla\">\n<tr class=\"modo1\">\n<td><a href=\"..\" target=\"_self\" style=\"text-decoration:none; color: black;\">Home</a></td>\n<td><a href=\"configHabitaciones\" target=\"_self\" style=\"text-decoration:none; color: black;\">Estado</a></td>\n<td><a href=\"consignaTemperatura\" target=\"_self\" style=\"text-decoration:none; color: black;\">Consignas</a></td>\n<td><a href=\"listaFicheros\" target=\"_self\" style=\"text-decoration:none; color: black;\">Lista ficheros</a></td>\n<td><a href=\"info\" target=\"_self\" style=\"text-decoration:none; color: black;\">Info</a></td>\n<td><a href=\"restart\" target=\"_self\" style=\"text-decoration:none; color: black;\">Restart</a></td>\n</tr>\n</table>";
+const String pagina_c = "</td></tr><TR style=\"height:60%\"><TD>";
 //En medio va el cuerpo de la pagina
-String pieHTML = "</TD>\n</TR>\n<TR>\n<TD style=\"color:white; background-color:black\"><a href=\"https://domoticae.lopeztola.com\" target=\"_self\" style=\"text-decoration:none; color:white;\">domoticae-2020</a></TD>\n</TR>\n</table>\n</BODY>\n</HTML>";
+const String pieHTML = "</TD>\n</TR>\n<TR>\n<TD style=\"color:white; background-color:black\"><a href=\"https://domoticae.lopeztola.com\" target=\"_self\" style=\"text-decoration:none; color:white;\">domoticae-2020</a></TD>\n</TR>\n</table>\n</BODY>\n</HTML>";
 
 //version para integrar en otras paginas
-String cabeceraHTMLlight = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Domoticae</TITLE><link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\"></HEAD><BODY>\n"; 
+const String cabeceraHTMLlight = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Domoticae</TITLE><link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\"></HEAD><BODY>\n"; 
 
 void inicializaWebServer(void)
   {
@@ -525,14 +524,12 @@ void handleRestart(void)
   {
   String cad="";
 
-  cad += cabeceraHTML;
-  cad += IDENTIFICACION
-  
-  cad += "Reiniciando...<br>";
+  cad += cabeceraHTML; 
+  cad += "<br><br>Reiniciando...<br>";
   cad += pieHTML;
     
   server.send(200, "text/html", cad);     
-  delay(100);
+  delay(1000);
   ESP.restart();
   }
 
