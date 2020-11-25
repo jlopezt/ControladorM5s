@@ -10,6 +10,7 @@
 #define MODO_AUTO  2
 
 #define MAPA_CONFIG_FILE             "/Mapa.json"
+#define MAPA_CONFIG_BAK_FILE         "/Mapa.json.bak"
 #define TEMPERATURAS_CONFIG_FILE     "/Temperaturas.json"
 #define TEMPERATURAS_CONFIG_BAK_FILE "/Temperaturas.json.bak"
 #define RELES_CONFIG_FILE            "/RelesConfig.json"
@@ -213,6 +214,34 @@ boolean parseaConfiguracionMapa(String contenido)
   return false;
   }
 
+/****************************************/
+/*                                      */
+/*      Salvo el mapa a fichero         */
+/*                                      */
+/****************************************/
+boolean generaConfiguracionMapa(void)
+  {
+  //Genero el nuevo JSON
+  const size_t capacity = JSON_OBJECT_SIZE(48);
+  DynamicJsonBuffer jsonBuffer(capacity);
+
+  JsonObject& root = jsonBuffer.createObject();
+  
+  for(uint8_t i=0;i<48;i++)
+    {
+    char id[5]="0000";
+    sprintf(id,"%02d%s",i/2,(i%2?"30":"00")); 
+    id[4]=0;//fin de cadena
+    root[id] = mapa[i]; 
+    }
+  
+  root.printTo(Serial);
+  
+  String cad="";
+  root.printTo(cad);
+  if(!salvaFichero(MAPA_CONFIG_FILE, MAPA_CONFIG_BAK_FILE, cad)) Serial.printf("Error al salvar el fichero de Mapa de consignas\n");
+  }  
+  
 void leeFicheroTemperaturas(void)
   {
   String cad="";

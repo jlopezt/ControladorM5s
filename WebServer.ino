@@ -79,7 +79,7 @@ void inicializaWebServer(void)
   
 
   server.on("/edit.html",  HTTP_POST, []() {  // If a POST request is sent to the /edit.html address,
-    server.send(200, "text/plain", ""); 
+    server.send(200, "text/plain", "Subiendo..."); 
   }, handleFileUpload);                       // go to 'handleFileUpload'
   
   server.onNotFound(handleNotFound);//pagina no encontrada
@@ -340,6 +340,7 @@ void handleConfigTabla()
     //String cad=server.arg("cadena"); //la cadena tiene 48 valores para la tabla
     strncpy(cadLarga,server.arg("cadena").c_str(),192);
     rellenaMapa(cadLarga);
+    generaConfiguracionMapa();//saco el mapa a fichero 
     handleRoot();
     return;
     }
@@ -359,7 +360,20 @@ String preparaPaginaMapa(void)
   cad += "<script type=\"text/javascript\">\n";
   cad += " var resultado = new Array(24)\n";
   cad += "\n";
-  //cad += " function cambiaColor(int fila, int columna){}\n";
+  cad += " function cambiaColor(fila,columna){\n";
+  cad += " celda= 'c_' + fila + '_' + columna;\n";
+  cad += " input= 'i_' + fila + '_' + columna;\n";
+  cad += " console.log('celda: ' + celda);\n";
+  cad += " console.log('input: ' + input);\n";
+  cad += " if(document.getElementById(input).value==1) {\n";
+  cad += "   document.getElementById(celda).className='gris';\n";
+  cad += "   document.getElementById(input).value=0;\n";
+  cad += "   }\n";
+  cad += " else {\n"; 
+  cad += "   document.getElementById(celda).className='verde';\n";
+  cad += "   document.getElementById(input).value=1;\n";
+  cad += "   }\n";  
+  cad += " }\n";
   cad += "\n";
   cad += " function reconstruye()\n";
   cad += " {\n";
@@ -380,20 +394,31 @@ String preparaPaginaMapa(void)
   cad += " }\n";
   cad += "</script>\n";  
   cad += "\n";
-    
+  cad += "<style>\n";
+  cad += " td.gris {\n";
+  cad += "     border: 1px solid white; \n";
+  cad += "    border-collapse: collapse; \n";
+  cad += "    background-color: lightgrey;\n";
+  cad += "  }\n";
+  cad += " td.verde {\n";
+  cad += "    border: 1px solid white; \n";
+  cad += "    border-collapse: collapse; \n";
+  cad += "    background-color: lightgreen;\n";
+  cad += "  }\n";
+  cad += " </style>\n";
   cad += "<form id='tablaConsignas' name='tablaConsignas' action='/configTabla'>\n";
   cad += "<input type='hidden' id='cadena' name='cadena' value=''>\n";
   cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
   cad += "<CAPTION>Consignas por horas</CAPTION>\n";      
   cad += "<TR>";  
-  cad += "<TH></TH>";    
-  cad += "<TH>lunes</TH>";  
-  cad += "<TH>martes</TH>";  
-  cad += "<TH>miercoles</TH>";  
-  cad += "<TH>jueves</TH>";  
-  cad += "<TH>viernes</TH>";  
-  cad += "<TH>sabado</TH>";  
-  cad += "<TH>domingo</TH>";  
+  cad += "<TH width=\"9%\"></TH>";    
+  cad += "<TH width=\"13%\">lunes</TH>";  
+  cad += "<TH width=\"13%\">martes</TH>";  
+  cad += "<TH width=\"13%\">miercoles</TH>";  
+  cad += "<TH width=\"13%\">jueves</TH>";  
+  cad += "<TH width=\"13%\">viernes</TH>";  
+  cad += "<TH width=\"13%\">sabado</TH>";  
+  cad += "<TH width=\"13%\">domingo</TH>";  
   cad += "</TR>";
   
   uint8_t horas=0;
@@ -405,10 +430,9 @@ String preparaPaginaMapa(void)
     uint8_t dia=1;//bitmap que indica el dia en el que estamos. sirve de mascara para leer el bit del dia
     for(uint8_t columna=0;columna<7;columna++)
       {
-      cad += "<td align='center'>\n";  
-      //cad += "<td align='center' onclick='cambiaColor(" + String(fila) + "," + String(columna) + ")'>\n";
-      //cad += "<input type'text' id='dia" + String(columna) + ":hora" + String(fila) + "' value='" + (mapa[fila] & dia?"1":"0") + "'>";
-      cad += "<input type'text' value='" + (mapa[fila] & dia?String(1):String(0)) + "'>";
+      //cad += "<td align='center' id='celda_" + String(fila) + "_" + String(columna) + "' onclick='cambiaColor(" + String(fila) + "," + String(columna) + ")' style=\"border: 1px solid lightgrey; border-collapse: collapse; background-color: " + (mapa[fila] & dia?String("lightgreen"):String("lightgrey")) + ";\">\n";
+      cad += "<td id='c_" + String(fila) + "_" + String(columna) + "' onclick='cambiaColor(" + String(fila) + "," + String(columna) + ")' " + (mapa[fila] & dia?String("class=\"verde\""):String("class=\"gris\"")) + ";\">\n";
+      cad += "<input type='hidden' id='i_" + String(fila) + "_" + String(columna) + "' value='" + (mapa[fila] & dia?String(1):String(0)) + "'>";
       dia *= 2;//paso al dia siguiente
       cad += "</td>\n";
       }
@@ -1112,7 +1136,7 @@ String getContentType(String filename) { // determine the filetype of a given fi
 
 bool handleFileRead(String path) 
   { // send the right file to the client (if it exists)
-  Serial.println("handleFileRead: " + path);
+  //Serial.println("handleFileRead: " + path);
   
   if (!path.startsWith("/")) path += "/";
   path = "/www" + path; //busco los ficheros en el SPIFFS en la carpeta www
@@ -1130,7 +1154,7 @@ bool handleFileRead(String path)
     Serial.println(String("\tSent file: ") + path);
     return true;
     }
-  Serial.println(String("\tFile Not Found: ") + path);   // If the file doesn't exist, return false
+  //Serial.println(String("\tFile Not Found: ") + path);   // If the file doesn't exist, return false
   return false;
   }
 
@@ -1144,7 +1168,7 @@ void handleFileUpload()
     {
     path = upload.filename;
     if(!path.startsWith("/")) path = "/"+path;
-    if(!path.startsWith("/www")) path = "/www"+path;
+    //if(!path.startsWith("/www")) path = "/www"+path;
     if(!path.endsWith(".gz")) 
       {                          // The file server always prefers a compressed version of a file 
       String pathWithGz = path+".gz";                    // So if an uploaded file is not compressed, the existing compressed

@@ -18,7 +18,7 @@
 #define FALSE 0
 #define MAX_LONG_NOMBRE_DISPOSITIVO 32
 #define WIFI_PORTAL_TIMEOUT 5*60 //5 minutos en segundos
-#define TIME_OUT 10000
+#define TIME_OUT 20000
 #define DELAY_MULTIBASE 1000
 #define LIMITE_FALLOS_CONEXION 5
 
