@@ -275,17 +275,23 @@ void logicaControl(void)
     case MODO_AUTO://Logica de control en funcion de la temperatura promedio
       if(pesoSatelitesLeidos(debugGlobal))//numeroSatelitesLeidos(debugGlobal))
         {
+        int estadoCaldera=getEstadoRele(CALDERA);
         setEstadoRele(SEGURIDAD,1);//si hay satelites lo enciendo
 
         //si responde algun satelite, promedio  
         temperaturaPromedio=promediaTemperatura();
-        humedadPromedio=promediaHumedad();
+        //humedadPromedio=promediaHumedad();
 
-        float dif=temperaturaPromedio-getConsigna();
-        if(abs(dif)<umbral) break;//si la diferencia es menor del umbral, lo dejo como esta y salgo del case MODO_AUTOMATICO
-        
-        if(dif<0) setEstadoRele(CALDERA,1);//si esta por debajo de la consigna, enciendo el rele  
-        else setEstadoRele(CALDERA,0); //si esta por debajo, apago la caldera         
+        if(estadoCaldera==1)//calentando
+          {
+          if(temperaturaPromedio<getConsigna()+umbral) setEstadoRele(CALDERA,1);
+          else setEstadoRele(CALDERA,0);
+          }
+        else
+          {
+          if(temperaturaPromedio>getConsigna()-umbral) setEstadoRele(CALDERA,0);
+          else setEstadoRele(CALDERA,1);
+          }        
         /*
         if(temperaturaPromedio<getConsigna()) setEstadoRele(CALDERA,1);//si esta por debajo de la consigna, enciendo el rele
         else setEstadoRele(CALDERA,0); //si no lo apago    
