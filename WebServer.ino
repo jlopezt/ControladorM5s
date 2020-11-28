@@ -49,8 +49,15 @@ void inicializaWebServer(void)
   
   server.on("/consultaTemperatura", HTTP_ANY, handleConsultaTemperatura); //Manda una locucion al GH
    
-
-  server.on("/edit.html",  HTTP_POST, []() {  // If a POST request is sent to the /edit.html address,
+  //load editor
+  server.on("/upload", HTTP_GET, []() {
+    if (!handleFileRead("/upload.html")) {
+      server.send(404, "text/plain", "FileNotFound");
+    }
+  });
+  
+  //first callback is called after the request has ended with all parsed arguments, second callback handles file uploads at that location  
+  server.on("/upload",  HTTP_POST, []() {  // If a POST request is sent to the /upload.html address,
     server.send(200, "text/plain", "Subiendo..."); 
   }, handleFileUpload);                       // go to 'handleFileUpload'
   
@@ -748,10 +755,18 @@ void handleNotFound()
   }
 
 String getContentType(String filename) { // determine the filetype of a given filename, based on the extension
-  if (filename.endsWith(".html")) return "text/html";
+  if (server.hasArg("download")) return "application/octet-stream";
+  else if (filename.endsWith(".htm")) return "text/html";
+  else if (filename.endsWith(".html")) return "text/html";
   else if (filename.endsWith(".css")) return "text/css";
   else if (filename.endsWith(".js")) return "application/javascript";
+  else if (filename.endsWith(".png")) return "image/png";
+  else if (filename.endsWith(".gif")) return "image/gif";
+  else if (filename.endsWith(".jpg")) return "image/jpeg";
   else if (filename.endsWith(".ico")) return "image/x-icon";
+  else if (filename.endsWith(".xml")) return "text/xml";
+  else if (filename.endsWith(".pdf")) return "application/x-pdf";
+  else if (filename.endsWith(".zip")) return "application/x-zip";
   else if (filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
@@ -782,43 +797,37 @@ bool handleFileRead(String path)
 
 void handleFileUpload()
   {
-  File fsUploadFile;
+  static File fsUploadFile;
   HTTPUpload& upload = server.upload();
-  String path;
- 
+
   if(upload.status == UPLOAD_FILE_START)
     {
-    path = upload.filename;
-    if(!path.startsWith("/")) path = "/"+path;
-    //if(!path.startsWith("/www")) path = "/www"+path;
-    if(!path.endsWith(".gz")) 
-      {                          // The file server always prefers a compressed version of a file 
-      String pathWithGz = path+".gz";                    // So if an uploaded file is not compressed, the existing compressed
-      if(SPIFFS.exists(pathWithGz))                      // version of that file must be deleted (if it exists)
-         SPIFFS.remove(pathWithGz);
-      }
-      
-    Serial.print("handleFileUpload Name: "); Serial.println(path);
-    fsUploadFile = SPIFFS.open(path, "w");            // Open the file for writing in SPIFFS (create if it doesn't exist)
-    path = String();
+    String path = upload.filename;
+    if(!path.startsWith("/")) path = "/" + path;
+    
+    Serial.printf("handleFileUpload Name: %s",path.c_str());
+    fsUploadFile = SPIFFS.open(path.c_str(), "w");            // Open the file for writing in SPIFFS (create if it doesn't exist)
+    if(!fsUploadFile) Serial.printf("Error al crear el fichero\n");
     }
   else if(upload.status == UPLOAD_FILE_WRITE)
     {
     if(fsUploadFile) fsUploadFile.write(upload.buf, upload.currentSize); // Write the received bytes to the file
+    else Serial.printf("Error al escribir en el fichero\n");
     } 
   else if(upload.status == UPLOAD_FILE_END)
     {
-    if(fsUploadFile) 
-      {                                    // If the file was successfully created
+    String mensaje="";  
+
+    if(fsUploadFile) // If the file was successfully created
+      {                                    
       fsUploadFile.close();                               // Close the file again
       Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
-      server.sendHeader("Location","/success.html");      // Redirect the client to the success page
-      server.send(303);
+      mensaje="Fichero subido con exito (" + String(upload.totalSize) + "bytes)";  
       }
-    else 
-      {
-      server.send(500, "text/plain", "500: couldn't create file");
-      }
+    else mensaje="Se produjo un error al subir el fichero";  
+
+    server.sendHeader("Location","/resultadoUpload.html?mensaje=" + mensaje, true);      // Redirect the client to the success page
+    server.send(302);  
     }
   }
 /******************************************************************************************************************************/
