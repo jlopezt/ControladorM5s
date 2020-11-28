@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+ <meta charset="UTF-8">
+ <TITLE>Domoticae</TITLE>
+ <link rel="stylesheet" type="text/css" href="css.css">
+ <style type = "text/css">
+ td.gris {
+    border: 1px solid white; 
+    border-collapse: collapse; 
+    background-color: lightgrey;
+  }
+ td.verde {
+    border: 1px solid white; 
+    border-collapse: collapse; 
+    background-color: lightgreen;
+  }
+  p {text-align:center;}
+ </style>
+ <script type="text/javascript">
+    var resultado = new Array(24)
+ 
+    function cambiaColor(fila,columna){
+    celda= 'c_' + fila + '_' + columna;
+    input= 'i_' + fila + '_' + columna;
+    parrafo= 'p_' + fila + '_' + columna;
+    console.log('celda: ' + celda);
+    console.log('input: ' + input);
+    console.log('parrafo: ' + parrafo);
+    if(document.getElementById(input).value==1) {
+      document.getElementById(celda).className='gris';
+      document.getElementById(input).value=0;
+      document.getElementById(parrafo).innerText="noche";
+      }
+    else {
+      document.getElementById(celda).className='verde';
+      document.getElementById(input).value=1;
+      document.getElementById(parrafo).innerText="dia";
+      }
+    //return true;
+    }
+
+  //0|0|0|0|0|0|0|0|0|0|0|0|0|0|31|31|31|127|127|127|127|127|127|127|127|127|95|95|95|95|127|127|127|127|127|127|127|127|127|127|127|127|127|127|127|127|127|127
+  function inicializa() {
+    const queryString = window.location.search;
+    console.log(queryString);
+    
+    const urlParams = new URLSearchParams(queryString);
+    entrada="";
+    
+    if(urlParams.has("entrada")){
+      entrada = urlParams.get('entrada');
+      console.log(entrada);
+      }
+
+    var matriz=entrada.split("|",48);
+    
+    var hora = 0;
+    var minutos= "00";
+
+    var tblBody=document.getElementById("mapa");
+
+    for(fila=0;fila<48;fila++){
+      console.log("orden: " + fila + " valor: " + matriz[fila]);
+      
+      var hilera = document.createElement("tr");
+      tblBody.appendChild(hilera);
+
+      var cabecera = document.createElement("th");
+	  cabecera.setAttribute("style","padding-bottom: 0px;padding-top: 0px;");
+      hilera.appendChild(cabecera);
+
+      cad=" " + hora + ":" + minutos;
+      if(minutos=="30") {
+        minutos="00";
+        hora=hora+1;
+      }
+      else {
+        minutos="30";
+      }
+      cabecera.innerText=cad;
+
+      for(columna=0;columna<7;columna++){
+        celda_id= 'c_' + fila + '_' + columna;
+        input_id= 'i_' + fila + '_' + columna;
+        parrafo_id= 'p_' + fila + '_' + columna;
+          console.log('celda: ' + celda_id);
+          console.log('input: ' + input_id);
+          console.log('parrafo: ' + parrafo_id);
+        
+        var celda = document.createElement("td");
+        celda.setAttribute("id",celda_id)
+        celda.setAttribute("onClick","cambiaColor(" + fila + "," + columna + ")");
+
+        var input = document.createElement("input");
+        input.setAttribute("id",input_id);
+        input.setAttribute("type","hidden");
+
+		var division = document.createElement("div");
+		division.setAttribute("id",parrafo_id);
+		division.setAttribute("align","center");
+		celda.appendChild(division);
+        celda.appendChild(input);
+        hilera.appendChild(celda);
+
+        var posicion=2**columna;
+          console.log("posicion: "+ posicion);
+        if((matriz[fila] & posicion)!=0) {
+          celda.className='verde';
+          input.value=1;
+		  division.innerText="dia";
+          }
+        else {
+          celda.className='gris';
+          input.value=0;
+          division.innerText="noche";
+          }
+      }
+    }
+  }
+
+ 
+  function reconstruye()
+  {
+  document.getElementById("cadena").value="";  
+ 
+  for(fila=0;fila<48;fila++) {
+    resultado[fila]=0;
+    for(columna=0;columna<7;columna++) {
+      if(document.tablaConsignas[fila*7+columna+1].value!=0)
+        {
+        resultado[fila]=resultado[fila]+2**columna;
+        console.log("fila: "+fila+" columna: "+columna+" resultado: " + resultado[fila]);
+        }
+      }
+    if(document.getElementById("cadena").value!="") document.getElementById("cadena").value = document.getElementById("cadena").value + '|';
+    document.getElementById("cadena").value= document.getElementById("cadena").value + resultado[fila];
+    }
+  }
+ </script>
+
+ </HEAD>
+ <BODY onload='inicializa()'>
+
+<form id='tablaConsignas' name='tablaConsignas' action='/configTabla'>
+  <input type='hidden' id='cadena' name='cadena' value=''>
+  <TABLE border="0" width="80%" cellpadding="0" cellspacing="0" width="300" class="tabla">
+    <CAPTION>Consignas por horas</CAPTION>
+    <tbody id="mapa">
+      <TR><TH width="9%"></TH><TH width="13%">lunes</TH><TH width="13%">martes</TH><TH width="13%">miercoles</TH><TH width="13%">jueves</TH><TH width="13%">viernes</TH><TH width="13%">sabado</TH><TH width="13%">domingo</TH></TR>
+      <!--Tabla dinamica-->
+    </tbody>
+  </table>
+
+  <br>
+  <button type='button' onclick="reconstruye();document.getElementById('tablaConsignas').submit();">Guardar</button>
+</form>
+
+<br>
+</BODY>
+</HTML>

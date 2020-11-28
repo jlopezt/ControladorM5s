@@ -532,3 +532,11 @@ String stateTexto(void)
       
   return (cad);
   }
+
+String getIPBroker(){return IPBroker.toString();}  
+String getBrokerDir(){return BrokerDir;}  
+String getPuertoBroker(){return String(puertoBroker);}  
+String getModoMQTT(){return modoMQTT;}  
+String getUsuarioMQTT(){return usuarioMQTT;}  
+String getPasswordMQTT(){return passwordMQTT;}  
+String getTopicRoot(){return topicRoot;}

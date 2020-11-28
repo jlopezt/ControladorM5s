@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "3.0.1 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" //servicio tts para leer la temperatura promedio
+#define VERSION           "3.1.1 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" //servicio tts para leer la temperatura promedio
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1

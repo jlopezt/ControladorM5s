@@ -1,82 +1,54 @@
-/************************************************************************************************
-Servicio                                  URL                            Formato entrada         Formato salida                                              Comentario                                                                                    Ejemplo peticion                                              Ejemplo respuesta
-Configuracion de la tabla de consignas    http://IP/configTabla          cadena=<cadena>         HTML                                                        Pinta la tabla de consignas. Si la recibe la carga                                            http://IP/configTabla?0|0|0...|127|127                        N/A
-Configuracion de las consignas de Tª      http://IP/consignaTemperatura  cadena=<cadena>         HTML                                                        Pinta el formulario para introducir las consignas                                             http://IP/consignaTemperatura?consignaDia=22&consignaNoche=15 N/A
-Numero de habitaciones                    http://IP/numeroHabitaciones   N/A                     <numHabitaciones> entero 0..255                             Devuelve el numero de habitaciones con satelite registrado                                    http://IP/numeroHabitaciones                                  4
-Lista de las habitaciones                 http://IP/listaHabitaciones    N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_SATELITES  Devuelve la lista de los ids y nombres de las habitaciones que se han registrado su satelite  http://IP/listaHabitaciones                                   1#Salon|2#despacho|3#DormitorioPpal
-Valores de las medida en las habitaciones http://IP/valoresHabitaciones  id=<id>                 Temperatura|Humedad|Luz                                     Devuelve los valores de una habitacion                                                        http://IP/valoresHabitaciones?id=4                            23.5|72|88
-Lista de los reles                        http://IP/listaReles           N/A                     id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_RELES      Devuelve la lista de los ids y nombres de los reles declarados en el controlador              http://IP/listaReles?id=1                                     1#Caldera|2#Riego
-Configuracion de habitaciones             http://IP/configHabitaciones   id=<id>&nombre=<nombre> id|nombre                                                   Devuelve lo mismo pero de los valortes generados                                              http://IP/registroHabitacion?id=1&nombre=Salon                1|Salon
-Errores de comunicacion                   http://IP/erroresComunicacion  N/A                     id|errores                                                  Devuelve el numero de errores de comunicacion de cada satelite                                http://IP/erroresComunicacion                                 1#2|3#0
-Configuracion tabala de temperatura       http://IP/configTabla          cadena=<cadena>         {web configuracion}                                          Configura la tabla de temperaturas dia/noche y genera la pagina de configuracion          
-Configura las consignas dia/noche         http://IP/consignaTemperatura  consignaDia/consignaNoche=<valor> {web configuracion}                               Configura la consigna de dida o de noche y genera la pagina de configuracion                  
-Recarga del mapa de temperaturas          http://IP/recargaMapa
-
-Reinicia el controlador                   http://IP/restart
-Informacion del Hw del sistema            http://IP/info
-Crea el fichero indicado                  http://IP/creaFichero
-Borra el fichero indicado                 http://IP/borraFichero
-Lee el fichero indicado                   http://IP/leeFichero
-Informacion del sistema de ficheros       http://IP/infoFS
-************************************************************************************************/
+/**************************************************************/
+/*                                                            */
+/* Servidor web embebido en el el termostato para su gestion  */ 
+/* sirve paginas almnacenadas internamente y paginas generadas*/
+/* de manera dinamica a partir de la informacion actual del   */
+/* servicio                                                   */
+/*                                                            */
+/* Version de la remodelacion: 3.1.1                          */
+/*                                                            */
+/***************************************************************/
 #define PUERTO_WEBSERVER  80
-//#define IDENTIFICACION "<BR><BR><BR><BR><BR>Modulo controlador. Version " + String(VERSION) + ".";
 
-#include <WebServer.h> //#include <ESP8266WebServer.h>
+#include <WebServer.h>
 
 WebServer server(PUERTO_WEBSERVER); //ESP8266WebServer server(PUERTO_WEBSERVER);
 
-//Cadenas HTML precargadas
-String cabeceraHTML="";
-const String hablaHTML="<html><head></head><body><input type=\"text\"><button>speech</button><script>var d = document;d.querySelector('button').addEventListener('click',function(){xhr = new XMLHttpRequest();xhr.open('GET','/speech?phrase='+encodeURIComponent(d.querySelector('input').value));xhr.send();});</script></body></html>";
-
-//version de la web propia del cacharro
-const String pagina_a = "<!DOCTYPE html>\n<html lang=\"es\">\n <head>\n <meta charset=\"UTF-8\">\n <TITLE>Domoticae</TITLE>\n <link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\">\n </HEAD>\n <BODY>\n <table style=\"width:100%;\" cellpadding=\"10\" cellspacing=\"0\">\n  <tr style=\"height:20%; background-color:black\">\n  <th align=\"left\">\n   <span style=\"font-family:verdana;font-size:30px;color:white\">DOMOTI</span><span style=\"font-family:verdana;font-size:30px;color:red\">C</span><span style=\"font-family:verdana;font-size:30px;color:white\">AE - ";
-//en medio va el nombre_dispositivo
-const String pagina_b = "</span>   \n  </th>\n  </tr>\n  <tr style=\"height:10%;\">\n    <td>";
-const String enlaces = "<table class=\"tabla\">\n<tr class=\"modo1\">\n<td><a href=\"..\" target=\"_self\" style=\"text-decoration:none; color: black;\">Home</a></td>\n<td><a href=\"configHabitaciones\" target=\"_self\" style=\"text-decoration:none; color: black;\">Estado</a></td>\n<td><a href=\"consignaTemperatura\" target=\"_self\" style=\"text-decoration:none; color: black;\">Consignas</a></td>\n<td><a href=\"listaFicheros\" target=\"_self\" style=\"text-decoration:none; color: black;\">Lista ficheros</a></td>\n<td><a href=\"info\" target=\"_self\" style=\"text-decoration:none; color: black;\">Info</a></td>\n<td><a href=\"restart\" target=\"_self\" style=\"text-decoration:none; color: black;\">Restart</a></td>\n</tr>\n</table>";
-const String pagina_c = "</td></tr><TR style=\"height:60%\"><TD>";
-//En medio va el cuerpo de la pagina
-const String pieHTML = "</TD>\n</TR>\n<TR>\n<TD style=\"color:white; background-color:black\"><a href=\"https://domoticae.lopeztola.com\" target=\"_self\" style=\"text-decoration:none; color:white;\">domoticae-2020</a></TD>\n</TR>\n</table>\n</BODY>\n</HTML>";
-
 //version para integrar en otras paginas
-const String cabeceraHTMLlight = "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<HTML><HEAD><TITLE>Domoticae</TITLE><link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\"></HEAD><BODY>\n"; 
+const String cabeceraHTMLlight = "<!DOCTYPE html>\n<head>\n<meta charset=\"UTF-8\" />\n<TITLE>Domoticae</TITLE><link rel=\"stylesheet\" type=\"text/css\" href=\"css.css\"></HEAD><html lang=\"es\">\n<BODY>\n"; 
+const String pieHTMLlight="</body>\n</HTML>\n";
+
+const String hablaHTML="<html><head></head><body><input type=\"text\"><button>speech</button><script>var d = document;d.querySelector('button').addEventListener('click',function(){xhr = new XMLHttpRequest();xhr.open('GET','/speech?phrase='+encodeURIComponent(d.querySelector('input').value));xhr.send();});</script></body></html>";
 
 void inicializaWebServer(void)
   {
-  cabeceraHTML = pagina_a + nombre_dispositivo + pagina_b + enlaces + pagina_c;
-  
   //decalra las URIs a las que va a responder
   server.on("/", HTTP_ANY, handleRoot); //web de temperatura
+  server.on("/datos", handleDatos);
+  server.on("/modo", HTTP_ANY, handleModoCalefaccion);
+
   server.on("/configHabitaciones", HTTP_ANY, handleConfigHabitaciones); 
 
-  server.on("/modo", HTTP_ANY, handleModoCalefaccion);
-  
   server.on("/consignaTemperatura", HTTP_ANY, handleConfigConsignas);//Configuracion de las dos consignas (dia/noche)
   server.on("/configTabla", HTTP_ANY, handleConfigTabla);  //Configuracion de la tabla de consignas (cual aplica en cada momento)
-
   server.on("/recargaMapa", HTTP_ANY, handleRecargaMapa);  //Lee el fichero de la tabla de consignas segun hora y lo carga en memoria
   server.on("/recargaFicheroNombres", HTTP_ANY, handleRecargaFicheroNombres); //Lee el fichero de nombres de termometros y lo carga en memoria
-  
-  server.on("/restart", HTTP_ANY, handleRestart);  //URI de test
-  server.on("/info", HTTP_ANY, handleInfo);  //URI de test
-    
+
   server.on("/listaFicheros", HTTP_ANY, handleListaFicheros);  //URI de leer fichero
+
   server.on("/creaFichero", HTTP_ANY, handleCreaFichero);  //URI de crear fichero
   server.on("/borraFichero", HTTP_ANY, handleBorraFichero);  //URI de borrar fichero
   server.on("/leeFichero", HTTP_ANY, handleLeeFichero);  //URI de leer fichero
-  server.on("/manageFichero", HTTP_ANY, handleManageFichero);  //URI de leer fichero  
-  server.on("/infoFS", HTTP_ANY, handleInfoFS);  //URI de info del FS
+  server.on("/manageFichero", HTTP_ANY, handleManageFichero);  //URI de leer fichero 
 
+  server.on("/info", HTTP_ANY, handleInfo);  //URI de test
+  server.on("/restart", HTTP_ANY, handleRestart);  //URI de test
+
+  server.on("/habla", HTTP_ANY,handleHabla); //Se introduce una cadena por pantalla y la envia al GHN configurado
+/**************ACTUALIZADO****************/  
+  
   server.on("/consultaTemperatura", HTTP_ANY, handleConsultaTemperatura); //Manda una locucion al GH
    
-  server.on("/speech", handleSpeechPath);
-  server.on("/habla", handleHablaPath);
-
-  server.on("/datos", handleDatos);
-  server.on("/version", handleVersion);
-  server.on("/listaFicheros2", handleListaFicheros2);
-  
 
   server.on("/edit.html",  HTTP_POST, []() {  // If a POST request is sent to the /edit.html address,
     server.send(200, "text/plain", "Subiendo..."); 
@@ -100,95 +72,73 @@ void reinicializaWebServer(void)
   
 void handleRoot() 
   {
-  String cad="";
+  server.sendHeader("Location", String("/main.html?nombre=")+nombre_dispositivo,true); //Redirect to our html web page 
+  server.send(302, "text/html","");    
+  }
+
+void handleDatos() 
+  {
+  server.sendHeader("Location", String("/root.html?temperatura=") + String(getTemperaturaPromedio()) + \
+                                       "&consigna=" + String(getConsigna()) + \
+                                       "&humedad=" + String(getHumedadPromedio()) + \
+                                       "&seguridad=" + String(getEstadoRele(SEGURIDAD)) + \
+                                       "&calefaccion=" + String(getEstadoRele(CALDERA)) + \
+                                       "&modo=" + String(getModoManual()) + \
+                                       "&tiempo=" + String(getDownCounter()), \
+                                       true); //Redirect to our html web page 
+  server.send(302, "text/html","");    
+  }
+
+void handleConfigConsignas(void)
+  {
+  boolean salir=false;
   
-  cad = cabeceraHTML;
-  cad += "<META HTTP-EQUIV=\"REFRESH\" CONTENT=\"10;URL=/\">\n";//Para que se recargue cada 10sg
-
-  //Valores medidos
-  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
-  cad += "<CAPTION>Valores</CAPTION>\n";    
-  cad += "<TR class=\"modo2\"><TD>Temperatura:</TD><TD>" + combierteTemperaturaPromedio() + "</TD></TR>\n";
-  cad += "<TR class=\"modo2\"><TD>Consigna:</TD><TD>" + String(getConsigna(),1) + "ºC</TD></TR>\n";  
-  cad += "<TR class=\"modo2\"><TD>Humedad:</TD><TD>" +String(getHumedadPromedio()) + " %</TD></TR>\n";
-  cad += "</TABLE>";
-  cad += "\n<BR>\n";
-  
-  //Modo de funcionamiento
-  /* MODO_ON=0   */
-  /* MODO_OFF=1  */
-  /* MODO_AUTO=2 */  
-  cad += "<form action=\"/modo\" id=\"form_id\">\n";
-  cad += "<input type=\"hidden\" id=\"modo\" name=\"modo\" value=\"0\">\n";
-  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
-  cad += "<caption>Modo de funcionamiento</caption>\n";
-  cad += "<TR class=\"modo2\">";
-  switch (getModoManual())
-    {
-    case MODO_ON:
-      cad += "<TR class=\"modo2\"><TD>On</TD><TD>tiempo restante: " + String(getDownCounter()) +  " sg</TD></tr>\n";
-    
-      cad += "<TR class=\"modo2\">\n";
-      cad += "<TD colspan=\"2\">\n";
-      cad += "<button type=\"button\" onclick=\"document.getElementById('modo').value=" + String(MODO_OFF) + ";document.getElementById('form_id').submit();\">Off</button>\n";
-      cad += "</TD>\n";
-      cad += "</tr>\n";
-
-      cad += "<TR class=\"modo2\">\n";
-      cad += "<TD colspan=\"2\">\n";
-      cad += "<button type=\"button\" onclick=\"document.getElementById('modo').value=" + String(MODO_AUTO) + ";document.getElementById('form_id').submit();\">Automatico</button>\n";
-      cad += "</TD>\n";
-      cad += "</tr>\n";
-      break;
-    case MODO_OFF:
-      cad += "<TR class=\"modo2\">\n";
-      cad += "<TD colspan=\"2\">\n";
-      cad += "<button type=\"button\" onclick=\"document.getElementById('modo').value=" + String(MODO_ON) + ";document.getElementById('form_id').submit();\">On</button>\n";
-      cad += "</TD>\n";
-      cad += "</tr>\n";      
-
-      cad += "<TR class=\"modo2\"><TD>Off</TD><TD>tiempo restante: " + String(getDownCounter()) +  " sg</TD></tr>\n";
-
-      cad += "<TR class=\"modo2\">\n";
-      cad += "<TD colspan=\"2\">\n";
-      cad += "<button type=\"button\" onclick=\"document.getElementById('modo').value=" + String(MODO_AUTO) + ";document.getElementById('form_id').submit();\">Automatico</button>\n";
-      cad += "</TD>\n";
-      cad += "</tr>\n";
-      break;  
-    case MODO_AUTO:
-      cad += "<TR class=\"modo2\">\n";
-      cad += "<TD colspan=\"2\">\n";
-      cad += "<button type=\"button\" onclick=\"document.getElementById('modo').value=" + String(MODO_ON) + ";document.getElementById('form_id').submit();\">On</button>\n";
-      cad += "</TD>\n";
-      cad += "</tr>\n";
-          
-      cad += "<TR class=\"modo2\">\n";
-      cad += "<TD colspan=\"2\">\n";
-      cad += "<button type=\"button\" onclick=\"document.getElementById('modo').value=" + String(MODO_OFF) + ";document.getElementById('form_id').submit();\">Off</button>\n";
-      cad += "</TD>\n";
-      cad += "</tr>\n";
-
-      cad += "<TR class=\"modo2\"><TD colspan'2'>Automatico</TD></tr>\n";
-      break;
+  //dia
+  if(server.hasArg("consignaDia")){
+    setConsignaD(server.arg("consignaDia").toFloat());
+    salir=true;
     }
-  cad += "</TABLE>";
-  cad += "</form>";
-  cad += "\n<BR>\n";
+    
+  //noche
+  if(server.hasArg("consignaNoche")){
+    setConsignaN(server.arg("consignaNoche").toFloat());
+    salir=true;
+    }
 
-  //Reles
-  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
-  cad += "<caption>Reles</caption>\n";
-  cad += "<TR class=\"modo2\"><TD>" + getNombreRele(CALDERA)   + "</TD><TD>" + (getEstadoRele(CALDERA)?"on":"off")  + "</TD></TR>\n";
-  cad += "<TR class=\"modo2\"><TD>" + getNombreRele(SEGURIDAD) + "</TD><TD>" + (getEstadoRele(SEGURIDAD)?"on":"off") + "</TD></TR>\n";
-  cad += "</TABLE>";
-  cad += "\n<BR>\n";
+  if(salir) handleDatos(); //Si ya lo he actualizado, salgo
+  else{    
+    server.sendHeader("Location", String("/consignas.html?dia=") +String(getConsignaDia()) + \
+                                         "&noche=" + String(getConsignaNoche()), \
+                                         true); //Redirect to our html web page 
+    server.send(302, "text/html","");        
+    }
+  }
   
-  //Informacion del dispositivo
-  cad += "<p style=\"font-size: 12px;color:black;\">" + nombre_dispositivo + " - Version " + String(VERSION) + "</p>";
 
-  cad += pieHTML;
-  
-  server.send(200, "text/HTML", cad);  
+void handleConfigTabla()
+  {
+  char cadLarga[192];
+  for(int i=0;i<192;i++) cadLarga[i]=0;
+
+  if(server.hasArg("cadena")) 
+    {
+    strncpy(cadLarga,server.arg("cadena").c_str(),192);
+    rellenaMapa(cadLarga);
+    generaConfiguracionMapa();//saco el mapa a fichero 
+    handleDatos();//handleRoot();
+    return;
+    }
+    
+  //manda la pagina del mapa
+  //calculo la cadena
+  String cad="";
+  for(uint8_t i=0;i<48;i++) 
+    {
+    if(cad!="") cad += SEPARADOR;
+    cad += mapa[i];
+    }
+  server.sendHeader("Location", String("/configTabla.html?entrada=") + cad,true); //Redirect to our html web page 
+  server.send(302, "text/html","");  
   }
 
 /*********************************************/
@@ -203,15 +153,9 @@ void handleRecargaMapa(void)
   
   if(leeFicheroMapa()) mensaje="Mapa de configuracion de consignas leido";
   else mensaje="Error al leer el mapa de configuracion de consignas ";
-  
-  String cad = cabeceraHTML;
-  cad += "<br><br><br>\n";
-  cad += "<META HTTP-EQUIV=\"REFRESH\" CONTENT=\"5;URL=/\">\n";
-  cad += "<h3 style=\"font-family:verdana;font-size:30px;color:black\">" + mensaje + "</h3>\n";
-  cad += "<br><br><br>\n";
-  cad += pieHTML;
-    
-  server.send(200, "text/HTML", cad);   
+      
+  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.send(302, "text/html","");
   }
 
 /*********************************************/
@@ -227,16 +171,26 @@ void handleRecargaFicheroNombres(void)
   if(inicializaSatelites()) mensaje="Mapa de termometros leido";
   else mensaje="Error al leer el mapa de termometros";
   
-  String cad = cabeceraHTML;
-  cad += "<br><br><br>\n";
-  cad += "<META HTTP-EQUIV=\"REFRESH\" CONTENT=\"5;URL=/\">\n";
-  cad += "<h3 style=\"font-family:verdana;font-size:30px;color:black\">" + mensaje + "</h3>\n";
-  cad += "<br><br><br>\n";
-  cad += pieHTML;
-    
-  server.send(200, "text/HTML", cad);   
+  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.send(302, "text/html","");
   }
   
+/*********************************************/
+/*                                           */
+/*  Reinicia el dispositivo mediante         */
+/*  peticion HTTP                            */ 
+/*                                           */
+/*********************************************/  
+void handleRestart(void)
+  {
+  String mensaje="Reiniciando...";
+
+  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.send(302, "text/html","");
+  
+  ESP.restart();
+  }
+
 /*********************************************/
 /*                                           */
 /*  Servicio de configuracion del            */
@@ -245,7 +199,6 @@ void handleRecargaFicheroNombres(void)
 /*********************************************/
 void handleModoCalefaccion(void)
   {
-  String cad;
   int duracion=0;
   
   if(server.hasArg("modo")) 
@@ -259,208 +212,11 @@ void handleModoCalefaccion(void)
     //Serial.printf("modo: %i | duracion: %i\n",modo,duracion);
     }  
 
-  handleRoot();
+  handleDatos();
   return;
-  cad="Modo: " + getModoManualTxt();    
-  server.send(200, "text/plain", cad);  
   }
 
-/*********************************************/
-/*                                           */
-/*  Servicio de configuracion de             */
-/*  las consignas de temperaturas            */
-/*                                           */
-/*********************************************/
-void handleConfigConsignas(void)
-  {
-  Serial.printf("Metodo HTTP: %i\nURI: %s\n",server.method(),server.uri().c_str());//enum HTTPMethod { HTTP_ANY, HTTP_GET, HTTP_POST, HTTP_PUT, HTTP_PATCH, HTTP_DELETE, HTTP_OPTIONS };  
-  for(int8_t i=0;i<server.args();i++) Serial.printf("argumento %i: nombre: %s - valor: %f\n",i,server.argName(i).c_str(),server.arg(i).toFloat());
-  boolean salir=false;
-  
-  //dia
-  if(server.hasArg("consignaDia")){
-    setConsignaD(server.arg("consignaDia").toFloat());
-    salir=true;
-  }
-  //noche
-  if(server.hasArg("consignaNoche")){
-    setConsignaN(server.arg("consignaNoche").toFloat());
-    salir=true;
-  }
-
-  if(salir) handleRoot(); //Si y alo he actualizado, salgo
-  else{
-    String cad = cabeceraHTML;
-    
-    cad += "<form id='formConsignas' action='/consignaTemperatura'>";
-    cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
-    cad += "<CAPTION>Consigna de temperatura</CAPTION>\n";    
-    cad += "<TR class=\"modo2\"><TD aling=\"center\">día</td><td aling=\"center\"><input type='text' id='consignaDia' name='consignaDia' value='" + String(getConsignaDia(),1) + "'></TD></TR>\n";
-    cad += "<TR class=\"modo2\"><TD aling=\"center\">noche</td><td aling=\"center\"><input type='text' id='consignaNoche' name='consignaNoche' value='" + String(getConsignaNoche(),1) + "'></TD></TR>\n";
-    cad += "</TABLE>";    
-    cad += "<BR>\n";   
-    cad += "<input type=\"submit\" value=\"Enviar\">";
-    cad += "</form>\n";
-    cad += "<BR>\n";   
-
-    cad += "<form id='tablaConsigna' action='/configTabla'>\n";
-    cad += "<button type='button' onclick=\"document.getElementById('tablaConsigna').submit();\">Ver tabla de consignas</button>";
-    cad += "</form>\n";
-    cad += "<BR>\n";
-
-    cad += "<form id='mapaConsigna' action='/recargaMapa'>\n";
-    cad += "<button type='button' onclick=\"document.getElementById('mapaConsigna').submit();\">carga mapa de consignas</button>";
-    cad += "</form>\n";
-    cad += "<BR>\n";
-
-    cad += "<form id='mapaSatelites' action='/recargaFicheroNombres'>\n";
-    cad += "<button type='button' onclick=\"document.getElementById('mapaSatelites').submit();\">carga mapa de satelites</button>";
-    cad += "</form>\n";
-    cad += "<BR>\n";
-
-    cad += pieHTML;
-  
-    server.send(200, "text/HTML", cad);
-    }
-  }
- 
-/*********************************************/
-/*                                           */
-/*  Servicio de configuracion de             */
-/*  la tabla de temperaturas                 */
-/*                                           */
-/*********************************************/
-void handleConfigTabla()
-  {
-  char cadLarga[192];
-  for(int i=0;i<192;i++) cadLarga[i]=0;
-
-  if(server.hasArg("cadena")) 
-    {
-    //String cad=server.arg("cadena"); //la cadena tiene 48 valores para la tabla
-    strncpy(cadLarga,server.arg("cadena").c_str(),192);
-    rellenaMapa(cadLarga);
-    generaConfiguracionMapa();//saco el mapa a fichero 
-    handleRoot();
-    return;
-    }
-
-  server.send(200, "text/HTML", preparaPaginaMapa());//cad2); 
-  }
-
-String preparaPaginaMapa(void)
-  {
-  String cad="";
-  
-  if(debugGlobal || true) Serial.println("Empezamos...");
-  
-  cad  = cabeceraHTML;
-  cad += "\n";
-
-  cad += "<script type=\"text/javascript\">\n";
-  cad += " var resultado = new Array(24)\n";
-  cad += "\n";
-  cad += " function cambiaColor(fila,columna){\n";
-  cad += " celda= 'c_' + fila + '_' + columna;\n";
-  cad += " input= 'i_' + fila + '_' + columna;\n";
-  cad += " console.log('celda: ' + celda);\n";
-  cad += " console.log('input: ' + input);\n";
-  cad += " if(document.getElementById(input).value==1) {\n";
-  cad += "   document.getElementById(celda).className='gris';\n";
-  cad += "   document.getElementById(input).value=0;\n";
-  cad += "   }\n";
-  cad += " else {\n"; 
-  cad += "   document.getElementById(celda).className='verde';\n";
-  cad += "   document.getElementById(input).value=1;\n";
-  cad += "   }\n";  
-  cad += " }\n";
-  cad += "\n";
-  cad += " function reconstruye()\n";
-  cad += " {\n";
-  cad += " document.getElementById(\"cadena\").value=\"\";  \n";
-  cad += "\n";
-  cad += " for(fila=0;fila<24;fila++) {\n";
-  cad += "   resultado[fila]=0;\n";
-  cad += "   for(columna=0;columna<7;columna++) {\n";
-  cad += "     if(document.tablaConsignas[fila*7+columna+1].value!=0)\n"; //El mas 1 es porque la columna de las horas es la 0
-  cad += "       {\n";
-  cad += "       resultado[fila]=resultado[fila]+2**columna;\n";
-  cad += "       console.log(\"fila: \"+fila+\" columna: \"+columna+\" resultado: \" + resultado[fila]);\n";
-  cad += "       }\n";  
-  cad += "     }\n";
-  cad += "   if(document.getElementById(\"cadena\").value!=\"\") document.getElementById(\"cadena\").value = document.getElementById(\"cadena\").value + '|';\n";  
-  cad += "   document.getElementById(\"cadena\").value= document.getElementById(\"cadena\").value + resultado[fila];\n";  
-  cad += "   }\n";
-  cad += " }\n";
-  cad += "</script>\n";  
-  cad += "\n";
-  cad += "<style>\n";
-  cad += " td.gris {\n";
-  cad += "     border: 1px solid white; \n";
-  cad += "    border-collapse: collapse; \n";
-  cad += "    background-color: lightgrey;\n";
-  cad += "  }\n";
-  cad += " td.verde {\n";
-  cad += "    border: 1px solid white; \n";
-  cad += "    border-collapse: collapse; \n";
-  cad += "    background-color: lightgreen;\n";
-  cad += "  }\n";
-  cad += " </style>\n";
-  cad += "<form id='tablaConsignas' name='tablaConsignas' action='/configTabla'>\n";
-  cad += "<input type='hidden' id='cadena' name='cadena' value=''>\n";
-  cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
-  cad += "<CAPTION>Consignas por horas</CAPTION>\n";      
-  cad += "<TR>";  
-  cad += "<TH width=\"9%\"></TH>";    
-  cad += "<TH width=\"13%\">lunes</TH>";  
-  cad += "<TH width=\"13%\">martes</TH>";  
-  cad += "<TH width=\"13%\">miercoles</TH>";  
-  cad += "<TH width=\"13%\">jueves</TH>";  
-  cad += "<TH width=\"13%\">viernes</TH>";  
-  cad += "<TH width=\"13%\">sabado</TH>";  
-  cad += "<TH width=\"13%\">domingo</TH>";  
-  cad += "</TR>";
-  
-  uint8_t horas=0;
-  uint8_t minutos=0;
-  for(uint8_t fila=0;fila<48;fila++)
-    {
-    cad += "<tr>\n";
-    cad += "<th>" + String(horas) + ":" + (minutos==0?String("00"):String(minutos)) + "</th>\n";
-    uint8_t dia=1;//bitmap que indica el dia en el que estamos. sirve de mascara para leer el bit del dia
-    for(uint8_t columna=0;columna<7;columna++)
-      {
-      //cad += "<td align='center' id='celda_" + String(fila) + "_" + String(columna) + "' onclick='cambiaColor(" + String(fila) + "," + String(columna) + ")' style=\"border: 1px solid lightgrey; border-collapse: collapse; background-color: " + (mapa[fila] & dia?String("lightgreen"):String("lightgrey")) + ";\">\n";
-      cad += "<td id='c_" + String(fila) + "_" + String(columna) + "' onclick='cambiaColor(" + String(fila) + "," + String(columna) + ")' " + (mapa[fila] & dia?String("class=\"verde\""):String("class=\"gris\"")) + ";\">\n";
-      cad += "<input type='hidden' id='i_" + String(fila) + "_" + String(columna) + "' value='" + (mapa[fila] & dia?String(1):String(0)) + "'>";
-      dia *= 2;//paso al dia siguiente
-      cad += "</td>\n";
-      }
-    cad += "</tr>\n";
-    minutos +=30;
-    if(minutos>30)
-      {
-      minutos=0;    
-      horas++;
-     }
-    }
-
-  cad += "</table>\n";
-  cad += "<br>";
-  cad += "<button type='button' onclick=\"reconstruye();document.getElementById('tablaConsignas').submit();\">Guardar</button>\n";
-  cad += "</form>\n";
-  cad +="<br>\n";
-  
-  cad += pieHTML;  
-
-  if(debugGlobal)
-    {
-    Serial.print("Cadena: ");
-    Serial.println(cad);
-    }
-  
-  return cad;
-  }
+/************************************************************************************************************************/
 
 /*********************************************/
 /*                                           */
@@ -470,7 +226,7 @@ String preparaPaginaMapa(void)
 /*********************************************/
 void handleConfigHabitaciones(void)
   {
-  String cad=cabeceraHTML;
+  String cad=cabeceraHTMLlight;
 
   cad += "<TABLE width=\"200px\" cellpadding=\"0\" cellspacing=\"0\" class=\"tabla\">\n";
   cad += "<caption>Temperatura promedio</caption>\n";
@@ -533,30 +289,12 @@ void handleConfigHabitaciones(void)
       }
     }
   cad += "</table>\n";
-  cad += pieHTML;
+  cad += pieHTMLlight;
    
   server.send(200, "text/HTML", cad);  
   }
 
-/*********************************************/
-/*                                           */
-/*  Reinicia el dispositivo mediante         */
-/*  peticion HTTP                            */ 
-/*                                           */
-/*********************************************/  
-void handleRestart(void)
-  {
-  String cad="";
-
-  cad += cabeceraHTML; 
-  cad += "<br><br>Reiniciando...<br>";
-  cad += pieHTML;
-    
-  server.send(200, "text/html", cad);     
-  delay(1000);
-  ESP.restart();
-  }
-
+/************************* INFO *********************************************/
 /*********************************************/
 /*                                           */
 /*  Lee info del chipset mediante            */
@@ -565,11 +303,11 @@ void handleRestart(void)
 /*********************************************/  
 void handleInfo(void)
   {
-  String cad=cabeceraHTML;
+  String cad=cabeceraHTMLlight;
 
-  cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
+  cad += "<TABLE border=\"1\" width=\"50%\" cellpadding=\"1\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
 //  cad += "<BR>-----------------info general-----------------<BR>";
-  cad += "<TR clas='modo2>\n"; 
+  cad += "<TR clas='modo2'>\n"; 
   cad += "<td colspan='2' class=\"modo1\">info general</td>\n";
   cad += "</TR>\n"; 
 
@@ -609,56 +347,57 @@ void handleInfo(void)
 //  cad += "Limite sleep: " + String(limiteSleep)+ "ms";
   cad += "</TR>\n"; 
 
-/*
-//  cad += "<BR>-----------------MQTT info-----------------<BR>";
-  cad += "<caption>MQTT info</caption>\n";
 
+//  cad += "<BR>-----------------MQTT info-----------------<BR>";
+  cad += "<TR clas='modo2'>\n"; 
+  cad += "<td colspan='2' class=\"modo1\">info MQTT</td>\n";
+  cad += "</TR>\n"; 
+  
   cad += "<TR>\n"; 
   cad += "<td>IP broker</td>\n";
-  cad += "<td>" + IPBroker.toString() + "</td>\n";
-//  cad += "IP broker: " + IPBroker.toString();
+  cad += "<td>" + getIPBroker() + "</td>\n";
+//  cad += "IP broker: " + getIPBroker();
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
   cad += "<td>URL broker</td>\n";
-  cad += "<td>" + BrokerDir.toString() + "</td>\n";
+  cad += "<td>" + getBrokerDir() + "</td>\n";
 //  cad += "URL broker: " + BrokerDir.toString();
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
   cad += "<td>modo</td>\n";
-  cad += "<td>" + modoMQTT.toString() + "</td>\n";
-//  cad += "modo: " + modoMQTT.toString();
-  cad += "</TR>\n"; 
-
-  cad += "<TR>\n"; 
-  cad += "<td>modo</td>\n";
-  cad += "<td>" + String(puertoBroker) + "</td>\n";
+  cad += "<td>" + getPuertoBroker() + "</td>\n";
 //  cad += "Puerto broker: " +   puertoBroker=0;
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
+  cad += "<td>modo</td>\n";
+  cad += "<td>" + getModoMQTT() + "</td>\n";
+//  cad += "modo: " + modoMQTT.toString();
+  cad += "</TR>\n"; 
+
+  cad += "<TR>\n"; 
   cad += "<td>usuario</td>\n";
-  cad += "<td>" + String(usuarioMQTT) + "</td>\n";
+  cad += "<td>" + getUsuarioMQTT() + "</td>\n";
 //  cad += "Usuario: " + usuarioMQTT="";
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
   cad += "<td>password</td>\n";
-  cad += "<td>" + String(passwordMQTT) + "</td>\n";
+  cad += "<td>" + getPasswordMQTT() + "</td>\n";
 //  cad += "Password: " + passwordMQTT="";
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
   cad += "<td>Topic Root</td>\n";
-  cad += "<td>" + String(topicRoot) + "</td>\n";
+  cad += "<td>" + getTopicRoot() + "</td>\n";
 //  cad += "Topic root: " + topicRoot="";
   cad += "</TR>\n"; 
-*/
     
 //  cad += "<BR>-----------------info WiFi-----------------<BR>";
-  cad += "<TR clas='modo2>\n"; 
-  cad += "<ttd colspan='2' class=\"modo1\">info WiFi</td>\n";
+  cad += "<TR clas='modo2'>\n"; 
+  cad += "<td colspan='2' class=\"modo1\">info WiFi</td>\n";
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
@@ -675,8 +414,8 @@ void handleInfo(void)
   
   
 //  cad += "<BR>-----------------info Hardware-----------------<BR>";
-  cad += "<TR clas='modo2>\n"; 
-  cad += "<ttd colspan='2' class=\"modo1\">info hardware</td>\n";
+  cad += "<TR clas='modo2'>\n"; 
+  cad += "<td colspan='2' class=\"modo1\">info hardware</td>\n";
   cad += "</TR>\n"; 
 
   cad += "<TR>\n"; 
@@ -715,12 +454,29 @@ void handleInfo(void)
 //  cad += "FlashChipSpeed: " + String(ESP.getFlashChipSpeed());
   cad += "</TR>\n"; 
 
+//  cad += "<BR>-----------------info FileSystem-----------------<BR>";
+  cad += "<TR clas='modo2'>\n"; 
+  cad += "<td colspan='2' class=\"modo1\">info filesystem</td>\n";
+  cad += "</TR>\n"; 
+
+  cad += "<TR>\n"; 
+  cad += "<td>Bytes totales</td>\n";
+  cad += "<td>" + String(SPIFFS.totalBytes()) + "</td>\n";
+  cad += "</TR>\n"; 
+
+  cad += "<TR>\n"; 
+  cad += "<td>Bytes usados</td>\n";
+  cad += "<td>" + String(SPIFFS.usedBytes()) + "</td>\n";
+  cad += "</TR>\n"; 
+
   cad += "</table>";
 
-  cad += pieHTML;
+  cad += pieHTMLlight;
   server.send(200, "text/html", cad);     
   }
+/**********************************************************************/
 
+/************************* FICHEROS *********************************************/
 /*********************************************/
 /*                                           */
 /*  Crea un fichero a traves de una          */
@@ -729,12 +485,11 @@ void handleInfo(void)
 /*********************************************/  
 void handleCreaFichero(void)
   {
-  String cad=cabeceraHTML;
+  String mensaje="";
   String nombreFichero="";
   String contenidoFichero="";
+  
   boolean salvado=false;
-
-  cad += "<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
 
   if(server.hasArg("nombre") && server.hasArg("contenido")) //si existen esos argumentos
     {
@@ -745,14 +500,13 @@ void handleCreaFichero(void)
       {
       handleListaFicheros();
       return;
-      cad += "Fichero salvado con exito<br>";
       }
-    else cad += "No se pudo salvar el fichero<br>"; 
+    else mensaje = "No se pudo salvar el fichero"; 
     }
-  else cad += "Falta el argumento <nombre de fichero>"; 
+  else mensaje = "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
-  server.send(200, "text/html", cad); 
+  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.send(302, "text/html","");  
   }
 
 /*********************************************/
@@ -764,32 +518,23 @@ void handleCreaFichero(void)
 void handleBorraFichero(void)
   {
   String nombreFichero="";
-  String contenidoFichero="";
-
-  String cad=cabeceraHTML;
-  String mensaje;
+  String mensaje="";
   
   if(server.hasArg("nombre") ) //si existen esos argumentos
     {
     nombreFichero=server.arg("nombre");
 
-    if(borraFichero(nombreFichero)) 
+    if(!borraFichero(nombreFichero)) mensaje = "No se pudo borrar el fichero " + nombreFichero + ".\n";   
+    else
       {
       handleListaFicheros();
       return;
-      mensaje = "El fichero " + nombreFichero + " ha sido borrado.\n";
       }
-    else mensaje = "No sepudo borrar el fichero " + nombreFichero + ".\n"; 
     }
-  else mensaje = "Falta el argumento <nombre de fichero>"; 
-
-  cad += "<br><br><br>\n";
-  cad += "<META HTTP-EQUIV=\"REFRESH\" CONTENT=\"5;URL=/\">\n";
-  cad += "<h3 style=\"font-family:verdana;font-size:30px;color:black\">" + mensaje + "</h3>\n";
-  cad += "<br><br><br>\n";
-  cad += pieHTML;
-    
-  server.send(200, "text/HTML", cad);  
+  else  mensaje = "Falta el argumento <nombre de fichero>"; 
+  
+  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.send(302, "text/html","");        
   }
 
 /*********************************************/
@@ -800,7 +545,7 @@ void handleBorraFichero(void)
 /*********************************************/  
 void handleLeeFichero(void)
   {
-  String cad=cabeceraHTML;
+  String cad=cabeceraHTMLlight;
   String nombreFichero="";
   String contenido="";
   
@@ -825,71 +570,14 @@ void handleLeeFichero(void)
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
+  cad += pieHTMLlight;
   server.send(200, "text/html", cad); 
   }
 
 /*********************************************/
 /*                                           */
-/*  Lee info del FS                          */
-/*  peticion HTTP                            */ 
-/*                                           */
-/*********************************************/  
-void handleInfoFS(void)
-  {
-  String cad=cabeceraHTML;
-
-  cad += "<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
-  
-  //inicializo el sistema de ficheros
-  if (SPIFFS.begin(true)) 
-    {
-    Serial.println("---------------------------------------------------------------\nmounted file system");  
-    cad += "totalBytes: ";
-    cad += SPIFFS.totalBytes();
-    cad += "<BR>usedBytes: ";
-    cad += SPIFFS.usedBytes();
-    Serial.println("unmounted file system\n---------------------------------------------------------------");
-    }
-    else cad += "Error al leer info";
-
-  cad += pieHTML;
-  server.send(200, "text/html", cad); 
-  }
-
-/*********************************************/
-/*                                           */
-/*  Pagina no encontrada                     */
-/*                                           */
-/*********************************************/
-void handleNotFound()
-  {
-  if(handleFileRead(server.uri()))return;
-    
-  String message = "";//"<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
-
-  message = "<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
-  message += "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET)?"GET":"POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-
-  for (uint8_t i=0; i<server.args(); i++)
-    {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-    }
-    
-  server.send(404, "text/html", message);
-  }
-
-/*********************************************/
-/*                                           */
-/*  Habilita la edicion y borrado de los     */
-/*  ficheros en el sistema a traves de una   */
+/*  Habilita la edicion y borrado del        */
+/*  fichero indicado, a traves de una        */
 /*  peticion HTTP                            */ 
 /*                                           */
 /*********************************************/ 
@@ -897,7 +585,7 @@ void handleManageFichero(void)
   {
   String nombreFichero="";
   String contenido="";
-  String cad=cabeceraHTML;
+  String cad=cabeceraHTMLlight;
    
   if(server.hasArg("nombre") ) //si existen esos argumentos
     {
@@ -940,7 +628,7 @@ void handleManageFichero(void)
     }
   else cad += "Falta el argumento <nombre de fichero>"; 
 
-  cad += pieHTML;
+  cad += pieHTMLlight;
   server.send(200, "text/html", cad); 
   }
 
@@ -955,7 +643,7 @@ void handleListaFicheros(void)
   String nombreFichero="";
   String contenidoFichero="";
   boolean salvado=false;
-  String cad=cabeceraHTML;
+  String cad=cabeceraHTMLlight;
 
   //Variables para manejar la lista de ficheros
   String contenido="";
@@ -971,7 +659,8 @@ void handleListaFicheros(void)
     cad += "<style> table{border-collapse: collapse;} th, td{border: 1px solid black; padding: 5px; text-align: left;}</style>";
     cad += "<br>\n";
 
-    cad += "<table style=\"border: 0px; border-color: #FFFFFF;\"><tr style=\"border: 0px; border-color: #FFFFFF;\">";
+    cad += "<table style=\"border: 0px; border-color: #FFFFFF;\">\n";
+    cad += "<tr style=\"border: 0px; border-color: #FFFFFF;\">";
     cad += "<td style=\"vertical-align: top; border: 0px; border-color: #FFFFFF;\">";
     
     cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";
@@ -1015,116 +704,49 @@ void handleListaFicheros(void)
     cad += "    <BR>";
     cad += "    <input type=\"submit\" value=\"salvar\">";
     cad += "  </p>";
-    cad += "</td></tr></table>";  
+    cad += "</form>";
+    cad += "</td></tr>";
+    cad += "</table>";  
 
     cad += "</td>";
     cad += "</tr></table>";        
     }
-  else cad += "<TR><TD>No se pudo recuperar la lista de ficheros</TD></TR>"; 
+  else cad += "<H2>No se pudo recuperar la lista de ficheros</H2>"; 
 
-  cad += pieHTML;
+  cad += pieHTMLlight;
   server.send(200, "text/html", cad); 
   }
-
-/*********************************************/
-/*                                           */
-/*  Lista los ficheros en el sistema a       */
-/*  traves de una peticion HTTP              */ 
-/*                                           */
-/*********************************************/  
-void handleListaFicheros2(void)
-  {
-  String nombreFichero="";
-  String contenidoFichero="";
-  boolean salvado=false;
-  String cad=cabeceraHTMLlight;
-
-  cad += "<h2>Lista de ficheros</h2>";
-  
-  //Variables para manejar la lista de ficheros
-  String contenido="";
-  String fichero="";  
-  int16_t to=0;
-  
-  if(listaFicheros(contenido)) 
-    {
-    Serial.printf("contenido inicial= %s\n",contenido.c_str());      
-    //busco el primer separador
-    to=contenido.indexOf(SEPARADOR); 
-
-    cad += "<style> table{border-collapse: collapse;} th, td{border: 1px solid black; padding: 5px; text-align: left;}</style>";
-    cad += "<br>\n";   
-    cad += "<table style=\"border: 0px; border-color: #FFFFFF;\"><tr style=\"border: 0px; border-color: #FFFFFF;\"><td style=\"border: 0px; border-color: #FFFFFF;\">";
-    cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";    
-    while(to!=-1)
-      {
-      fichero=contenido.substring(0, to);//cojo el principio como el fichero
-      contenido=contenido.substring(to+1); //la cadena ahora es desde el separador al final del fichero anterior
-      to=contenido.indexOf(SEPARADOR); //busco el siguiente separador
-
-      cad += "<TR><TD>" + fichero + "</TD>";           
-      cad += "<TD>";
-      cad += "<form action=\"manageFichero\" target=\"_self\">";
-      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + fichero + "\">";
-      cad += "    <input type=\"submit\" value=\"editar\">";
-      cad += "</form>";
-      cad += "</TD><TD>";
-      cad += "<form action=\"borraFichero\" target=\"_self\">";
-      cad += "    <input type=\"hidden\" name=\"nombre\" value=\"" + fichero + "\">";
-      cad += "    <input type=\"submit\" value=\"borrar\">";
-      cad += "</form>";
-      cad += "</TD></TR>";
-      }
-    cad += "</TABLE>\n";
-    cad += "</td>";
-    
-    //Para crear un fichero nuevo
-    cad += "<td style=\"border: 0px; border-color: #FFFFFF;\">";
-    cad += "<TABLE border=\"0\" width=\"50%\" cellpadding=\"0\" cellspacing=\"0\" width=\"300\" class=\"tabla\">\n";    
-    ////cad += "<table><tr><td>";
-    cad += "<table><tr><td>";
-    cad += "<caption>Crear un fichero nuevo:</caption>";
-    cad += "<form action=\"creaFichero\" target=\"_self\">";
-    cad += "  <p>";
-    cad += "    Nombre:<input type=\"text\" name=\"nombre\" value=\"\">";
-    cad += "    <BR>";
-    cad += "    Contenido:<br><textarea cols=75 rows=20 name=\"contenido\"></textarea>";
-    cad += "    <BR>";
-    cad += "    <input type=\"submit\" value=\"salvar\">";
-    cad += "  </p>";
-    cad += "</td></tr></table>";      
-    cad += "</td>";
-    cad += "</tr></table>";
-
-    }
-  else cad += "<TR><TD>No se pudo recuperar la lista de ficheros</TD></TR>"; 
-
-  cad += pieHTML;
-  server.send(200, "text/html", cad); 
-  }
-
-/*********************************************/
-/*                                           */
-/*  Lee la temperatura promedio y manda      */
-/*  una locucion al GH                       */ 
-/*                                           */
-/*********************************************/  
-void handleConsultaTemperatura(void)
-  {
-  String cad=cabeceraHTML;
-  char texto[255];
-  
-  sprintf(texto,"La temperatura actual es de %.1f grados",getTemperaturaPromedio());
-  enviaNotificacion(texto);
-  
-  cad += "<h1>" + nombre_dispositivo + "</h1>";
-  cad += "locución de temperatura enviada";
-  cad += pieHTML;
-
-  server.send(200, "text/html", cad);
-  }
-  
 /**********************************************************************/
+
+/*********************************************/
+/*                                           */
+/*  Pagina no encontrada                     */
+/*                                           */
+/*********************************************/
+void handleNotFound()
+  {
+  if(handleFileRead(server.uri()))return;
+    
+  String message = "";//"<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
+
+  message = "<h1>" + String(NOMBRE_FAMILIA) + "<br></h1>";
+  message += "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET)?"GET":"POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+
+  for (uint8_t i=0; i<server.args(); i++)
+    {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+    }
+    
+  server.send(404, "text/html", message);
+  }
+
 String getContentType(String filename) { // determine the filetype of a given filename, based on the extension
   if (filename.endsWith(".html")) return "text/html";
   else if (filename.endsWith(".css")) return "text/css";
@@ -1199,57 +821,54 @@ void handleFileUpload()
       }
     }
   }
-
 /******************************************************************************************************************************/
-void handleDatos() 
-  {
-  String cad="";
-  
-  cad = cabeceraHTMLlight;  
-  cad += "<TABLE>\n";
-  cad += "<TR><TD>Temperatura:</TD><TD>" + combierteTemperaturaPromedio() + "</TD></TR>\n";
-  cad += "<TR><TD>Consigna:</TD><TD>" + String(getConsigna(),1) + "ºC</TD></TR>\n";  
-  cad += "<TR><TD>Modo:</TD><TD>" + String(getModoManualTxt()) + "</TD>";
-  if(getModoManual()!=MODO_AUTO) cad += "<TD>Ticks:</TD><TD>" + String(getDownCounter()) +  "</TD><TD>Segs:</TD><TD>" + String(ticks2seg(getDownCounter())) +  "</TD></TR>\n";
-  else cad += "</TR>\n";
-  cad += "<TR><TD>Reles</TD></TR>\n";
-  cad += "<TR><TD>Nombre:</TD><TD>" + getNombreRele(CALDERA)   + "</TD><TD>Estado:</TD><TD>" + getEstadoRele(CALDERA)   + "</TD></TR>\n";
-  cad += "<TR><TD>Nombre:</TD><TD>" + getNombreRele(SEGURIDAD) + "</TD><TD>Estado:</TD><TD>" + getEstadoRele(SEGURIDAD) + "</TD></TR>\n";
-  cad += "</TABLE>";
-  cad += "\n<BR>\n";
-  
-  server.send(200, "text/HTML", cad);  
-  }
 
-void handleVersion() 
-  {
-  String cad="";
-
-  cad = cabeceraHTMLlight;
-  cad += "<BR>" + nombre_dispositivo + ". Version " + String(VERSION) + ".";
-
-  cad += pieHTML;
-  
-  server.send(200, "text/HTML", cad);  
-  }
 /****************************Google Home Notifier ******************************/
-void handleSpeechPath() 
+/*********************************************/
+/*                                           */
+/*  Lee la temperatura promedio y manda      */
+/*  una locucion al GH                       */ 
+/*                                           */
+/*********************************************/  
+void handleConsultaTemperatura(void)
   {
-  String phrase = server.arg("phrase");
+  String cad=cabeceraHTMLlight;
+  char texto[255];
   
-  if (phrase == "") 
-    {
-    server.send(401, "text / plain", "query 'phrase' is not found");
-    return;
-    }
+  sprintf(texto,"La temperatura actual es de %.1f grados",getTemperaturaPromedio());
+  enviaNotificacion(texto);
+
+  String mensaje="locución de temperatura enviada";
   
-  if(enviaNotificacion(phrase.c_str())) server.send(200, "text / plain", "OK");
-  server.send(404, "text / plain", "KO");  
+  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.send(302, "text/html","");
   }
-
-void handleHablaPath() 
-  {
-  server.send(200, "text/html", hablaHTML);
-  }  
-
   
+/*********************************************/
+/*                                           */
+/*  Pide un texto por pantalla y lo envia    */
+/*  al GHN para que lo lea en alto           */ 
+/*                                           */
+/*********************************************/  
+void handleHabla() 
+  {
+  String phrase ="";
+  
+  if(server.hasArg("phrase")) 
+    {
+    phrase = server.arg("phrase");
+  
+    if (phrase == "") 
+      {
+      server.send(401, "text / plain", "query 'phrase' is not found");
+      return;
+      }
+  
+    if(enviaNotificacion(phrase.c_str())) server.send(200, "text / plain", "OK");
+    server.send(404, "text / plain", "KO");  
+    }
+    
+  server.sendHeader("Location", String("/habla.html"), true); //Redirect to our html web page 
+  server.send(302, "text/html",""); 
+  }
+/**********************************************************************/

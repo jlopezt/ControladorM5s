@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <META HTTP-EQUIV="REFRESH" CONTENT="10;URL=/datos">
+    <TITLE>Domoticae</TITLE>
+    <link rel="stylesheet" type="text/css" href="css.css">
+    <script>
+      function inicializa(){
+        const queryString = window.location.search;
+        console.log(queryString);
+        
+        const urlParams = new URLSearchParams(queryString);
+        cadena="";
+        
+        //Datos
+        if(urlParams.has("temperatura")){
+          cadena = urlParams.get('temperatura');
+          console.log('temperatura: '+ cadena);        
+        
+          var a=document.getElementById("temperatura");
+          a.innerHTML=cadena + " &deg;C";
+        }
+        if(urlParams.has("consigna")){
+          cadena = urlParams.get('consigna');
+          console.log('consigna: '+ cadena);        
+        
+          var a=document.getElementById("consigna");
+          a.innerHTML=cadena + " &deg;C";
+        }
+        if(urlParams.has("humedad")){
+          cadena = urlParams.get('humedad');
+          console.log('humedad: '+ cadena);        
+        
+          var a=document.getElementById("humedad");
+          a.innerHTML=cadena + " %";
+        }
+
+        //Reles
+        if(urlParams.has("calefaccion")){          
+          if(urlParams.get('calefaccion')==1) cadena="On";
+          else cadena = 'Off';
+          console.log('calefaccion: '+ cadena);        
+        
+          var a=document.getElementById("calefaccion");
+          a.innerHTML=cadena;
+        }
+        if(urlParams.has("seguridad")){
+          if(urlParams.get('seguridad')==1) cadena="On";
+          else cadena = 'Off';
+          console.log('seguridad: '+ cadena);        
+        
+          var a=document.getElementById("seguridad");
+          a.innerHTML=cadena;
+        }
+        
+        //Modo de funcionamiento
+        if(urlParams.has("modo")){
+          cadena = urlParams.get('modo');
+          console.log('modo: '+ cadena);        
+
+          var tiempo="";
+          if(urlParams.has("tiempo")){
+            tiempo = " - tiempo restante " + urlParams.get('tiempo') + " sg"
+            console.log('tiempo: '+ cadena);
+          }
+          /* MODO_OFF=0   */
+          /* MODO_ON=1  */
+          /* MODO_AUTO=2 */  
+          switch (cadena){
+            case "0"://MODO_OFF
+              var padre=document.getElementById("modo_off");
+              padre.innerHTML="Off" + tiempo;
+
+              var boton_on = document.createElement("button");
+              boton_on.setAttribute("onClick","document.getElementById('modo').value=1;document.getElementById('form_id').submit();");
+              boton_on.innerHTML="On";
+              var padre=document.getElementById("modo_on");
+              padre.appendChild(boton_on);
+              
+              var boton_auto = document.createElement("button");
+              boton_auto.innerHTML="Automatico";
+              boton_auto.setAttribute("onClick","document.getElementById('modo').value=2;document.getElementById('form_id').submit();");
+              var padre=document.getElementById("modo_auto");
+              padre.appendChild(boton_auto);
+              
+            break;
+            
+            case "1"://MODO_ON
+              var boton_off = document.createElement("button");
+              boton_off.setAttribute("onClick","document.getElementById('modo').value=0;document.getElementById('form_id').submit();");
+              boton_off.innerHTML="Off";
+              var padre=document.getElementById("modo_off");
+              padre.appendChild(boton_off);
+              
+              var padre=document.getElementById("modo_on");
+              padre.innerHTML="On" + tiempo;
+
+              var boton_auto = document.createElement("button");
+              boton_auto.innerHTML="Automatico";
+              boton_auto.setAttribute("onClick","document.getElementById('modo').value=2;document.getElementById('form_id').submit();");
+              var padre=document.getElementById("modo_auto");
+              padre.appendChild(boton_auto);              
+            break;
+            
+            case "2":
+              var boton_off = document.createElement("button");
+              boton_off.setAttribute("onClick","document.getElementById('modo').value=1;document.getElementById('form_id').submit();");
+              boton_off.innerHTML="Off";
+              var padre=document.getElementById("modo_off");
+              padre.appendChild(boton_off);
+              
+              var boton_on = document.createElement("button");
+              boton_on.setAttribute("onClick","document.getElementById('modo').value=1;document.getElementById('form_id').submit();");
+              boton_on.innerHTML="On";
+              var padre=document.getElementById("modo_on");
+              padre.appendChild(boton_on);
+              
+              var padre=document.getElementById("modo_auto");
+              padre.innerHTML="Automatico";
+            break;
+          }
+        }
+        
+      }
+    </script>
+  </HEAD>
+
+  <BODY onload="inicializa()">
+    <TABLE border="0" width="80%" cellpadding="0" cellspacing="0" width="300" class="tabla">
+      <CAPTION>Valores</CAPTION>
+      <TR class="modo2"><TD>Temperatura:</TD><TD id="temperatura"></TD></TR>
+      <TR class="modo2"><TD>Consigna:</TD><TD id="consigna"></TD></TR>
+      <TR class="modo2"><TD>Humedad:</TD><TD id="humedad"></TD></TR>
+    </TABLE>
+
+    <BR>
+
+    <form action="/modo" id="form_id">
+      <input type="hidden" id="modo" name="modo" value="0">
+      <TABLE border="0" width="80%" cellpadding="0" cellspacing="0" width="300" class="tabla">
+        <caption>Modo de funcionamiento</caption>
+        <TR class="modo2">
+          <TD id="modo_on"></TD>
+        </tr>
+        <TR class="modo2">
+          <TD id="modo_off"></TD>
+        </tr>
+        <TR class="modo2">
+          <TD id="modo_auto"></TD>
+        </tr>
+      </TABLE>
+    </form>
+    
+    <BR>
+
+    <TABLE border="0" width="80%" cellpadding="0" cellspacing="0" width="300" class="tabla">
+      <caption>Reles</caption>
+      <TR class="modo2"><TD>Calefaccion</TD><TD id="calefaccion"></TD></TR>
+      <TR class="modo2"><TD>Seguridad</TD><TD id="seguridad"></TD></TR>
+    </TABLE>
+
+    <BR>
+
+    <p style="font-size: 12px;color:black;">Termostato - Version 3.0.1 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0</p>
+  </BODY>
+</HTML>

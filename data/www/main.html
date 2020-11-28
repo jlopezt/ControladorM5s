@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html style="height:100%">
+  <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Domoticae</title>
+    <link rel="stylesheet" type="text/css" href="css.css" media="screen" />
+    <script>
+      function inicializa(){
+        const queryString = window.location.search;
+        console.log(queryString);
+        
+        const urlParams = new URLSearchParams(queryString);
+        cadena="";
+        
+        if(urlParams.has("nombre")){
+          cadena = urlParams.get('nombre');
+          console.log('nombre: '+ cadena);        
+        
+        
+          var a=document.getElementById("nombreDispositivo");
+          console.log("incial: " + a.innerHTML);
+          a.innerHTML=cadena;
+        }
+        
+        //cargo el iframe con al info inicial
+        var c=document.getElementById("iframe_a");
+        console.log(c.getAttribute("src"));
+        c.setAttribute("src","/datos");
+      }
+      function cambiaIFrame(pagina){
+        //cargo el iframe con la pagina indicada
+        var c=document.getElementById("iframe_a");
+        console.log(c.getAttribute("src"));
+        c.setAttribute("src",pagina);
+      }
+    </script>
+  </head>
+
+  <body style="height:98%;" onload="inicializa();">
+    <table style="height:100%;width:100%;color:white;border-spacing: 0px;border-collapse: collapse;border:=0;" cellpadding="10">
+      <tr style="height:5%;background-color:black">
+        <th align="left">
+          <span style="font-family:verdana;font-size:30px;color:white">DOMOTI</span><span style="font-family:verdana;font-size:30px;color:red">C</span><span style="font-family:verdana;font-size:30px;color:white">AE</span>
+          <span style="font-family:verdana;font-size:30px;color:white"> - </span>
+          <span id="nombreDispositivo" style="font-family:verdana;font-size:30px;color:white"></span>
+        </th>
+      </tr>
+
+      <tr style="height:5%">
+        <td  >
+          <table class="tabla">
+            <tr class="modo1">
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/datos')">Inicio</td>
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/configHabitaciones')">Estado</td>
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/consignaTemperatura')">Consignas</td>
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/listaFicheros')">Ficheros</a></td>
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/info')">Info</a></td>
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/restart')">Reiniciar</a></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <tr style="height:90%;border:none;">
+        <td style="background-color:white;color:black;font-family:verdana;font-size:40;text-align:left;vertical-align:top;padding:0;">
+          <!--<iframe id="iframe_a" name="iframe_a" height="800" width="1400" style="border:none;"></iframe>-->
+          <iframe id="iframe_a" name="iframe_a" style="height:100%;width:100%;border:none;"></iframe>
+        </td>
+      </tr>
+      <TR style="height:4%;">
+      <TD style="color:white; background-color:black"><a href="https://domoticae.lopeztola.com" target="_self" style="text-decoration:none; color:white;">domoticae-2020</a></TD>
+      </TR>
+    </table>
+  </body>
+</html>

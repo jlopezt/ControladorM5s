@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <TITLE>Domoticae</TITLE>
+    <link rel="stylesheet" type="text/css" href="css.css">
+    <script>
+      function inicializa(){
+        const queryString = window.location.search;
+        console.log(queryString);
+      
+        const urlParams = new URLSearchParams(queryString);
+        cadena="";
+      
+        //Datos
+        if(urlParams.has("dia")){
+          cadena = urlParams.get('dia');
+          console.log('dia: '+ cadena);        
+      
+          var a=document.getElementById("consignaDia");
+          a.value=cadena;
+        }
+        if(urlParams.has("noche")){
+          cadena = urlParams.get('noche');
+          console.log('noche: '+ cadena);        
+      
+          var a=document.getElementById("consignaNoche");
+          a.value=cadena;
+        }
+      }
+    </script>
+ </HEAD>
+ <BODY onload='inicializa()'>
+   <form id='formConsignas' action='/consignaTemperatura'>
+     <TABLE border="0" width="50%" cellpadding="0" cellspacing="0" width="300" class="tabla">
+       <CAPTION>Consigna de temperatura</CAPTION>
+       <TR class="modo2">
+         <TD aling="center">día</td><td aling="center"><input type='text' id='consignaDia' name='consignaDia' value=''></TD>
+       </TR>
+       <TR class="modo2">
+         <TD aling="center">noche</td><td aling="center"><input type='text' id='consignaNoche' name='consignaNoche' value=''></TD>
+       </TR>
+     </TABLE>
+      
+     <BR>
+     <input type="submit" value="Enviar">
+   </form>
+   <BR>
+    
+   <form id='tablaConsigna' action='/configTabla'>
+     <button type='button' onclick="document.getElementById('tablaConsigna').submit();">Ver tabla de consignas</button>
+   </form>
+   <BR>
+   <form id='mapaConsigna' action='/recargaMapa'>
+     <button type='button' onclick="document.getElementById('mapaConsigna').submit();">carga mapa de consignas</button>
+   </form>
+   <BR>
+   <form id='mapaSatelites' action='/recargaFicheroNombres'>
+     <button type='button' onclick="document.getElementById('mapaSatelites').submit();">carga mapa de satelites</button>
+   </form>
+   <BR>
+ </BODY>
+</HTML>
