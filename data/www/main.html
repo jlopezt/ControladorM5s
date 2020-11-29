@@ -6,27 +6,30 @@
     <link rel="stylesheet" type="text/css" href="css.css" media="screen" />
     <script>
       function inicializa(){
-        const queryString = window.location.search;
-        console.log(queryString);
-        
-        const urlParams = new URLSearchParams(queryString);
-        cadena="";
-        
-        if(urlParams.has("nombre")){
-          cadena = urlParams.get('nombre');
-          console.log('nombre: '+ cadena);        
-        
-        
-          var a=document.getElementById("nombreDispositivo");
-          console.log("incial: " + a.innerHTML);
-          a.innerHTML=cadena;
-        }
+        var xh = new XMLHttpRequest();
+        xh.onreadystatechange = function(){
+          if (xh.readyState == 4){
+            if(xh.status == 200) {
+              console.log("JSON: " + JSON)
+              var res = JSON.parse(xh.responseText);
+              //nombre
+              console.log("Nombre: "+res.nombre);
+              document.getElementById("nombreDispositivo").innerText=res.nombre;
+              //consigna
+              console.log("Version: "+res.version);
+              document.getElementById("version").innerText=res.version;
+            }
+          }
+        };
+        xh.open("GET", "/nombre", true);
+        xh.send(null);        
         
         //cargo el iframe con al info inicial
         var c=document.getElementById("iframe_a");
         console.log(c.getAttribute("src"));
-        c.setAttribute("src","/datos");
+        c.setAttribute("src","/root");
       }
+
       function cambiaIFrame(pagina){
         //cargo el iframe con la pagina indicada
         var c=document.getElementById("iframe_a");
@@ -50,7 +53,7 @@
         <td  >
           <table class="tabla">
             <tr class="modo1">
-              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/datos')">Inicio</td>
+              <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/estado')">Inicio</td>
               <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/configHabitaciones')">Estado</td>
               <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/consignaTemperatura')">Consignas</td>
               <td onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('/listaFicheros')">Ficheros</a></td>
@@ -68,7 +71,7 @@
         </td>
       </tr>
       <TR style="height:4%;">
-      <TD style="color:white; background-color:black"><a href="https://domoticae.lopeztola.com" target="_self" style="text-decoration:none; color:white;">domoticae-2020</a></TD>
+      <TD style="color:white; background-color:black"><div><p align="left" id="version"></p><p align="right"><a href="https://domoticae.lopeztola.com" target="_self" style="text-decoration:none; color:white;">domoticae-2020</a></p></div></TD>
       </TR>
     </table>
   </body>

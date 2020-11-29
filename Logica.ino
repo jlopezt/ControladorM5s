@@ -585,12 +585,12 @@ String getModoManualTxt(void)
 /***************************************/
 /* Genera el json con las medidas      */
 /***************************************/
-String generaJson(void)
+String generaJsonDatos(void)
   {
   String cad="";
 
   /***********************************************************************************/
-  const size_t bufferSize = JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(3) + 2*JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6);
+  const size_t bufferSize = JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(6) + 2*JSON_OBJECT_SIZE(3) + 7*JSON_OBJECT_SIZE(7);
   DynamicJsonBuffer jsonBuffer(bufferSize);
   
   JsonObject& root = jsonBuffer.createObject();
@@ -610,7 +610,9 @@ String generaJson(void)
       habitaciones_0["nombre"] = getNombre(id,debugGlobal);
       habitaciones_0["temperatura"] = getTemperatura(id,debugGlobal);
       habitaciones_0["humedad"] = getHumedad(id,debugGlobal);
-      habitaciones_0["luz"] = getLuz(id,debugGlobal);    
+      habitaciones_0["luz"] = getLuz(id,debugGlobal);
+      habitaciones_0["peso"] = getPeso(id,hora(),debugGlobal);
+      habitaciones_0["tiempo"] = millis()-sateliteUltimaLectura(id);          
       }
     }
   

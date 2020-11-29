@@ -41,7 +41,7 @@ void webSocketEvent(uint8_t num, WStype_t msgType, uint8_t * payload, size_t len
       Serial.printf("[%u] get Text: #%s#\n", num, payload);
       if (!strcmp((const char*)payload,"Datos")) 
         {
-        String salida=generaJson();
+        String salida=generaJsonDatos();
         webSocket.sendTXT(num, salida.c_str());  
         }
       else webSocket.sendTXT(num, "Error");

@@ -403,6 +403,17 @@ float getLuz(int8_t id, int debug)
   return habitaciones[id].luz;
   }
 
+/****************************************************************/
+/* Devuelve el peso de una habitacion a la hora indicada        */
+/* comprueba si el id esta registrado                           */
+/****************************************************************/
+uint8_t getPeso(int8_t id, int hora, int debug)
+  {
+  //if(id>=MAX_SATELITES || habitaciones[id].id==NO_REGISTRADO) return KO;
+  if(id>=MAX_SATELITES || !sateliteRegistrado(id)) return KO;
+  
+  return habitaciones[id].peso[hora];
+  }
 /*******************************************************/
 /*                                                     */
 /* Promedia las medidas de temperatura de los          */

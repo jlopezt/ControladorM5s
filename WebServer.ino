@@ -23,11 +23,15 @@ const String hablaHTML="<html><head></head><body><input type=\"text\"><button>sp
 void inicializaWebServer(void)
   {
   //decalra las URIs a las que va a responder
-  server.on("/", HTTP_ANY, handleRoot); //web de temperatura
-  server.on("/datos", handleDatos);
+  server.on("/", HTTP_ANY, handleMain); //layout principal
+  server.on("/nombre", handleNombre); //devuelve un JSON con las medidas, reles y modo para actualizar la pagina de datos
+  
+  server.on("/root", HTTP_ANY, handleRoot); //devuleve el frame con la informacion principal
+  server.on("/estado", handleEstado); //devuelve un JSON con las medidas, reles y modo para actualizar la pagina de datos
   server.on("/modo", HTTP_ANY, handleModoCalefaccion);
 
   server.on("/configHabitaciones", HTTP_ANY, handleConfigHabitaciones); 
+  server.on("/datos", handleDatos); //devuelve el JSON con todos los datos operacionales
 
   server.on("/consignaTemperatura", HTTP_ANY, handleConfigConsignas);//Configuracion de las dos consignas (dia/noche)
   server.on("/configTabla", HTTP_ANY, handleConfigTabla);  //Configuracion de la tabla de consignas (cual aplica en cada momento)
@@ -77,25 +81,70 @@ void reinicializaWebServer(void)
   server.begin();  
   }
   
+void handleMain() 
+  {
+  server.sendHeader("Location", "/main.html",true); //Redirect to our html web page 
+  server.send(302, "text/html","");    
+  }
+
 void handleRoot() 
   {
-  server.sendHeader("Location", String("/main.html?nombre=")+nombre_dispositivo,true); //Redirect to our html web page 
+  server.sendHeader("Location", "/root.html", true); //Redirect to our html web page */
   server.send(302, "text/html","");    
   }
 
-void handleDatos() 
+ void handleConfigHabitaciones()
   {
-  server.sendHeader("Location", String("/root.html?temperatura=") + String(getTemperaturaPromedio()) + \
-                                       "&consigna=" + String(getConsigna()) + \
-                                       "&humedad=" + String(getHumedadPromedio()) + \
-                                       "&seguridad=" + String(getEstadoRele(SEGURIDAD)) + \
-                                       "&calefaccion=" + String(getEstadoRele(CALDERA)) + \
-                                       "&modo=" + String(getModoManual()) + \
-                                       "&tiempo=" + String(getDownCounter()), \
-                                       true); //Redirect to our html web page 
-  server.send(302, "text/html","");    
+  server.sendHeader("Location", "/configHabitaciones.html", true); //Redirect to our html web page */
+  server.send(302, "text/html","");      
+  }
+  
+ void handleDatos()
+  {
+  String cad=generaJsonDatos();
+  //String cad="{\"titulo\":\"Controlador_termostato\",\"medida\":22.82,\"consigna\":23,\"modo\":2,\"tics\":720,\"habitaciones\":[{\"id\":0,\"nombre\":\"Salon\",\"temperatura\":23.5,\"humedad\":44.1,\"luz\":0,\"peso\": 1,\"tiempo\":33},{\"id\":2,\"nombre\":\"DormitorioPpal\",\"temperatura\":22.8,\"humedad\":48.3,\"luz\":0,\"peso\": 1,\"tiempo\":33},{\"id\":4,\"nombre\":\"Sara\",\"temperatura\":22.9,\"humedad\":66.3,\"luz\":2,\"peso\": 1,\"tiempo\":33},{\"id\":6,\"nombre\":\"Buhardilla\",\"temperatura\":21.4,\"humedad\":48.7,\"luz\":35,\"peso\": 1,\"tiempo\":33},{\"id\":7,\"nombre\":\"Bodega\",\"temperatura\":20.6,\"humedad\":46.4,\"luz\":0,\"peso\": 1,\"tiempo\":33},{\"id\":9,\"nombre\":\"Exterior\",\"temperatura\":23.4,\"humedad\":44,\"luz\":0,\"peso\": 1,\"tiempo\":33}],\"reles\":[{\"id\":0,\"nombre\":\"Calefaccion\",\"estado\":1},{\"id\":1,\"nombre\":\"Seguridad\",\"estado\":1}]}";
+  server.send(200,"text/json",cad);
+  }
+ 
+void handleEstado() 
+  {
+  const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(3);
+  DynamicJsonBuffer jsonBuffer(capacity);
+  
+  JsonObject& root = jsonBuffer.createObject();
+  
+  JsonObject& medidas = root.createNestedObject("medidas");
+  medidas["temperatura"] = getTemperaturaPromedio();
+  medidas["consigna"] = getConsigna();
+  medidas["humedad"] = getHumedadPromedio();
+  
+  JsonObject& salidas = root.createNestedObject("salidas");
+  salidas["caldera"] = getEstadoRele(CALDERA);
+  salidas["seguridad"] = getEstadoRele(SEGURIDAD);
+  
+  JsonArray& modo = root.createNestedArray("modo");
+  modo.add(getModoManual());
+  modo.add(getDownCounter());
+
+  String cad="";
+  root.printTo(cad);
+  server.send(200,"text/json",cad);
   }
 
+void handleNombre()
+  {
+  const size_t capacity = JSON_OBJECT_SIZE(2);
+  DynamicJsonBuffer jsonBuffer(capacity);
+  
+  JsonObject& root = jsonBuffer.createObject();
+  root["nombre"] = nombre_dispositivo;
+  root["version"] = VERSION;
+  
+  String cad="";
+  root.printTo(cad);
+  server.send(200,"text/json",cad);
+  }
+  
 void handleConfigConsignas(void)
   {
   boolean salir=false;
@@ -121,7 +170,6 @@ void handleConfigConsignas(void)
     }
   }
   
-
 void handleConfigTabla()
   {
   char cadLarga[192];
@@ -219,7 +267,7 @@ void handleModoCalefaccion(void)
     //Serial.printf("modo: %i | duracion: %i\n",modo,duracion);
     }  
 
-  handleDatos();
+  handleRoot();
   return;
   }
 
@@ -231,7 +279,7 @@ void handleModoCalefaccion(void)
 /*  configuracion de las habitaciones        */
 /*                                           */
 /*********************************************/
-void handleConfigHabitaciones(void)
+void handleConfigHabitaciones2(void)
   {
   String cad=cabeceraHTMLlight;
 
