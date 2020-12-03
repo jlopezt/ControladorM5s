@@ -80,7 +80,8 @@ void reinicializaWebServer(void)
   {
   server.begin();  
   }
-  
+
+/**************************** Handels ***************************************/
 void handleMain() 
   {
   server.sendHeader("Location", "/main.html",true); //Redirect to our html web page 
@@ -254,13 +255,13 @@ void handleRestart(void)
 /*********************************************/
 void handleModoCalefaccion(void)
   {
-  int duracion=0;
+  int duracion=-1;
   
   if(server.hasArg("modo")) 
     {    
     int modo=server.arg("modo").toInt(); 
-    //se puede dart al duracion en ticks o en segundos
-    if(server.hasArg("duracion")) duracion=server.arg("duracion").toInt(); //si va en ticks tiene prefecrencia
+    //se puede dart al duracion en ticks, en segundos o en horas
+    if(server.hasArg("duracion")) duracion=server.arg("duracion").toInt(); //si va en ticks (ms) tiene prefecrencia
     else if(server.hasArg("tiempo")) duracion=seg2ticks(server.arg("tiempo").toInt()); //si no, en segundos
     else if(server.hasArg("horas")) duracion=seg2ticks(3600*server.arg("horas").toInt()); //si no, en horas. Hecho para google home
     if (modo>=0) setModoManual(modo, duracion);    
@@ -269,84 +270,6 @@ void handleModoCalefaccion(void)
 
   handleRoot();
   return;
-  }
-
-/************************************************************************************************************************/
-
-/*********************************************/
-/*                                           */
-/*  Servicio de consulta de la               */
-/*  configuracion de las habitaciones        */
-/*                                           */
-/*********************************************/
-void handleConfigHabitaciones2(void)
-  {
-  String cad=cabeceraHTMLlight;
-
-  cad += "<TABLE width=\"200px\" cellpadding=\"0\" cellspacing=\"0\" class=\"tabla\">\n";
-  cad += "<caption>Temperatura promedio</caption>\n";
-  cad += "<TR class=\"modo2\">\n";
-  cad += "<td align='right'>" + String(getTemperaturaPromedio(),1) + " C</td>\n";
-  cad += "</TR>\n"; 
-  cad += "</table>\n";
-  cad += "<BR>\n";
-
-  cad += "<TABLE border=\"0\" width=\"80%\" cellpadding=\"0\" cellspacing=\"0\" class=\"tabla\">\n";
-  cad += "<caption>Satelites</caption>\n";
-  cad += "<TR>\n"; 
-  cad += "<th width='14%'>id</th>\n";
-  cad += "<th width='21%'>Nombre</th>\n";
-  cad += "<th width='14%'>Temperatura</th>\n";
-  cad += "<th width='14%'>Humedad</th>\n";
-  cad += "<th width='7%'>Luz</th>\n";
-  cad += "<th width='7%'>Peso</th>\n";
-  cad += "<th width='23%'>Lectura</th>\n";
-  cad += "</TR>\n"; 
-
-  for(int8_t id=0;id<MAX_SATELITES;id++)
-    {
-    if(sateliteRegistrado(id))
-      {
-      cad += "<TR class=\"modo2\">\n";
-      
-      cad += "<td align=\"right\">";
-      cad += habitaciones[id].id;
-      cad += "</td>\n";
-
-      cad += "<td align=\"center\">";
-      cad += habitaciones[id].nombre;
-      cad += "</td>\n";
-      
-      cad += "<td align=\"right\">";
-      cad += habitaciones[id].temperatura;
-      cad += " C</td>\n";
-      
-      cad += "<td align=\"right\">";
-      cad += habitaciones[id].humedad;
-      cad += " %</td>\n";
-
-      cad += "<td align=\"right\">";
-      cad += habitaciones[id].luz;
-      cad += "</td>\n";
-
-      cad += "<td align=\"right\">";
-      cad += habitaciones[id].peso[hora()];
-      cad += "</td>\n";
-
-      cad += "<td align=\"right\">";
-      cad += sateliteUltimaLectura(id); //habitaciones[id].lectura;
-      cad += "ms, hace ";
-      cad += millis()-sateliteUltimaLectura(id); //habitaciones[id].lectura;
-      cad += "ms";
-      cad += "</td>\n";
-
-      cad += "</tr>\n";        
-      }
-    }
-  cad += "</table>\n";
-  cad += pieHTMLlight;
-   
-  server.send(200, "text/HTML", cad);  
   }
 
 /************************* INFO *********************************************/

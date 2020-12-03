@@ -16,7 +16,7 @@
 #define RELES_CONFIG_FILE            "/RelesConfig.json"
 #define RELES_CONFIG_BAK_FILE        "/RelesConfig.json.bak"
 
-#define TICKS_CALEFACCION_MANUAL (SEGUNDOS_EN_HORA*1000)/(ANCHO_INTERVALO*FRECUENCIA_LOGICA_CONTROL)//1 hora
+#define TICKS_CALEFACCION_MANUAL (SEGUNDOS_EN_HORA*1000)// /(ANCHO_INTERVALO*FRECUENCIA_LOGICA_CONTROL)//1 hora
 
 typedef struct{
   int8_t id;
@@ -81,6 +81,7 @@ float temperaturaPromedio=0;
 float humedadPromedio=0;
 
 /*********downCounter para modo manual************/
+/*
 int downCounter;//Contador de ticks en modo manual, se inicializa al pasar a modo manual y se decrementa en cada vuelta de logicaDeControl. Al quedar a cero se pasa  amodo auto
 void setDownCounter(int valor){downCounter=valor;}
 int getDownCounter(void){return downCounter;}
@@ -93,13 +94,32 @@ void decrementaDownCounter(void)
   if(downCounter>0) downCounter--;//Decremento el contador
   if(downCounter<=0) setModoManual(MODO_AUTO);//Si esta a cero, se pasa a modo manual
   }
+*/
+typedef struct {
+  uint32_t duracion; //en ms
+  uint32_t inicio;  //en ms
+} downCounter_t;
+
+downCounter_t downCounter;
+
+void setDownCounter(int duracion)
+  {
+  downCounter.duracion=(duracion<0?TICKS_CALEFACCION_MANUAL:duracion);//TICKS_CALEFACCION_MANUAL;
+  downCounter.inicio=millis();
+  }
+int getDownCounter(void){return (downCounter.duracion - (millis()-downCounter.inicio))/1000;}
+void decrementaDownCounter(void)
+  {
+  //if(downCounter>0) downCounter--;//Decremento el contador
+  if(downCounter.duracion<=millis()-downCounter.inicio) setModoManual(MODO_AUTO);//Si esta a cero, se pasa a modo manual
+  }
 /*************************************************/  
 
 //////////////////////////////////////////////////Funciones de configuracion del mapa///////////////////////////////////////////////////////
 void inicializaLogica()
   { 
   //Inicializa el modo de calefaccion  
-  downCounter=0;//Contador de tics en modo manual. Despues de un tiempo TICKS_CALEFACCION_MANUAL vuelve a MODO_AUTO   
+  setDownCounter(0);//Contador de tics en modo manual. Despues de un tiempo TICKS_CALEFACCION_MANUAL vuelve a MODO_AUTO   
   setModoManual(MODO_AUTO);
 
   umbral=0;
@@ -552,9 +572,10 @@ void rellenaMapa(char* cadena)
 void setModoManual(int8_t modo) {setModoManual(modo,TICKS_CALEFACCION_MANUAL);}
 void setModoManual(int8_t modo, int duracion)
   {
+  Serial.printf("modo: %i | duracion: %i\n",modo, duracion);
   modoManual=modo%3;//no puede ser superior a 2
-  if (modoManual!=MODO_AUTO) initDownCounter(duracion);//Si no esta en auto,cargo el contador de modo manual
-  else initDownCounter(0);
+  if (modoManual!=MODO_AUTO) setDownCounter(duracion);//Si no esta en auto,cargo el contador de modo manual //era initDownCounter
+  else setDownCounter(0);//era initDownCounter
   }  
 
 /*******************************************************/
