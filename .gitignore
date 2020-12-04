@@ -2,5 +2,9 @@
 *.bak
 *.zip
 data/AA_DESARROLLO
-
+data/AA_PRODUCCION
 *.old
+
+Configuraciones/AA_DESARROLLO
+
+Configuraciones/AA_PRODUCCION

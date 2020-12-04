@@ -148,27 +148,15 @@ void handleNombre()
   
 void handleConfigConsignas(void)
   {
-  boolean salir=false;
-  
   //dia
-  if(server.hasArg("consignaDia")){
-    setConsignaD(server.arg("consignaDia").toFloat());
-    salir=true;
-    }
-    
+  if(server.hasArg("consignaDia")) setConsignaD(server.arg("consignaDia").toFloat());  
   //noche
-  if(server.hasArg("consignaNoche")){
-    setConsignaN(server.arg("consignaNoche").toFloat());
-    salir=true;
-    }
-
-  if(salir) handleDatos(); //Si ya lo he actualizado, salgo
-  else{    
-    server.sendHeader("Location", String("/consignas.html?dia=") +String(getConsignaDia()) + \
+  if(server.hasArg("consignaNoche")) setConsignaN(server.arg("consignaNoche").toFloat());
+  
+  server.sendHeader("Location", String("/consignas.html?dia=") +String(getConsignaDia()) + \
                                          "&noche=" + String(getConsignaNoche()), \
                                          true); //Redirect to our html web page 
-    server.send(302, "text/html","");        
-    }
+  server.send(302, "text/html","");        
   }
   
 void handleConfigTabla()

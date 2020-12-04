@@ -329,7 +329,7 @@ void logicaControl(void)
 
         //si responde algun satelite, promedio  
         temperaturaPromedio=promediaTemperatura();
-        //humedadPromedio=promediaHumedad();
+        humedadPromedio=promediaHumedad();
 
         if(estadoCaldera==1)//calentando
           {
@@ -618,6 +618,7 @@ String generaJsonDatos(void)
   root["titulo"] = NOMBRE_FAMILIA;
   root["medida"] = getTemperaturaPromedio();
   root["consigna"] = getConsigna();
+  root["humedad"] = getHumedadPromedio();
   root["modo"] = getModoManual();
   root["tics"] = getDownCounter();
   

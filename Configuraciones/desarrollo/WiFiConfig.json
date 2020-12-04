@@ -1,4 +1,5 @@
 {  
+  "mDNS":"Termostato",
   "wifiIP": "10.68.0.60",
   "wifiGW":"10.68.1.1",
   "wifiNet": "255.255.0.0",
@@ -6,5 +7,6 @@
   "wifiDNS2": "8.8.4.4",
   "timeOut": 15000,
   "wifi": [
-    {"ssid": "BASE1" ,"password": "11223344556677889900abcdef"}		]
+    {"ssid": "BASE1" ,"password": "11223344556677889900abcdef"}
+  ]
 }

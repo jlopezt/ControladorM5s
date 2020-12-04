@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <TITLE>Domoticae</TITLE><link rel="stylesheet" type="text/css" href="css.css">
+        <script>
+            var reloadPeriod = 5000;//tiempo de refresco en milisegundos
+            var running = false;
+
+            function loadValues(){
+                if(!running) return;
+                var xh = new XMLHttpRequest();
+                xh.onreadystatechange = function(){
+                if (xh.readyState == 4){
+                    if(xh.status == 200) {
+                    console.log("JSON: " + xh.responseText)
+                    var res = JSON.parse(xh.responseText);
+                    //temperaturaPromedio
+                    document.getElementById("temperaturaPromedio").innerHTML=res.medida;
+                    
+                    //habitaciones
+                    var habitaciones=res.habitaciones;
+                    console.log("numero habitaciones: " + habitaciones.length)
+
+                    habitaciones.forEach(function(habitacion,indice,array) {
+                        var hilera = document.getElementById("habitacion_"+indice);
+                        if(hilera==null){
+                            console.log("no existe la fila, la creo");
+                            var hilera = document.createElement("tr");
+                            hilera.setAttribute("id", "habitacion_" + indice);
+                            hilera.setAttribute("class","modo2");
+                            document.getElementById("body_tabla_habitaciones").appendChild(hilera);
+                
+                            var celda = document.createElement("td");
+                            celda.setAttribute("id","id_"+indice);
+                            celda.setAttribute("align","right");
+                            celda.innerHTML=indice;
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","nombre_"+indice);
+                            celda.setAttribute("align","center");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","temperatura_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","humedad_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","luz_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","peso_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","tiempo_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                        }
+
+                        document.getElementById("nombre_" + indice).innerHTML=habitacion.nombre;
+                        document.getElementById("temperatura_" + indice).innerHTML=habitacion.temperatura;
+                        document.getElementById("humedad_" + indice).innerHTML=habitacion.humedad;
+                        document.getElementById("luz_" + indice).innerHTML=habitacion.luz;
+                        document.getElementById("peso_" + indice).innerHTML=habitacion.peso;
+                        document.getElementById("tiempo_" + indice).innerHTML=habitacion.tiempo;
+                    });
+                    //Si hay filas de mas, las borro
+                    var tabla = document.getElementById("tabla_habitaciones");
+                    if(tabla.rows.length-1>habitaciones.length){ //si hay mas filas que habitaciones, le resto la cabecera
+                        console.log("filas en tabla: " + (tabla.rows.length-1) + " | habitaciones: " + habitaciones.length);
+                        for(i=tabla.rows.length;i>habitaciones.length+1;i--){
+                        //for(i=habitaciones.length;i<tabla.rows.length-1;i++){
+                            console.log("borro la fila " + (i));
+                            tabla.deleteRow(i-1);
+                        }
+                    }
+                    
+                    if(running) setTimeout(loadValues, reloadPeriod);
+                    } else running = false;
+                }
+                };
+                xh.open("GET", "/datos", true);
+                xh.send(null);
+            };
+
+            function run(){
+                if(!running){
+                running = true;
+                loadValues();
+                }
+            }            
+
+            function inicializa(){
+                run(); 
+            }
+        </script>
+    </HEAD>
+    <BODY onload="inicializa()">
+        <TABLE width="200px" cellpadding="0" cellspacing="0" class="tabla">
+            <caption>Temperatura promedio</caption>
+            <TR class="modo2">
+                <td id="temperaturaPromedio" align='right'></td>
+            </TR>
+         </table>
+         <BR>
+         <TABLE id="tabla_habitaciones" border="0" width="80%" cellpadding="0" cellspacing="0" class="tabla">
+            <caption>habitaciones</caption>
+            <tbody id="body_tabla_habitaciones">
+                <TR>
+                    <th width='14%'>id</th>
+                    <th width='21%'>Nombre</th>
+                    <th width='14%'>Temperatura</th>
+                    <th width='14%'>Humedad</th>
+                    <th width='7%'>Luz</th>
+                    <th width='7%'>Peso</th>
+                    <th width='23%'>Lectura</th>
+                </TR>
+                <!--Una fila por cada habitacion--> 
+            </tbody> 
+        </table>
+    </body>
+</HTML>

@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "3.2.0 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" //servicio tts para leer la temperatura promedio
+#define VERSION           "3.2.1 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -56,7 +56,7 @@
 #define ANCHO_INTERVALO             100 //Ancho en milisegundos de la rodaja de tiempo
 #define FRECUENCIA_OTA                5 //cada cuantas vueltas de loop atiende las acciones
 #define FRECUENCIA_PANTALLA          10 //20 //cada cuantas vueltas de loop pinta la pantalla 
-#define FRECUENCIA_LOGICA_CONTROL    50 //300 //cada cuantas vueltas de loop actualiza el control de las salidas
+#define FRECUENCIA_LOGICA_CONTROL    10 //300 //cada cuantas vueltas de loop actualiza el control de las salidas
 #define FRECUENCIA_SERVIDOR_WEB       1 //cada cuantas vueltas de loop atiende el servidor web
 #define FRECUENCIA_ORDENES            2 //cada cuantas vueltas de loop atiende las ordenes via serie 
 #define FRECUENCIA_RTC              600 //cada cuantas vueltas de loop atiende el RTC 
