@@ -84,19 +84,19 @@ void reinicializaWebServer(void)
 /**************************** Handels ***************************************/
 void handleMain() 
   {
-  server.sendHeader("Location", "/main.html",true); //Redirect to our html web page 
+  server.sendHeader("Location", "main.html",true); //Redirect to our html web page 
   server.send(302, "text/html","");    
   }
 
 void handleRoot() 
   {
-  server.sendHeader("Location", "/root.html", true); //Redirect to our html web page */
+  server.sendHeader("Location", "root.html", true); //Redirect to our html web page */
   server.send(302, "text/html","");    
   }
 
  void handleConfigHabitaciones()
   {
-  server.sendHeader("Location", "/configHabitaciones.html", true); //Redirect to our html web page */
+  server.sendHeader("Location", "configHabitaciones.html", true); //Redirect to our html web page */
   server.send(302, "text/html","");      
   }
   
@@ -153,7 +153,7 @@ void handleConfigConsignas(void)
   //noche
   if(server.hasArg("consignaNoche")) setConsignaN(server.arg("consignaNoche").toFloat());
   
-  server.sendHeader("Location", String("/consignas.html?dia=") +String(getConsignaDia()) + \
+  server.sendHeader("Location", String("consignas.html?dia=") +String(getConsignaDia()) + \
                                          "&noche=" + String(getConsignaNoche()), \
                                          true); //Redirect to our html web page 
   server.send(302, "text/html","");        
@@ -169,7 +169,7 @@ void handleConfigTabla()
     strncpy(cadLarga,server.arg("cadena").c_str(),192);
     rellenaMapa(cadLarga);
     generaConfiguracionMapa();//saco el mapa a fichero 
-    handleDatos();//handleRoot();
+    handleRoot();//handleDatos();
     return;
     }
     
@@ -181,7 +181,7 @@ void handleConfigTabla()
     if(cad!="") cad += SEPARADOR;
     cad += mapa[i];
     }
-  server.sendHeader("Location", String("/configTabla.html?entrada=") + cad,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("configTabla.html?entrada=") + cad,true); //Redirect to our html web page 
   server.send(302, "text/html","");  
   }
 
@@ -198,7 +198,7 @@ void handleRecargaMapa(void)
   if(leeFicheroMapa()) mensaje="Mapa de configuracion de consignas leido";
   else mensaje="Error al leer el mapa de configuracion de consignas ";
       
-  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");
   }
 
@@ -215,7 +215,7 @@ void handleRecargaFicheroNombres(void)
   if(inicializaSatelites()) mensaje="Mapa de termometros leido";
   else mensaje="Error al leer el mapa de termometros";
   
-  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");
   }
   
@@ -229,7 +229,7 @@ void handleRestart(void)
   {
   String mensaje="Reiniciando...";
 
-  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");
   
   ESP.restart();
@@ -471,7 +471,7 @@ void handleCreaFichero(void)
     }
   else mensaje = "Falta el argumento <nombre de fichero>"; 
 
-  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");  
   }
 
@@ -499,7 +499,7 @@ void handleBorraFichero(void)
     }
   else  mensaje = "Falta el argumento <nombre de fichero>"; 
   
-  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");        
   }
 
@@ -785,7 +785,7 @@ void handleFileUpload()
       }
     else mensaje="Se produjo un error al subir el fichero";  
 
-    server.sendHeader("Location","/resultadoUpload.html?mensaje=" + mensaje, true);      // Redirect the client to the success page
+    server.sendHeader("Location","resultadoUpload.html?mensaje=" + mensaje, true);      // Redirect the client to the success page
     server.send(302);  
     }
   }
@@ -808,7 +808,7 @@ void handleConsultaTemperatura(void)
 
   String mensaje="locución de temperatura enviada";
   
-  server.sendHeader("Location", String("/mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
+  server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");
   }
   
@@ -836,7 +836,7 @@ void handleHabla()
     server.send(404, "text / plain", "KO");  
     }
     
-  server.sendHeader("Location", String("/habla.html"), true); //Redirect to our html web page 
+  server.sendHeader("Location", String("habla.html"), true); //Redirect to our html web page 
   server.send(302, "text/html",""); 
   }
 /**********************************************************************/

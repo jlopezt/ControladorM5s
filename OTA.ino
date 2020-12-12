@@ -60,7 +60,7 @@ void progresoOTA(unsigned int progress, unsigned int total)
   String cad="";
   float avance=100*(float)progress/total;
 
-  Serial.printf("actualizando: %5.1f %  :  ",avance);
+  Serial.printf("actualizando: %5.1f %\n",avance);
 
   //int escribePantalla(int columna, int fila, String texto)
   cad = "progreso: ";

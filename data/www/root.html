@@ -28,73 +28,24 @@
         var texto_off=document.getElementById("texto_off");
         var texto_on=document.getElementById("texto_on");
         var texto_auto=document.getElementById("texto_auto");        
-/*
+
         switch (cadena){
           case 0://MODO_OFF
+            botonModoOff(0);   
             texto_off.innerText="Off" + tiempo;
-            texto_off.style.display="inline";
-            document.getElementById("boton_off").style.display="none";
-            document.getElementById("duracion_off").style.display="none";
-            document.getElementById("unidadTiempo_off").style.display="none";
-            
-            texto_on.innerText="";
-            texto_on.style.display="none";
-            document.getElementById("boton_on").style.display="inline";
-            document.getElementById("duracion_on").style.display="inline";
-            document.getElementById("unidadTiempo_on").style.display="inline";
+            texto_off.style.display='inline';
 
-            texto_auto.innerText="";
-            texto_auto.style.display="none";        
-            document.getElementById("boton_auto").style.display="inline";
-          break;
-          
-          case 1://MODO_ON
-            texto_off.innerText="";
-            texto_off.style.display="none";
-            document.getElementById("boton_off").style.display="inline";
-            document.getElementById("duracion_off").style.display="inline";
-            document.getElementById("unidadTiempo_off").style.display="inline";
-
-            texto_on.innerText="On" + tiempo;
-            texto_on.style.display="inline";
-            document.getElementById("boton_on").style.display="none";
-            document.getElementById("duracion_on").style.display="none";
-            document.getElementById("unidadTiempo_on").style.display="none";
-            
-            texto_auto.innerText="";            
-            texto_auto.style.display="none";
-            document.getElementById("boton_auto").style.display="inline";
-          break;
-          
-          case 2://MODO_AUTO
-            texto_off.innerText="";
-            texto_off.style.display="none";
-            document.getElementById("boton_off").style.display="inline";
-            document.getElementById("duracion_off").style.display="inline";
-            document.getElementById("unidadTiempo_off").style.display="inline";
-
-            texto_on.innerText="";
-            texto_on.style.display="none";
-            document.getElementById("boton_on").style.display="inline";
-            document.getElementById("duracion_on").style.display="inline";
-            document.getElementById("unidadTiempo_on").style.display="inline";
-            
-            texto_auto.innerText="Automatico";
-            texto_auto.style.display="inline";
-            document.getElementById("boton_auto").style.display="none";
-          break;
-        }
-        */
-        switch (cadena){
-          case 0://MODO_OFF
-            botonModoOff(0);           
             botonModoOn(1);
             botonModoAuto(1);
           break;
           
           case 1://MODO_ON
             botonModoOff(1);
+            
             botonModoOn(0);
+            texto_on.innerText="On" + tiempo;
+            texto_on.style.display='inline';
+
             botonModoAuto(1);
           break;
           
@@ -108,15 +59,10 @@
 
       function botonModoOn(onOff){        
         console.log("ON->onOff: " + onOff);
-        if(onOff==1) {
-          var atributo='inline';
-          texto_on.style.display="none";
-        }
-        else {
-          var atributo='none';
-          texto_on.innerText="On" + tiempo;
-        }
-        texto_on.style.display="none";
+        if(onOff==1) var atributo='inline';
+        else var atributo='none';
+
+        texto_on.style.display='none';
         document.getElementById("boton_on").style.display=atributo;
         document.getElementById("duracion_on").style.display=atributo;
         document.getElementById("unidadTiempo_on").style.display=atributo;
@@ -124,15 +70,10 @@
 
       function botonModoOff(onOff){
         console.log("OFF->onOff: " + onOff);
-        if(onOff==1) {
-          var atributo='inline';
-          texto_off.style.display="none";
-        }
-        else {
-          var atributo='none';
-          texto_off.innerText="Off" + tiempo;
-        }
+        if(onOff==1) var atributo='inline';
+        else var atributo='none';
 
+        texto_off.style.display='none';
         document.getElementById("boton_off").style.display=atributo;
         document.getElementById("duracion_off").style.display=atributo;
         document.getElementById("unidadTiempo_off").style.display=atributo;
@@ -188,7 +129,7 @@
             } else running = false;
           }
         };
-        xh.open("GET", "/estado", true);
+        xh.open("GET", "estado", true);
         xh.send(null);
       };
 
@@ -225,7 +166,7 @@
 
     <BR>
 
-    <form action="/modo" id="form_id">
+    <form action="modo" id="form_id">
       <input type="hidden" id="modo" name="modo" value="0">
       <input type="hidden" id="duracion" name="duracion" value="-1">
       <TABLE border="0" width="80%" cellpadding="0" cellspacing="0" width="300" class="tabla">
