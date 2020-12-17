@@ -177,10 +177,12 @@
             <button id="boton_on" style="display: none;" onClick="cambiaModo(MODO_ON);">On</button>
             <input type="text" id="duracion_on" style="width:40px;display: none;"></input>
             <select id="unidadTiempo_on" style="display: none;">
+              <option value="3600000">horas</option>
+              <option value="60000">min</option>
+<!--
               <option value="1">ms</option>
               <option value="1000">sg</option>
-              <option value="60000">min</option>
-              <option value="3600000">horas</option>
+-->              
             </select>            
           </TD>
         </tr>
@@ -190,11 +192,12 @@
             <button id="boton_off" style="display: none;" onClick="cambiaModo(MODO_OFF);">Off</button>
             <input type="text" id="duracion_off" style="width:40px;display: none;"></input>
             <select id="unidadTiempo_off" style="display: none;">
+              <option value="3600000">horas</option>
+              <option value="60000">min</option>
+<!--
               <option value="1">ms</option>
               <option value="1000">sg</option>
-              <option value="60000">min</option>
-              <option value="3600000">horas</option>
-            </select>            
+-->            </select>            
           </TD>
         </tr>
         <TR class="modo2">

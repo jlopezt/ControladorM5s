@@ -81,20 +81,6 @@ float temperaturaPromedio=0;
 float humedadPromedio=0;
 
 /*********downCounter para modo manual************/
-/*
-int downCounter;//Contador de ticks en modo manual, se inicializa al pasar a modo manual y se decrementa en cada vuelta de logicaDeControl. Al quedar a cero se pasa  amodo auto
-void setDownCounter(int valor){downCounter=valor;}
-int getDownCounter(void){return downCounter;}
-void initDownCounter(int duracion)
-  {
-  downCounter=(duracion<=0?TICKS_CALEFACCION_MANUAL:duracion);//TICKS_CALEFACCION_MANUAL;
-  }  
-void decrementaDownCounter(void)
-  {
-  if(downCounter>0) downCounter--;//Decremento el contador
-  if(downCounter<=0) setModoManual(MODO_AUTO);//Si esta a cero, se pasa a modo manual
-  }
-*/
 typedef struct {
   uint32_t duracion; //en ms
   uint32_t inicio;  //en ms
@@ -107,7 +93,20 @@ void setDownCounter(int duracion)
   downCounter.duracion=(duracion<0?TICKS_CALEFACCION_MANUAL:duracion);//TICKS_CALEFACCION_MANUAL;
   downCounter.inicio=millis();
   }
-int getDownCounter(void){return (downCounter.duracion - (millis()-downCounter.inicio))/1000;}
+
+int getDownCounter(void)
+  {
+  uint32_t milis=millis();
+  uint32_t salida=downCounter.inicio + downCounter.duracion;
+  
+  if(salida < milis) return 0;
+
+  salida=salida - milis;
+  Serial.printf("salida=(%i)=duracion(%i)+inicio(%i)-millis(%i)\n\n",salida,downCounter.duracion,downCounter.inicio, milis);
+  
+  return (salida/1000);
+  }
+  
 void decrementaDownCounter(void)
   {
   //if(downCounter>0) downCounter--;//Decremento el contador
