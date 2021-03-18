@@ -563,8 +563,8 @@ void rellenaMapa(char* cadena)
 /*******************************************************/
 /*                                                     */
 /* configura el modo manual activo                     */
-/* MODO_ON=0                                           */
-/* MODO_OFF=1                                          */
+/* MODO_OFF=0                                          */
+/* MODO_ON=1                                           */
 /* MODO_AUTO=2                                         */
 /*                                                     */
 /*******************************************************/

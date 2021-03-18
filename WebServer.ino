@@ -250,8 +250,8 @@ void handleModoCalefaccion(void)
     int modo=server.arg("modo").toInt(); 
     //se puede dart al duracion en ticks, en segundos o en horas
     if(server.hasArg("duracion")) duracion=server.arg("duracion").toInt(); //si va en ticks (ms) tiene prefecrencia
-    else if(server.hasArg("tiempo")) duracion=seg2ticks(server.arg("tiempo").toInt()); //si no, en segundos
-    else if(server.hasArg("horas")) duracion=seg2ticks(3600*server.arg("horas").toInt()); //si no, en horas. Hecho para google home
+    else if(server.hasArg("segundos")) duracion=1000*server.arg("segundos").toInt(); //si no, en segundos
+    else if(server.hasArg("horas")) duracion=3600*1000*server.arg("horas").toInt(); //si no, en horas. Hecho para google home
     if (modo>=0) setModoManual(modo, duracion);    
     //Serial.printf("modo: %i | duracion: %i\n",modo,duracion);
     }  
@@ -747,7 +747,7 @@ bool handleFileRead(String path)
     File file = SPIFFS.open(path, "r");                    // Open the file
     size_t sent = server.streamFile(file, contentType);    // Send it to the client
     file.close();                                          // Close the file again
-    Serial.println(String("\tSent file: ") + path);
+    //Serial.println(String("\tSent file: ") + path);
     return true;
     }
   //Serial.println(String("\tFile Not Found: ") + path);   // If the file doesn't exist, return false
