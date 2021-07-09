@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "3.2.5 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" 
+#define VERSION           "3.2.6 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -162,7 +162,7 @@ void setup()
   
   //Inicializo el core del M5
   M5.begin();
-  Serial.begin(115200);
+  //Serial.begin(115200); //No debe estar con la nueva version de la libreria de M5
   Wire.begin();
 
   if (M5.BtnA.isPressed()) 

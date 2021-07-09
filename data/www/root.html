@@ -99,7 +99,7 @@
         xh.onreadystatechange = function(){
           if (xh.readyState == 4){
             if(xh.status == 200) {
-              console.log("JSON: " + JSON.stringify(xh));
+              console.log("JSON: " + xh.responseText);//JSON.stringify(xh));
               var res = JSON.parse(xh.responseText);
               //medidas
               //temepratura
