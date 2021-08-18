@@ -218,7 +218,7 @@ String getHora(void)
 
 /***************************************************************/
 /*                                                             */
-/*  Genera un acadena con la fecha en formato DD/MM/AAAA       */
+/*  Genera una cadena con la fecha en formato DD/MM/AAAA       */
 /*                                                             */
 /***************************************************************/
 String getFecha(void)

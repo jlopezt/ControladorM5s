@@ -376,6 +376,8 @@ float getTemperatura(int8_t id, int debug)
   //if(id>=MAX_SATELITES || habitaciones[id].id==NO_REGISTRADO) return KO;
   if(id>=MAX_SATELITES || !sateliteRegistrado(id)) return KO;
   
+  if(debug) Serial.printf("temperatura: %.1f",habitaciones[id].temperatura);
+  
   return habitaciones[id].temperatura;
   }
 
@@ -388,6 +390,8 @@ float getHumedad(int8_t id, int debug)
   //if(id>=MAX_SATELITES || habitaciones[id].id==NO_REGISTRADO) return KO;
   if(id>=MAX_SATELITES || !sateliteRegistrado(id)) return KO;
   
+  if(debug) Serial.printf("humedad: %.1f",habitaciones[id].humedad);
+  
   return habitaciones[id].humedad;
   }
 
@@ -399,6 +403,8 @@ float getLuz(int8_t id, int debug)
   {
   //if(id>=MAX_SATELITES || habitaciones[id].id==NO_REGISTRADO) return KO;
   if(id>=MAX_SATELITES || !sateliteRegistrado(id)) return KO;
+  
+  if(debug) Serial.printf("luz: %.1f",habitaciones[id].luz);
   
   return habitaciones[id].luz;
   }

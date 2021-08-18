@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "3.2.6 M5Stack (OTA|MQTT|LOGIC+|WEBSOCKETS) lib v0.3.0" 
+#define VERSION           "v3.3.0" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.1" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -35,6 +35,8 @@
 #define MQTT_CONFIG_BAK_FILE   "/MQTTConfig.json.bak"
 #define GHN_CONFIG_FILE        "/GHNConfig.json"
 #define GHN_CONFIG_BAK_FILE    "/GHNConfig.json.bak"
+#define WU_CONFIG_FILE         "/WUConfig.json"
+#define WU_CONFIG_BAK_FILE     "/WUConfig.json.bak"
 
 //Definicion de codigos de error
 #ifndef ERRORES //si no esta definido ERRORES
@@ -52,7 +54,7 @@
 //Definiciopn de pines
 //#define PIN_DESBORDE_TIEMPO 14 //GPIO del Pin del led de desborde de tiempo
 
-// Una vuela de loop son ANCHO_INTERVALO segundos 
+// Una vuela de loop son ANCHO_INTERVALO milisegundos 
 #define ANCHO_INTERVALO             100 //Ancho en milisegundos de la rodaja de tiempo
 #define FRECUENCIA_OTA                5 //cada cuantas vueltas de loop atiende las acciones
 #define FRECUENCIA_PANTALLA          10 //20 //cada cuantas vueltas de loop pinta la pantalla 
@@ -65,6 +67,7 @@
 #define FRECUENCIA_SALVAR           600 //cada cuantas vueltas de loop salva la configuracion a los ficheros
 #define FRECUENCIA_MQTT              10 //cada cuantas vueltas de loop envia y lee del broket MQTT
 #define FRECUENCIA_ENVIA_DATOS      100 //cada cuantas vueltas de loop publica el estado en el broker MQTT
+#define FRECUENCIA_ENVIA_WU        3000 //cada cuantas vueltas de loop publica el estado en WU
 #define FRECUENCIA_SATELITE_TIMEOUT  50 //cada cuantas vueltas de loop compruebo si ha habido time out en los satelites
 #define FRECUENCIA_WIFI_WATCHDOG    100 //cada cuantas vueltas comprueba si se ha perdido la conexion WiFi
 #define FRECUENCIA_FREEHEAP          50 //cada cuantas vueltas publica la memoria libre
@@ -100,6 +103,9 @@
 #define DEFAULT_BRILLO_PANTALLA 10
 
 #define LED_BUILTIN      21 //GPIO del led de la placa en los ESP32   
+
+#define WUNDERGROUND
+
 /***************************** Defines *****************************/
 
 /***************************** Includes *****************************/
@@ -234,6 +240,13 @@ void setup()
     //Traza de inicio
     pintaTrazaInicial("MQTT OK"); 
 
+#ifdef WUNDERGROUND
+    //WUnderground
+    Serial.println("Init WUnderground ---------------------------------------------------------------");
+    inicializaWU();
+    pintaTrazaInicial("WUnderground OK"); 
+#endif    
+
     //Google Home Notifier
     Serial.println("\n\nInit Google Home Notifier -------------------------------------------------------\n");
     inicializaGHN();
@@ -347,6 +360,9 @@ int paso=0;
 //Serial.printf("enviaDatos paso: %i\n",paso++);  
   //Prioridad 3: Interfaces externos de consulta
   if ((vuelta % FRECUENCIA_ENVIA_DATOS)==0) enviaDatos(debugGlobal); //envia datos de estado al broker MQTT  
+#ifdef WUNDERGROUND  
+  if ((vuelta % FRECUENCIA_ENVIA_WU)==0) UploadDataToWU();
+#endif    
 //Serial.printf("paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) webServer(debugGlobal); //atiende el servidor web  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) atiendeWebSocket(debugGlobal); //atiende el servidor web 
@@ -502,7 +518,7 @@ void salvaConfiguracion(void)
 /*  Devuelve el tiempo en millis que lleva el sistema activo   */
 /*                                                             */
 /***************************************************************/
-time_t uptime(void) {return millis();}  
+unsigned long uptime(void) {return millis();}  
 
 /***************************************************************/
 /*                                                             */
