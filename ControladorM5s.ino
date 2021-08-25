@@ -122,6 +122,7 @@
 #include <WebSocketsServer.h> //Lo pongo aqui porque si lo pongo en su sitio no funciona... https://github.com/Links2004/arduinoWebSockets/issues/356
 #include <rom/rtc.h>
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
+#include <math.h>
 
 //prototipo de funciones
 String getErroresNivel(int nivel=0);

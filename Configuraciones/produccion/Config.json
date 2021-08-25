@@ -1,5 +1,5 @@
 {
-  "nombre_dispositivo": "Termostato",
+  "nombre_dispositivo": "Termostatix",
   "TimeOut": 5000, 
   "limiteSleep":20000, 
   "Brillo": 10

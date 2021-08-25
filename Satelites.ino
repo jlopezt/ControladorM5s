@@ -147,6 +147,7 @@ boolean parseaConfiguracionNombres(String contenido)
   }
 
 //////////////////////////////////////////////////Funciones de ejecucion de los satelites///////////////////////////////////////////////////////
+/***************************************************** Inicio satelites ***************************************************************************/  
 /****************************************************************/
 /* devuelve si el satelite esta registrado                      */
 /* leyendo los que tienen el id!=0                              */
@@ -354,7 +355,8 @@ void sateliteTimeOut(unsigned long time_out)
     if(sateliteRegistrado(id) && (ahora-sateliteUltimaLectura(id)>time_out)) delSatelite(id);//se ha producido time-out y lo borro del registro
     }
   }
-
+/***************************************************** Fin satelites ***************************************************************************/  
+/***************************************************** Inicio get/set ***************************************************************************/
 /****************************************************************/
 /* Devuelve el nombre de una habitacion                         */
 /* comprueba si el id esta registrado                           */
@@ -441,7 +443,7 @@ float promediaTemperatura(void)
       }
     }
 
-  if(pesoTotal!=0 && numeroSatelites(0)) return (promedio/pesoTotal);
+  if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
   
   //si llega aqui es que ha pasado algo raro
   Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
@@ -472,7 +474,7 @@ float promediaHumedad(void)
       }
     }
 
-  if(pesoTotal!=0 && numeroSatelites(0)) return (promedio/pesoTotal);
+  if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
   
   //si llega aqui es que ha pasado algo raro
   Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
@@ -482,6 +484,25 @@ float promediaHumedad(void)
   return 9999;
   }
 
+/******************************************/
+/* Convierte grados Celsius en Farenheit  */
+/* Temperatura en farenheit               */   
+/*  (32 °C × 9 / 5) + 32 = 89,6 °F        */ 
+/******************************************/
+float tempCtoF(float tempC){ return ((tempC *9.0/5.0)+32.0);}
+/******************************************/
+/* Convierte grados Farenheit en Celsius  */
+/* Temperatura en farenheit               */   
+/*  (89.6 °F - 32)  × 5 / 9) = 32 °F      */ 
+/******************************************/
+float tempFtoC(float tempF){ return ((tempF - 32.0) *5.0/9.0);}
+/******************************************/
+/*  Temperatura de rocio en celsius       */   
+/*  TR = TCelsius- ((100- R)/5.0)         */ 
+/******************************************/
+float getTemperaturaRocio(float temperatura, float humedad){ return (temperatura - ((100.0 - humedad)/5.0));} 
+/***************************************************** Fin get/set ***************************************************************************/
+   
 /********************************************************/
 /*recibe una cedena que responde el controlador y       */
 /*la parsea buscando el dato solicitado                 */

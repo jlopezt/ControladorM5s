@@ -84,21 +84,7 @@ boolean parseaConfiguracionWU(String contenido)
   return false;
   }
 /****************************************** Fin configuracion ********************************************/
-
 /****************************************** Envio datos ********************************************/
-/******************************************/
-/* Convierte grados Celsius en Farenheit  */
-/* Temperatura en farenheit               */   
-/*  (32 °C × 9 / 5) + 32 = 89,6 °F        */ 
-/******************************************/
-float tempCtoF(float tempC){ return ((tempC *9.0/5.0)+32.0);}
-
-/******************************************/
-/*  Temperatura de rocio en celsius       */   
-/*  (32 °C × 9 / 5) + 32 = 89,6 °F        */ 
-/******************************************/
-float getTemperaturaRocio(float temperatura, float humedad){ return (temperatura - ((100.0 - humedad)/5.0));} 
-   
 /******************************************/
 /*     Envia datos a WUnderground.com     */
 /******************************************/
@@ -116,17 +102,10 @@ boolean UploadDataToWU(){
     return false;
   }
 
-  int sat=0;
-  for(sat=0;sat<MAX_SATELITES;sat++) {if(sateliteRegistrado(sat)) break;}
-  Serial.printf("Satelite de referencia: %i\n",sat);
-  if(sat>=MAX_SATELITES) return false;
-
-  float temp=getTemperatura(sat,0);
-  float hum=getHumedad(sat,0);
-  
+  float temp=promediaTemperatura();
+  float hum=promediaHumedad();
   //Serial.printf("Temperatura: %.1f | Humedad: %.1f\n",temp,hum);
-
-  
+ 
   String url = "/weatherstation/updateweatherstation.php?ID="+WU_pwsID+"&PASSWORD="+WU_pwsPASSWORD+"&dateutc="+timenow +
                #ifdef SW_tempf
                  "&tempf="+ tempCtoF(temp) +
