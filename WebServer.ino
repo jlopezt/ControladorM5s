@@ -53,7 +53,7 @@ void inicializaWebServer(void)
   
   server.on("/consultaTemperatura", HTTP_ANY, handleConsultaTemperatura); //Manda una locucion al GH
    
-  //load editor
+  //Uploader
   server.on("/upload", HTTP_GET, []() {
     if (!handleFileRead("/upload.html")) {
       server.send(404, "text/plain", "FileNotFound");
@@ -756,15 +756,22 @@ bool handleFileRead(String path)
 
 void handleFileUpload()
   {
+  String path = "";  
   static File fsUploadFile;
   HTTPUpload& upload = server.upload();
 
   if(upload.status == UPLOAD_FILE_START)
     {
-    String path = upload.filename;
+    /*  
+    path = upload.filename;
     if(!path.startsWith("/")) path = "/" + path;
-    
-    Serial.printf("handleFileUpload Name: %s",path.c_str());
+    */
+    if(server.hasArg("directorio"))path=server.arg("directorio");
+    if(!path.startsWith("/")) path = "/" + path;
+    if(!upload.filename.startsWith("/")) path = path + "/";
+    path += upload.filename;    
+
+    Serial.printf("handleFileUpload Name: [%s]\n",path.c_str());
     fsUploadFile = SPIFFS.open(path.c_str(), "w");            // Open the file for writing in SPIFFS (create if it doesn't exist)
     if(!fsUploadFile) Serial.printf("Error al crear el fichero\n");
     }
@@ -780,7 +787,7 @@ void handleFileUpload()
     if(fsUploadFile) // If the file was successfully created
       {                                    
       fsUploadFile.close();                               // Close the file again
-      Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
+      Serial.printf("handleFileUpload Size: %i", upload.totalSize);
       mensaje="Fichero subido con exito (" + String(upload.totalSize) + "bytes)";  
       }
     else mensaje="Se produjo un error al subir el fichero";  

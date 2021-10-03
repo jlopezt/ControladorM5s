@@ -236,19 +236,20 @@ boolean comparaTopics(String topicSuscrito, String topicRecibido)
 /***************************************************/
 void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   {  
-  char mensaje[length];    
+  char mensaje[length+1];    
   int id;  
   int estado;
 
-  if(debugGlobal) Serial.printf("topic: %s\nPayload: %s\nlongitud: %i\n",topic,(const char*)payload,length);
+  if(debugGlobal) Serial.printf("topic: %s\nPayload: [%s]\nlongitud: %i\n",topic,(const char*)payload,length);
 
   //copio el payload en la cadena mensaje
-  for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
+  for(int16_t i=0;i<length;i++) mensaje[i]=payload[i];
   mensaje[length]=0;//acabo la cadena
 
   /**********************Leo el JSON***********************/
-  const size_t bufferSize = JSON_OBJECT_SIZE(3) + 50;
+  const size_t bufferSize = JSON_OBJECT_SIZE(12) + 130;
   DynamicJsonBuffer jsonBuffer(bufferSize);     
+  if(debugGlobal) Serial.printf("mensaje: %s\nTamaño del buffer: %i",mensaje, bufferSize);
   JsonObject& root = jsonBuffer.parseObject(mensaje);
 
   if (!root.success()) 
@@ -269,9 +270,9 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
 
   //Leo los valores
   sateliteLeido(id); //apunto la hora de la lectura del mensaje
-  habitaciones[id].temperatura = root["Temperatura"];
-  habitaciones[id].humedad = root["Humedad"]; 
-  habitaciones[id].luz = root["Luz"];
+  habitaciones[id].temperatura = root["temperatura"];
+  habitaciones[id].humedad = root["humedad"]; 
+  habitaciones[id].luz = root["luz"];
   if(debugGlobal) Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz);
   /**********************Fin JSON***********************/    
   }
@@ -285,7 +286,7 @@ void procesaTopicMensajes(char* topic, byte* payload, unsigned int length)
   char mensaje[length];    
     
   //copio el payload en la cadena mensaje
-  for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
+  for(int16_t i=0;i<length;i++) mensaje[i]=payload[i];
   mensaje[length]=0;//acabo la cadena
    
   /**********************Leo el JSON***********************/
@@ -321,7 +322,7 @@ void respondePingMQTT(char* topic, byte* payload, unsigned int length)
   Serial.printf("Recibido mensaje Ping:\ntopic: %s\npayload: %s\nlength: %i\n",topic,payload,length);
   
   //copio el payload en la cadena mensaje
-  for(int8_t i=0;i<length;i++) mensaje[i]=payload[i];
+  for(int16_t i=0;i<length;i++) mensaje[i]=payload[i];
   mensaje[length]=0;//acabo la cadena
 
   /**********************Leo el JSON***********************/

@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="css.css" media="screen" />
+    <!--
     <style>
       * {
         box-sizing: border-box;
@@ -116,23 +117,29 @@
         }
       }
     </style>
+    -->
+    <link href='main.css' rel='stylesheet' type='text/css'>
     <script>
       function cambiaDiv() {
         console.log("Entrando");
         if (document.getElementById("atras").className == "oculto") {
           console.log("Atras: " + document.getElementById("atras").className + " mostrando atras");
           document.getElementById("atras").className = "visible";
+          document.getElementById("servicio").className = "visible";          
         } else {
           console.log("Atras: " + document.getElementById("atras").className + " ocultando atras");
           document.getElementById("atras").className = "oculto";
+          document.getElementById("servicio").className = "oculto";
         }
 
         if (document.getElementById("delante").className == "visible") {
           console.log("Delante: " + document.getElementById("delante").className + " Ocultando delante");
           document.getElementById("delante").className = "oculto";
+          document.getElementById("nav").className = "oculto";
         } else {
           console.log("Delante: " + document.getElementById("delante").className + " mostrando delante");
           document.getElementById("delante").className = "visible";
+          document.getElementById("nav").className = "visible";          
         }
       }
 
@@ -156,10 +163,9 @@
         xh.open("GET", "nombre", true);
         xh.send(null);        
         
-        //cargo el iframe con al info inicial
-        cambiaIFrame("root");
-
-        //relleno el frame oculto
+        //cargo los iframes con al info inicial
+        cambiaIFrame("root",'iframe_a');
+        cambiaIFrame("listaFicheros",'iframe_b');
 
         //Ajusto la altura del iframe        
         var margen = window.getComputedStyle(document.body,null).getPropertyValue("margin-top");
@@ -179,9 +185,9 @@
         document.getElementById("nombre_3").innerHTML=nombre.substr(nombre.length-2);
       }
 
-      function cambiaIFrame(pagina){
+      function cambiaIFrame(pagina,destino){
         //cargo el iframe con la pagina indicada
-        var c=document.getElementById("iframe_a");
+        var c=document.getElementById(destino);
         console.log(c.getAttribute("src"));
         c.setAttribute("src",pagina);
       }
@@ -199,17 +205,24 @@
 
     <section>
       <div class="izquierda">
-        <nav id="nav">
+        <nav id="nav" class="visible">
           <ul>
-            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('root')">Inicio</li>
-            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('configHabitaciones')">Estado</li>
-            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('consignaTemperatura')">Consignas</li>
-            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('listaFicheros')">Ficheros</li>
-            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('info')">Info</li>
-            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('restart')">Reiniciar</li>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('root','iframe_a')">Inicio</li>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('configHabitaciones','iframe_a')">Estado</li>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('consignaTemperatura','iframe_a')">Consignas</li>
           </ul>
         </nav>
       </div>
+      <div class="izquierda">
+        <nav id="servicio" class="oculto">
+          <ul>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('listaFicheros','iframe_b')">Ficheros</li>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('upload','iframe_b')">upload</li>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('info','iframe_b')">Info</li>
+            <li onMouseOver="this.style.cursor='pointer'" onClick="cambiaIFrame('restart','iframe_b')">Reiniciar</li>
+          </ul>
+        </nav>
+      </div>       
       <div class="derecha">
         <nav>
           <ul>
@@ -219,7 +232,7 @@
       </div>
       <article id="article">
         <div id="atras" class="oculto">          
-          <!--<iframe id="iframe_b" name="iframe_b" style="height:100%;width:100%;border:none;" src="http://www.orange.es"></iframe>-->
+          <iframe id="iframe_b" name="iframe_b" style="height:100%;width:100%;border:none;"></iframe>
         </div>
         <div id="delante" class="visible">
           <iframe id="iframe_a" name="iframe_a" style="height:100%;width:100%;border:none;"></iframe>
