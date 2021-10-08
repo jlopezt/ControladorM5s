@@ -115,6 +115,36 @@ String combierteTemperaturaPromedio(void)
   }
   
 /*********************************************/
+/* Valida la temperatura promedio y la pasa  */
+/* a cadena. Si es NO_LEIDO devuelve -.-     */
+/*********************************************/
+String combierteHumedadPromedio(void)
+  {
+  float TP=getHumedadPromedio();
+  String TPS="";
+  
+  if(TP==NO_LEIDO) TPS="--.-%";
+  else TPS=String(TP,1)+"%";
+
+  return TPS;
+  }
+  
+/*********************************************/
+/* Valida la temperatura promedio y la pasa  */
+/* a cadena. Si es NO_LEIDO devuelve -.-     */
+/*********************************************/
+String combiertePresionPromedio(void)
+  {
+  float TP=getPresionPromedio();
+  String TPS="";
+  
+  if(TP==NO_LEIDO) TPS="--.-hPa";
+  else TPS=String(TP,1)+"hPa";
+
+  return TPS;
+  }
+  
+/*********************************************/
 /* Pinta la cabecera de la pantalla          */
 /* comun a varios layouts                    */
 /*********************************************/
@@ -273,6 +303,8 @@ void pintaLayout(String valor, int satelite, String alarma="")//Informacion de l
   String nombre;
   float t;
   float h;
+  float p;
+  float a;
   int i;
   int x0,y0;
   int ancho,alto;
@@ -300,6 +332,8 @@ void pintaLayout(String valor, int satelite, String alarma="")//Informacion de l
     nombre=getNombre(satelite,0);
     t=getTemperatura(satelite,0);
     h=getHumedad(satelite,0);
+    p=getPresion(satelite,0);
+    a=getAltitud(satelite,0);
     i=hayLuz(satelite);
 
     //Pinta el fondo
@@ -314,7 +348,8 @@ void pintaLayout(String valor, int satelite, String alarma="")//Informacion de l
     M5.Lcd.setFreeFont(FM12);                 // Select the font  
     M5.Lcd.drawString("Temp.: " + String(t,1) + "º", 4*MARGEN_IZQUIERDO, ALTO_LETRA_12+ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL+MARGEN_SUPERIOR, GFXFF);// Print the string name of the font
     M5.Lcd.drawString("Humedad: " + String(h,1) + "%", 4*MARGEN_IZQUIERDO, 2*ALTO_LETRA_12+ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL+MARGEN_SUPERIOR, GFXFF);// Print the string name of the font
-    M5.Lcd.drawString((i?"Iluminacion: si":"Iluminacion: no"), 4*MARGEN_IZQUIERDO, 3*ALTO_LETRA_12+ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL+MARGEN_SUPERIOR, GFXFF);// Print the string name of the font  
+    M5.Lcd.drawString("Pres.: " + String(p,0) + "hPa (" + String(a,0) + " m)", 4*MARGEN_IZQUIERDO, 3*ALTO_LETRA_12+ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL+MARGEN_SUPERIOR, GFXFF);// Print the string name of the font
+    M5.Lcd.drawString((i?"Iluminacion: si":"Iluminacion: no"), 4*MARGEN_IZQUIERDO, 4*ALTO_LETRA_12+ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL+MARGEN_SUPERIOR, GFXFF);// Print the string name of the font  
     }
 
   //Modo de calefaccion
@@ -422,7 +457,9 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
   M5.Lcd.setFreeFont(FF18);//(CF_OL32);                 // Select the font
   String Hum=String(getHumedadPromedio(),1);
-  M5.Lcd.drawString((Hum+"%").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  String Pres=String(getPresionPromedio(),0);
+  M5.Lcd.drawString((combierteHumedadPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString((combiertePresionPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto, GFXFF);// Print the string name of the font
 
   //Hora
   x0=MARGEN_IZQUIERDO;// /2

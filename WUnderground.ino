@@ -102,8 +102,8 @@ boolean UploadDataToWU(){
     return false;
   }
 
-  float temp=promediaTemperatura();
-  float hum=promediaHumedad();
+  float temp=getTemperaturaPromedio();//promediaTemperatura();
+  float hum=getHumedadPromedio();//promediaHumedad();
   //Serial.printf("Temperatura: %.1f | Humedad: %.1f\n",temp,hum);
  
   String url = "/weatherstation/updateweatherstation.php?ID="+WU_pwsID+"&PASSWORD="+WU_pwsPASSWORD+"&dateutc="+timenow +

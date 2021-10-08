@@ -77,8 +77,10 @@ rele_t reles[MAX_RELES];
 consigna_t consigna={23.0,15.6}; //Limite para encender el rele de dia y de noche
 float umbralLuz=10;//30; //porcentaje que se considera que hay luz en la habitacion
 
-float temperaturaPromedio=0;
-float humedadPromedio=0;
+float temperaturaPromedio=NO_LEIDO;
+float humedadPromedio=NO_LEIDO;
+float presionPromedio=NO_LEIDO;
+float altitudPromedio=NO_LEIDO;
 
 /*********downCounter para modo manual************/
 typedef struct {
@@ -329,6 +331,8 @@ void logicaControl(void)
         //si responde algun satelite, promedio  
         temperaturaPromedio=promediaTemperatura();
         humedadPromedio=promediaHumedad();
+        presionPromedio=promediaPresion();
+        altitudPromedio=promediaAltitud();
 
         if(estadoCaldera==1)//calentando
           {
@@ -411,6 +415,26 @@ String getNombreRele(int rele)
 float getHumedadPromedio(void)
   {
   return humedadPromedio;
+  }
+
+/******************************************************/
+/*                                                    */
+/* Devuelve la presion promedio calculada         */ 
+/*                                                    */
+/******************************************************/
+float getPresionPromedio(void)
+  {
+  return presionPromedio;
+  }
+
+/******************************************************/
+/*                                                    */
+/* Devuelve la altitud promedio calculada         */ 
+/*                                                    */
+/******************************************************/
+float getAltitudPromedio(void)
+  {
+  return altitudPromedio;
   }
 
 /******************************************************/
@@ -631,6 +655,8 @@ String generaJsonDatos(void)
       habitaciones_0["nombre"] = getNombre(id,debugGlobal);
       habitaciones_0["temperatura"] = getTemperatura(id,debugGlobal);
       habitaciones_0["humedad"] = getHumedad(id,debugGlobal);
+      habitaciones_0["presion"] = getPresion(id,debugGlobal);
+      habitaciones_0["altitud"] = getAltitud(id,debugGlobal);
       habitaciones_0["luz"] = getLuz(id,debugGlobal);
       habitaciones_0["peso"] = getPeso(id,hora(),debugGlobal);
       habitaciones_0["tiempo"] = millis()-sateliteUltimaLectura(id);          

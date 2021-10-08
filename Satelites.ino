@@ -25,6 +25,8 @@ typedef struct{
   float  temperatura;
   float  humedad;
   float  luz;
+  float  presion;
+  float  altitud;
   }habitacion_t;
 
 habitacion_t habitaciones[MAX_SATELITES];
@@ -47,8 +49,10 @@ boolean inicializaSatelites(void)
     for(int8_t h=0;h<HORAS_EN_DIA;h++) habitaciones[i].peso[h]=pesoSatelites[i][h];
     habitaciones[i].lectura=0;
     habitaciones[i].temperatura=NO_LEIDO;//0.0;
-    habitaciones[i].humedad=0.0;
-    habitaciones[i].luz=0.0;   
+    habitaciones[i].humedad=NO_LEIDO;
+    habitaciones[i].luz=NO_LEIDO;
+    habitaciones[i].presion=NO_LEIDO;  
+    habitaciones[i].altitud=NO_LEIDO;
     }  
   return salida;  
   }
@@ -209,52 +213,6 @@ int pesoSatelitesLeidos(int debug)
   return peso;
   }
   
-/****************************************************************/
-/* devuelve la lista de habitaciones                            */
-/*leyendo los que tienen el id!=0                               */
-/****************************************************************/
-String listaSatelites(int debug)
-  {
-  String cad="";
-  
-  for(int8_t id=0;id<MAX_SATELITES;id++) //id1#nombre1|id2#nombre2|....|id_n#nombre_n n<MAX_SATELITES
-    {
-    if(sateliteRegistrado(id)) //if(habitaciones[id].id!=NO_REGISTRADO)
-      {   
-        if (cad!="") cad += SEPARADOR;
-        cad += id;
-        cad += SUBSEPARADOR;
-        cad += habitaciones[id].nombre;
-      }  
-    }
-    
-  return cad;
-  }
-
-
-/****************************************************************/
-/* devuelve los valores medidos para una habitacion             */
-/* comprueba si el id esta registrado                           */
-/****************************************************************/
-String valoresSatelite(int8_t id, int debug)
-  {
-  String cad="";
-  
-  if(id>=MAX_SATELITES) return cad;
-  
-  if(sateliteRegistrado(id)) //if(habitaciones[id].id!=NO_REGISTRADO)
-    {   
-      cad = habitaciones[id].temperatura;
-      cad += SEPARADOR;       
-      cad += habitaciones[id].humedad;
-      cad += SEPARADOR;               
-      cad += habitaciones[id].luz; 
-    }  
-  
-  return cad;
-  }
-
-
 /**********************************************************/
 /*añade un satelite que se ha identificado con su id      */
 /*devuelve el id del satelite                             */
@@ -269,8 +227,10 @@ int addSatelite(int8_t id, String nombre="")
   //inicializo los datos
   for(int8_t h=0;h<HORAS_EN_DIA;h++) habitaciones[id].peso[h]=pesoSatelites[id][h];
   habitaciones[id].temperatura=NO_LEIDO; //NO_LEIDO=-100.0 significa que todavia no se ha leido y no debe tenerse en cuenta para promediar
-  habitaciones[id].humedad=0.0;
-  habitaciones[id].luz=0.0;
+  habitaciones[id].humedad=NO_LEIDO;
+  habitaciones[id].luz=NO_LEIDO;
+  habitaciones[id].presion=NO_LEIDO;
+  habitaciones[id].altitud=NO_LEIDO;
 
   return id;
   }
@@ -288,8 +248,10 @@ int8_t delSatelite(int8_t id)
   habitaciones[id].nombre="";
   for(int8_t h=0;h<HORAS_EN_DIA;h++) habitaciones[id].peso[h]=0;
   habitaciones[id].temperatura=NO_LEIDO; //NO_LEIDO=-100.0 significa que todavia no se ha leido y no debe tenerse en cuenta para promediar
-  habitaciones[id].humedad=0.0;
-  habitaciones[id].luz=0.0;
+  habitaciones[id].humedad=NO_LEIDO;
+  habitaciones[id].luz=NO_LEIDO;
+  habitaciones[id].presion=NO_LEIDO;
+  habitaciones[id].altitud=NO_LEIDO;
     
   return id;
   }
@@ -309,6 +271,8 @@ int consultaSatelite(int8_t id)
     Serial.printf("Temperatura: %f\n", habitaciones[id].temperatura);
     Serial.printf("Humedad: %f\n", habitaciones[id].humedad);
     Serial.printf("Luz: %f\n", habitaciones[id].luz);
+    Serial.printf("Presion: %f\n", habitaciones[id].presion);
+    Serial.printf("Altitud: %f\n", habitaciones[id].altitud);
 
     Serial.print("peso:"); 
     for(int8_t h=0;h<HORAS_EN_DIA;h++) Serial.printf(" %i:%i | ",h,habitaciones[id].peso[h]);
@@ -412,6 +376,34 @@ float getLuz(int8_t id, int debug)
   }
 
 /****************************************************************/
+/* devuelve la presion de una habitacion                            */
+/* comprueba si el id esta registrado                           */
+/****************************************************************/
+float getPresion(int8_t id, int debug)
+  {
+  //if(id>=MAX_SATELITES || habitaciones[id].id==NO_REGISTRADO) return KO;
+  if(id>=MAX_SATELITES || !sateliteRegistrado(id)) return KO;
+  
+  if(debug) Serial.printf("presion: %.1f",habitaciones[id].presion);
+  
+  return habitaciones[id].presion;
+  }
+
+/****************************************************************/
+/* devuelve la altitud de una habitacion                            */
+/* comprueba si el id esta registrado                           */
+/****************************************************************/
+float getAltitud(int8_t id, int debug)
+  {
+  //if(id>=MAX_SATELITES || habitaciones[id].id==NO_REGISTRADO) return KO;
+  if(id>=MAX_SATELITES || !sateliteRegistrado(id)) return KO;
+  
+  if(debug) Serial.printf("altitud: %.1f",habitaciones[id].altitud);
+  
+  return habitaciones[id].altitud;
+  }
+
+/****************************************************************/
 /* Devuelve el peso de una habitacion a la hora indicada        */
 /* comprueba si el id esta registrado                           */
 /****************************************************************/
@@ -467,7 +459,7 @@ float promediaHumedad(void)
   
   for(int8_t i=0;i<MAX_SATELITES;i++)
     {
-    if(sateliteRegistrado(i) && habitaciones[i].temperatura!=NO_LEIDO)
+    if(sateliteRegistrado(i) && habitaciones[i].humedad>0)
       {
       promedio+=habitaciones[i].humedad*habitaciones[i].peso[hora_actual];
       pesoTotal+=habitaciones[i].peso[hora_actual];
@@ -481,7 +473,69 @@ float promediaHumedad(void)
   Serial.printf("************************\n");
   for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, humedad: %f, peso: %i\n",i,habitaciones[i].humedad,habitaciones[i].peso[hora_actual]);
   Serial.printf("************************\n");  
-  return 9999;
+  return NO_LEIDO;
+  }
+
+/*******************************************************/
+/*                                                     */
+/* Promedia las medidas de presion de los              */
+/* satelites segun el peso                             */ 
+/*                                                     */
+/*******************************************************/
+float promediaPresion(void)
+  {
+  float promedio=0;
+  float pesoTotal=0;
+  int hora_actual=hora();
+  
+  for(int8_t i=0;i<MAX_SATELITES;i++)
+    {
+    if(sateliteRegistrado(i) && habitaciones[i].presion>0)
+      {
+      promedio+=habitaciones[i].presion*habitaciones[i].peso[hora_actual];
+      pesoTotal+=habitaciones[i].peso[hora_actual];
+      }
+    }
+
+  if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
+  
+  //si llega aqui es que ha pasado algo raro
+  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("************************\n");
+  for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, presion: %f, peso: %i\n",i,habitaciones[i].presion,habitaciones[i].peso[hora_actual]);
+  Serial.printf("************************\n");  
+  return NO_LEIDO;
+  }
+
+/*******************************************************/
+/*                                                     */
+/* Promedia las medidas de altitud de los              */
+/* satelites segun el peso                             */ 
+/*                                                     */
+/*******************************************************/
+float promediaAltitud(void)
+  {
+  float promedio=0;
+  float pesoTotal=0;
+  int hora_actual=hora();
+  
+  for(int8_t i=0;i<MAX_SATELITES;i++)
+    {
+    if(sateliteRegistrado(i) && habitaciones[i].altitud>0)
+      {
+      promedio+=habitaciones[i].altitud*habitaciones[i].peso[hora_actual];
+      pesoTotal+=habitaciones[i].peso[hora_actual];
+      }
+    }
+
+  if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
+  
+  //si llega aqui es que ha pasado algo raro
+  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("************************\n");
+  for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, presion: %f, peso: %i\n",i,habitaciones[i].presion,habitaciones[i].peso[hora_actual]);
+  Serial.printf("************************\n");  
+  return NO_LEIDO;
   }
 
 /******************************************/

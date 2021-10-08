@@ -119,6 +119,8 @@ void handleEstado()
   medidas["temperatura"] = getTemperaturaPromedio();
   medidas["consigna"] = getConsigna();
   medidas["humedad"] = getHumedadPromedio();
+  medidas["presion"] = getPresionPromedio();
+  medidas["altitud"] = getAltitudPromedio();
   
   JsonObject& salidas = root.createNestedObject("salidas");
   salidas["caldera"] = getEstadoRele(CALDERA);
@@ -569,7 +571,7 @@ void handleManageFichero(void)
       cad += "  <input type=\"hidden\" name=\"nombre\" value=\"" + nombreFichero + "\">"; 
       cad += "</form>\n"; 
  
-      cad += "<form id=\"volver\" action=\"listaFicheros\" target=\"_self\">"; 
+      cad += "<form id=\"volver\" action=\"ficheros\" target=\"_self\">"; 
       cad += "  <input type=\"hidden\" name=\"dir\" value=\"" + directorioFichero(nombreFichero) + "\">"; 
       cad += "</form>\n"; 
  
@@ -579,7 +581,7 @@ void handleManageFichero(void)
       cad += "  <table width='100%'><tr>\n";
       cad += "  <td align='left'><button form=\"salvarFichero\" type=\"submit\" value=\"Submit\">Salvar</button></td>\n"; 
       cad += "  <td align='center'><button form=\"borrarFichero\" type=\"submit\" value=\"Submit\">Borrar</button></td>\n";       
-      cad += "  <td align='right'><button form=\"salvarFichero\" type=\"submit\" value=\"Submit\">Atras</button></td>\n"; 
+      cad += "  <td align='right'><button form=\"volver\" type=\"submit\" value=\"Submit\">Atras</button></td>\n"; 
       cad += "  </tr></table>\n";      
       cad += "  <BR><BR>\n"; 
       cad += "  <textarea form=\"salvarFichero\" cols=120 rows=45 name=\"contenido\">" + contenido + "</textarea>\n"; 
