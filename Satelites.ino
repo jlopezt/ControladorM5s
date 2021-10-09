@@ -492,8 +492,10 @@ float promediaPresion(void)
     {
     if(sateliteRegistrado(i) && habitaciones[i].presion>0)
       {
-      promedio+=habitaciones[i].presion*habitaciones[i].peso[hora_actual];
-      pesoTotal+=habitaciones[i].peso[hora_actual];
+      //promedio+=habitaciones[i].presion*habitaciones[i].peso[hora_actual];
+      //pesoTotal+=habitaciones[i].peso[hora_actual];
+      promedio+=habitaciones[i].presion;
+      pesoTotal++;
       }
     }
 
@@ -523,8 +525,10 @@ float promediaAltitud(void)
     {
     if(sateliteRegistrado(i) && habitaciones[i].altitud>0)
       {
-      promedio+=habitaciones[i].altitud*habitaciones[i].peso[hora_actual];
-      pesoTotal+=habitaciones[i].peso[hora_actual];
+      //promedio+=habitaciones[i].altitud*habitaciones[i].peso[hora_actual];
+      //pesoTotal+=habitaciones[i].peso[hora_actual];
+      promedio+=habitaciones[i].altitud;
+      pesoTotal++;
       }
     }
 

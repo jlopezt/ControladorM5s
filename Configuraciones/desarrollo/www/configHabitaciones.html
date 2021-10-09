@@ -49,6 +49,14 @@
                             celda.setAttribute("align","right");
                             hilera.appendChild(celda);
                             celda = document.createElement("td");
+                            celda.setAttribute("id","presion_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
+                            celda.setAttribute("id","altitud_"+indice);
+                            celda.setAttribute("align","right");
+                            hilera.appendChild(celda);
+                            celda = document.createElement("td");
                             celda.setAttribute("id","luz_"+indice);
                             celda.setAttribute("align","right");
                             hilera.appendChild(celda);
@@ -65,6 +73,8 @@
                         document.getElementById("nombre_" + indice).innerHTML=habitacion.nombre;
                         document.getElementById("temperatura_" + indice).innerHTML=habitacion.temperatura;
                         document.getElementById("humedad_" + indice).innerHTML=habitacion.humedad;
+                        document.getElementById("presion_" + indice).innerHTML=habitacion.presion;
+                        document.getElementById("altitud_" + indice).innerHTML=habitacion.altitud;
                         document.getElementById("luz_" + indice).innerHTML=habitacion.luz;
                         document.getElementById("peso_" + indice).innerHTML=habitacion.peso;
                         document.getElementById("tiempo_" + indice).innerHTML=habitacion.tiempo;
@@ -112,13 +122,15 @@
             <caption>habitaciones</caption>
             <tbody id="body_tabla_habitaciones">
                 <TR>
-                    <th width='14%'>id</th>
-                    <th width='21%'>Nombre</th>
-                    <th width='14%'>Temperatura</th>
-                    <th width='14%'>Humedad</th>
+                    <th width='10%'>id</th>
+                    <th width='20%'>Nombre</th>
+                    <th width='10%'>Temperatura</th>
+                    <th width='10%'>Humedad</th>
+                    <th width='7%'>Presion</th>
+                    <th width='7%'>Altitud</th>
                     <th width='7%'>Luz</th>
                     <th width='7%'>Peso</th>
-                    <th width='23%'>Lectura</th>
+                    <th width='22%'>Lectura</th>
                 </TR>
                 <!--Una fila por cada habitacion--> 
             </tbody> 
