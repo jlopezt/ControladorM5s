@@ -85,20 +85,23 @@ void reinicializaWebServer(void)
 /**************************** Handels ***************************************/
 void handleMain() 
   {
-  server.sendHeader("Location", "main.html",true); //Redirect to our html web page 
-  server.send(302, "text/html","");    
+  handleFileRead("main.html");  
+  //server.sendHeader("Location", "main.html",true); //Redirect to our html web page 
+  //server.send(302, "text/html","");    
   }
 
 void handleRoot() 
   {
-  server.sendHeader("Location", "root.html", true); //Redirect to our html web page */
-  server.send(302, "text/html","");    
+  handleFileRead("root.html");  
+  //server.sendHeader("Location", "root.html", true); //Redirect to our html web page */
+  //server.send(302, "text/html","");    
   }
 
  void handleConfigHabitaciones()
   {
-  server.sendHeader("Location", "configHabitaciones.html", true); //Redirect to our html web page */
-  server.send(302, "text/html","");      
+  handleFileRead("configHabitaciones.html");
+  //server.sendHeader("Location", "configHabitaciones.html", true); //Redirect to our html web page */
+  //server.send(302, "text/html","");      
   }
   
  void handleDatos()
@@ -229,12 +232,16 @@ void handleRecargaFicheroNombres(void)
 /*                                           */
 /*********************************************/  
 void handleRestart(void)
-  {
+  { 
+  /*     
   String mensaje="Reiniciando...";
 
   server.sendHeader("Location", String("mensaje.html?mensaje=") + mensaje,true); //Redirect to our html web page 
   server.send(302, "text/html","");
-  
+  */
+  handleFileRead("restart.html");
+   
+  delay(100);  
   ESP.restart();
   }
 
@@ -671,7 +678,7 @@ bool handleFileRead(String path)
   { // send the right file to the client (if it exists)
   //Serial.println("handleFileRead: " + path);
   
-  if (!path.startsWith("/")) path += "/";
+  if (!path.startsWith("/")) path = "/" + path;
   path = "/www" + path; //busco los ficheros en el SPIFFS en la carpeta www
   //if (!path.endsWith("/")) path += "/";
   

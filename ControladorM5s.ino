@@ -10,7 +10,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "v3.3.1" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.1" 
+#define VERSION           "v3.3.3" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.1" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1

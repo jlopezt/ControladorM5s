@@ -7,7 +7,7 @@
 #define MAX_ERRORES    3
 #define NO_REGISTRADO -1
 #ifndef NO_LEIDO
-#define NO_LEIDO      -100.0
+#define NO_LEIDO      -100
 #endif
 #define TEMPERATURA    1
 #define HUMEDAD        2
