@@ -96,7 +96,7 @@ void setBrilloPantalla(int brillo)
   setBrilloPantalla();
   }
   
-void borraPantalla(void) {M5.Lcd.fillScreen(COLOR_FONDO);}
+void borraPantalla(void) {M5.Lcd.fillScreen(colorFondo);}//(COLOR_FONDO);}
 void pantallaNegra(void) {M5.Lcd.fillScreen(TFT_BLACK);}
 
 /*********************************************/
@@ -162,9 +162,9 @@ void pintaTitulo(void)
   {
   if(getValorPrincipal()!=REPOSO)
     {     
-    M5.Lcd.fillRect(ANCHO_CERO, ALTO_CERO, ANCHO_TOTAL, ALTO_TITULO,COLOR_TITULO);
+    M5.Lcd.fillRect(ANCHO_CERO, ALTO_CERO, ANCHO_TOTAL, ALTO_TITULO,colorTitulo);//COLOR_TITULO);
     M5.Lcd.setTextDatum(TC_DATUM);// Set text datum to top centre
-    M5.Lcd.setTextColor(COLOR_LETRAS_TITULO, COLOR_TITULO);// Set text colour to orange with black background
+    M5.Lcd.setTextColor(COLOR_LETRAS_TITULO, colorTitulo);//COLOR_TITULO);// Set text colour to orange with black background
     M5.Lcd.setFreeFont(FMBO9);                 // Select the font
     M5.Lcd.drawString(TEXTO_TITULO, ANCHO_TOTAL/2, MARGEN_SUPERIOR/2, GFXFF);// Print the string name of the font  
     }
@@ -178,7 +178,7 @@ void pintaFechaHora(void)
   {  
   if(getValorPrincipal()!=REPOSO)
     {   
-    M5.Lcd.setTextColor(COLOR_LETRAS_TITULO, COLOR_TITULO);// Set text colour to orange with black background  
+    M5.Lcd.setTextColor(COLOR_LETRAS_TITULO, colorTitulo);//COLOR_TITULO);// Set text colour to orange with black background  
     M5.Lcd.setTextDatum(TL_DATUM);// Set text datum to top left
     M5.Lcd.drawString(getHora(), MARGEN_IZQUIERDO, ALTO_LETRA_9+MARGEN_SUPERIOR/2, GFXFF);// Print the string name of the font  
     M5.Lcd.setTextDatum(TR_DATUM);// Set text datum to top right
@@ -311,21 +311,7 @@ void pintaLayout(String valor, int satelite, String alarma="")//Informacion de l
   
   //Linea principal
   pintaTemperaturaPromedio();
-/*  
-  x0=MARGEN_IZQUIERDO;
-  y0=ALTO_TITULO+SEPARADOR_VERTICAL;
-  ancho=ANCHO_TOTAL-2*MARGEN_IZQUIERDO;
-  alto=ALTO_PRINCIPAL;
-  M5.Lcd.fillRoundRect(x0, y0, ancho, alto, 4, TFT_BLACK);  //(int16_t x0, int16_t y0, int16_t w, int16_t h, int16_t radius, uint16_t color);
-  M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to orange with black background
-  M5.Lcd.setTextDatum(TL_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
-  M5.Lcd.setFreeFont(FMBO9);                 // Select the font
-  M5.Lcd.drawString("Temperatura", 2*x0, y0, GFXFF);// Print the string name of the font
 
-  M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
-  M5.Lcd.setFreeFont(FMBO24);                 // Select the font
-  M5.Lcd.drawString((String(getTemperaturaPromedio(),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
-*/
   //Lineas secundarias
   if(sateliteRegistrado(satelite))
     {
@@ -337,12 +323,14 @@ void pintaLayout(String valor, int satelite, String alarma="")//Informacion de l
     i=hayLuz(satelite);
 
     //Pinta el fondo
-    M5.Lcd.fillRect(MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL, ANCHO_TOTAL-2*MARGEN_IZQUIERDO, ALTO_SECUNDARIO, TFT_NAVY);
+    //M5.Lcd.fillRect(MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL, ANCHO_TOTAL-2*MARGEN_IZQUIERDO, ALTO_SECUNDARIO, colorFondo);
+    M5.Lcd.fillRect(MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL, ANCHO_TOTAL-2*MARGEN_IZQUIERDO, 5*ALTO_LETRA_12+MARGEN_SUPERIOR, TFT_LIGHTGREY);
     //pint el marco
-    M5.Lcd.drawRoundRect(MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL, ANCHO_TOTAL-2*MARGEN_IZQUIERDO, ALTO_SECUNDARIO, 4, TFT_BLACK);
+    //M5.Lcd.drawRoundRect(MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL, ANCHO_TOTAL-2*MARGEN_IZQUIERDO, ALTO_SECUNDARIO, 4, TFT_BLACK);
+    M5.Lcd.drawRoundRect(MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL, ANCHO_TOTAL-2*MARGEN_IZQUIERDO, 5*ALTO_LETRA_12+MARGEN_SUPERIOR, 4, TFT_LIGHTGREY);
     //Vamos conla sletras
     M5.Lcd.setTextDatum(TL_DATUM);// Set text datum to middle centre
-    M5.Lcd.setTextColor(TFT_WHITE, TFT_NAVY);// Set text colour to orange with black background
+    M5.Lcd.setTextColor(TFT_BLACK, TFT_LIGHTGREY);// Set text colour to orange with black background
     M5.Lcd.setFreeFont(FMB12);                 // Select the font  
     M5.Lcd.drawString(nombre + "("+ String(satelite+1) + "/" + String(numeroSatelites(false)) + ")", 2*MARGEN_IZQUIERDO, ALTO_PRINCIPAL+ALTO_TITULO+2*SEPARADOR_VERTICAL+MARGEN_SUPERIOR, GFXFF);// Print the string name of the font
     M5.Lcd.setFreeFont(FM12);                 // Select the font  
@@ -377,20 +365,6 @@ void pintaLayout2(String valor, int satelite, String alarma="")//Informacion de 
 
   //Temperatura media
   pintaTemperaturaPromedio();
-/*  x0=MARGEN_IZQUIERDO;
-  y0=ALTO_TITULO+SEPARADOR_VERTICAL;
-  ancho=ANCHO_TOTAL-2*MARGEN_IZQUIERDO;
-  alto=ALTO_PRINCIPAL;
-  M5.Lcd.fillRoundRect(x0, y0, ancho, alto, 4, TFT_BLACK);  //(int16_t x0, int16_t y0, int16_t w, int16_t h, int16_t radius, uint16_t color);
-  M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to orange with black background
-  M5.Lcd.setTextDatum(TL_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
-  M5.Lcd.setFreeFont(FMBO9);                 // Select the font
-  M5.Lcd.drawString("Temperatura", 2*x0, y0, GFXFF);// Print the string name of the font
-
-  M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
-  M5.Lcd.setFreeFont(FMBO24);                 // Select the font
-  M5.Lcd.drawString((String(getTemperaturaPromedio(),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
-*/
 
   //Consigna
   x0=MARGEN_IZQUIERDO;
@@ -446,7 +420,7 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   if(TP==-100.0) TPS="-.-C";
   else TPS=String(getTemperaturaPromedio(),1)+"C";
   */
-  M5.Lcd.drawString((combierteTemperaturaPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString(("   "+combierteTemperaturaPromedio()+"   ").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
 
   //Humedad
   x0=MARGEN_IZQUIERDO;
@@ -458,8 +432,8 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   M5.Lcd.setFreeFont(FF18);//(CF_OL32);                 // Select the font
   String Hum=String(getHumedadPromedio(),1);
   String Pres=String(getPresionPromedio(),0);
-  M5.Lcd.drawString((combierteHumedadPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
-  M5.Lcd.drawString((combiertePresionPromedio()).c_str(), ANCHO_TOTAL/2, y0+alto, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString(("   "+combierteHumedadPromedio()+"   ").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font
+  M5.Lcd.drawString(("   "+combiertePresionPromedio()+"   ").c_str(), ANCHO_TOTAL/2, y0+alto, GFXFF);// Print the string name of the font
 
   //Hora
   x0=MARGEN_IZQUIERDO;// /2

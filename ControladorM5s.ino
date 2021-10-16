@@ -3,14 +3,12 @@
  *
  * Controlador - Secuenciador del Termostato
  * 
- * Dos reles pines 8 y 9
- *
  */
  
 /***************************** Defines *****************************/
 //Defines generales
-#define NOMBRE_FAMILIA    "Controlador_termostato"
-#define VERSION           "v3.3.3" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.1" 
+#define NOMBRE_FAMILIA    "Termostatix"
+#define VERSION           "v3.4.0" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.1" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -78,8 +76,8 @@
 #define TIEMPO_WATCHDOG      100*1000*1000 //Si en este numero de microsegundos no se atiende el watchdog, saltara. Esta microsegundos
 
 //Para la pantalla
-#define COLOR_FONDO TFT_NAVY
-#define COLOR_TITULO TFT_BLUE
+#define COLOR_FONDO TFT_DARKGREY //TFT_NAVY
+#define COLOR_TITULO TFT_DARKGREY //TFT_BLUE
 #define COLOR_LETRAS_TITULO TFT_WHITE
 #define TEXTO_TITULO "Termostatix 2.5"
 #define COLOR_MENU TFT_LIGHTGREY
@@ -133,6 +131,8 @@ boolean enviarMQTT(String topic, String payload) ;
 time_t TimeOut=DEFAULT_TIME_OUT;
 //Valores de la pantalla
 int brilloPantalla=DEFAULT_BRILLO_PANTALLA;
+uint16_t colorFondo=COLOR_FONDO;
+uint16_t colorTitulo=COLOR_TITULO;
 //************ Fin valores configurables *************//
 
 /*-----------------Variables comunes---------------*/
@@ -195,6 +195,7 @@ void setup()
   Serial.printf("\n\nInit Ficheros ---------------------------------------------------------------------\n");
   //Ficheros - Lo primero para poder leer los demas ficheros de configuracion
   inicializaFicheros(debugGlobal);
+  inicializaSD(debugGlobal);
 
   //Configuracion general
   Serial.printf("\n\nInit Config -----------------------------------------------------------------------\n");
@@ -439,8 +440,10 @@ boolean parseaConfiguracionGlobal(String contenido)
     TimeOut = json.get<int>("TimeOut");
     limiteSleep = json.get<int>("limiteSleep");
     brilloPantalla = json.get<int>("Brillo");
+    if (json.containsKey("colorFondo")) colorFondo = json.get<int>("colorFondo");
+    if (json.containsKey("colorTitulo")) colorTitulo = json.get<int>("colorTitulo");
     
-    Serial.printf("Configuracion leida:\nTimeOut: %i\nsleep: %i\nBrillo: %i\n",TimeOut,limiteSleep,brilloPantalla);
+    Serial.printf("Configuracion leida:\nTimeOut: %i\nsleep: %i\nBrillo: %i\nFondo: %i\Titulo: %i\n",TimeOut,limiteSleep,brilloPantalla,colorFondo,colorTitulo);
     return true;     
 //************************************************************************************************
     }

@@ -583,3 +583,35 @@ float parsearDatosf(String cadena, int8_t dato, char separador)
 
   return valor_cadena.toFloat();
   }
+
+
+/**********************************************/
+/* Genera el json con el estado para la web   */
+/**********************************************/
+String generaJson(void)
+{
+	String cad="";
+	
+  const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(3);
+  DynamicJsonBuffer jsonBuffer(capacity);
+  
+  JsonObject& root = jsonBuffer.createObject();
+  
+  JsonObject& medidas = root.createNestedObject("medidas");
+  medidas["temperatura"] = getTemperaturaPromedio();
+  medidas["consigna"] = getConsigna();
+  medidas["humedad"] = getHumedadPromedio();
+  medidas["presion"] = getPresionPromedio();
+  medidas["altitud"] = getAltitudPromedio();
+  
+  JsonObject& salidas = root.createNestedObject("salidas");
+  salidas["caldera"] = getEstadoRele(CALDERA);
+  salidas["seguridad"] = getEstadoRele(SEGURIDAD);
+  
+  JsonArray& modo = root.createNestedArray("modo");
+  modo.add(getModoManual());
+  modo.add(getDownCounter());
+
+  root.printTo(cad);
+  return cad;
+}
