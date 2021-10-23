@@ -166,7 +166,7 @@ void pintaTitulo(void)
     M5.Lcd.setTextDatum(TC_DATUM);// Set text datum to top centre
     M5.Lcd.setTextColor(COLOR_LETRAS_TITULO, colorTitulo);//COLOR_TITULO);// Set text colour to orange with black background
     M5.Lcd.setFreeFont(FMBO9);                 // Select the font
-    M5.Lcd.drawString(TEXTO_TITULO, ANCHO_TOTAL/2, MARGEN_SUPERIOR/2, GFXFF);// Print the string name of the font  
+    M5.Lcd.drawString(NOMBRE_FAMILIA, ANCHO_TOTAL/2, MARGEN_SUPERIOR/2, GFXFF);// Print the string name of the font  
     }
   }
 

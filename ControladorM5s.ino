@@ -8,7 +8,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Termostatix"
-#define VERSION           "v3.4.0" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.1" 
+#define VERSION           "v3.4.1" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -79,7 +79,7 @@
 #define COLOR_FONDO TFT_DARKGREY //TFT_NAVY
 #define COLOR_TITULO TFT_DARKGREY //TFT_BLUE
 #define COLOR_LETRAS_TITULO TFT_WHITE
-#define TEXTO_TITULO "Termostatix 2.5"
+//#define TEXTO_TITULO "Termostatix 2.5"
 #define COLOR_MENU TFT_LIGHTGREY
 #define COLOR_LETRAS_MENU TFT_WHITE
 
