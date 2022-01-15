@@ -8,7 +8,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Termostatix"
-#define VERSION           "v3.4.1" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6" 
+#define VERSION           "v3.4.2" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
