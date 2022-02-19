@@ -43,7 +43,7 @@ typedef struct{
 int8_t diasSemana[7]={LUNES,MARTES,MIERCOLES,JUEVES,VIERNES,SABADO,DOMINGO};
 int8_t modoManual; //Puede valer OFF, ON o AUTO
 int8_t valoresModoManual[3]={MODO_OFF, MODO_ON, MODO_AUTO};
-String valoresModoManualTxt[3]={"Off \n","On  \n","Auto\n"};//Todos de longitud 4+1
+String valoresModoManualTxt[3]={"off \n","on  \n","auto\n"};//Todos de longitud 4+1
 String topicOrdenes; //topic al que se va a enviar las ordenes de encendido y apagado de los reles, sera <topicRoot>/<topicOrdenes>
 float umbral=0; //umbral para la logica de comparacion con la consigna y evitar que el regulador oscile
 
