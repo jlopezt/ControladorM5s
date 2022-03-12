@@ -429,12 +429,16 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   y0=ALTO_TITULO+SEPARADOR_VERTICAL;
   ancho=ANCHO_TOTAL-2*MARGEN_IZQUIERDO;
   alto=ALTO_PRINCIPAL;
-  if (getEstadoRele(CALDERA)) M5.Lcd.setTextColor(TFT_RED, TFT_BLACK);// Set text colour to red with black background
-  else M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to white with black background
-  M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
-  M5.Lcd.setFreeFont(&VanillaExtractRegular40pt7b);//(CF_OL32);                 // Select the font
-  M5.Lcd.drawString((" "+combierteTemperaturaPromedio()+" ").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);
-
+  if(tempReposo!=getTemperaturaPromedio() || estadoReleReposo!=getEstadoRele(CALDERA)){
+    tempReposo=getTemperaturaPromedio();
+    estadoReleReposo=getEstadoRele(CALDERA);
+    if (getEstadoRele(CALDERA)) M5.Lcd.setTextColor(TFT_RED, TFT_BLACK);// Set text colour to red with black background
+    else M5.Lcd.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to white with black background
+    M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
+    M5.Lcd.setFreeFont(&VanillaExtractRegular40pt7b);//(CF_OL32);                 // Select the font
+    M5.Lcd.drawString((" "+combierteTemperaturaPromedio()+" ").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);
+  }
+  
   //Consigna y modo
   x0=MARGEN_IZQUIERDO; 
   y0=ALTO_TITULO+3*SEPARADOR_VERTICAL+ALTO_PRINCIPAL; 

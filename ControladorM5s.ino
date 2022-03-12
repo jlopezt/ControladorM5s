@@ -8,7 +8,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Termostatix"
-#define VERSION           "v3.5.0" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6" 
+#define VERSION           "v3.5.1" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6" 
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -146,6 +146,9 @@ hw_timer_t *timer = NULL;//Puntero al timer del watchdog
 
 int8_t debugGlobal=0; //por defecto desabilitado
 int8_t ficherosModificados=0;//Inicialmente no hay ficheros modificados
+
+float tempReposo=-1;
+int estadoReleReposo=-1;
 /*-----------------Variables comunes---------------*/
 
 /************************* FUNCIONES PARA EL BUITIN LED ***************************/
@@ -333,6 +336,8 @@ void  loop(void)
   if(EntradaBucle-SleepBucle>limiteSleep && getValorPrincipal()!=REPOSO) 
     {
     setValorPrincipal(REPOSO);
+    tempReposo=-1;
+    estadoReleReposo=-1;
     SleepBucle=EntradaBucle;
     }
 

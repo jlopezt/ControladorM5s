@@ -270,11 +270,11 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
 
   //Leo los valores
   sateliteLeido(id); //apunto la hora de la lectura del mensaje
-  habitaciones[id].temperatura = root["Temperatura"];
-  habitaciones[id].humedad = root["Humedad"]; 
-  habitaciones[id].luz = root["Luz"];
-  habitaciones[id].presion = root["Presion"];
-  habitaciones[id].altitud = root["Altitud"];
+  habitaciones[id].temperatura = root.get<float>("Temperatura");
+  habitaciones[id].humedad = root.get<float>("Humedad"); 
+  habitaciones[id].luz = root.get<float>("Luz");
+  habitaciones[id].presion = root.get<float>("Presion");
+  habitaciones[id].altitud = root.get<float>("Altitud");
   if(debugGlobal) Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\nPresion: %l0.2f\nAltitud: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz,habitaciones[id].presion,habitaciones[id].altitud);
   /**********************Fin JSON***********************/    
   }
