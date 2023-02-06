@@ -118,6 +118,8 @@ void handleEstado(void)
 
 void handleConfigConsignas(void)
   {
+  //El activo
+  if(server.hasArg("consigna")) setConsigna(server.arg("consigna").toFloat());  
   //dia
   if(server.hasArg("consignaDia")) setConsignaD(server.arg("consignaDia").toFloat());  
   //noche
@@ -527,6 +529,7 @@ void handleManageFichero(void)
       return;
       }     
     */
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
     server.send(200, "text/html", "");
     cad += "<form id=\"borrarFichero\" action=\"/borraFichero\">\n";
     cad += "  <input type=\"hidden\" name=\"nombre\" value=\"" + nombreFichero + "\">\n";
@@ -722,6 +725,7 @@ bool handleFileReadChunked(String path)
     }    
 */
     Serial.printf("Iniciamos el chunked\n");
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
     server.send(200, contentType.c_str(), ""); //Inicializo en chunk
     Serial.printf("Empieza el envio de chunks\n");
     while(leido<tamano){

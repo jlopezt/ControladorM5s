@@ -16,7 +16,7 @@
 #define LONG_ORDEN     22 //Comando (espacio) Parametros (fin de cadena)
 #define MAX_COMANDOS   45
 
-#include <Time.h>
+//#include <Time.h>
 
 char ordenRecibida[LONG_ORDEN]="";
 int lonOrden=0;
@@ -608,7 +608,7 @@ void func_comando_echo(int iParametro, char* sParametro, float fParametro)//"ech
 
 void func_comando_debug(int iParametro, char* sParametro, float fParametro)//"debug")
   {
-  ++debugGlobal=debugGlobal % 2;
+  debugGlobal=(++debugGlobal) % 2;
   if (debugGlobal) Serial.println("debugGlobal esta on");
   else Serial.println("debugGlobal esta off");
   }

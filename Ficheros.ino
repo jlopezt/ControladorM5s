@@ -176,7 +176,7 @@ String listadoFicheros(String prefix)
 
   while(file)
     {
-    String fichero=String(file.name());
+    String fichero=String(file.path()); //cambiado name por path Serial.printf("Nombre del fichero: %s |Ruta: %s\n",file.name(),file.path());
     //Si el nombre incluye el prefix, se lo quito
     uint8_t inicio=(fichero.indexOf(prefix)==-1?0:fichero.indexOf(prefix));
     fichero=fichero.substring(inicio+prefix.length());

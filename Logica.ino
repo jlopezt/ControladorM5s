@@ -390,7 +390,7 @@ int getEstadoRele(int rele)
 /* No es el estado fisico en la placa de control      */
 /*                                                    */
 /******************************************************/
-int setEstadoRele(int rele, int estado)
+void setEstadoRele(int rele, int estado)
   {
   if (rele<MAX_RELES) reles[rele].estado=estado;
   }

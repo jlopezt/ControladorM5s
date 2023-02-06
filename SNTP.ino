@@ -9,7 +9,7 @@
 
 String Semana[7]={"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
 
-#include <time.h>
+#include "time.h"
 
 const char* NTP_SERVER = "pool.ntp.org";//"ntp.mydomain.com";
 //const char* TZ_INFO    = "EST5EDT4,M3.2.0/02:00:00,M11.1.0/02:00:00";

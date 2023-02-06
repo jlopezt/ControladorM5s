@@ -154,7 +154,7 @@ boolean parseaConfiguracionNombres(String contenido)
 /***************************************************** Inicio satelites ***************************************************************************/  
 /****************************************************************/
 /* devuelve si el satelite esta registrado                      */
-/* leyendo los que tienen el id!=0                              */
+/* leyendo los que tienen el id!=NO_REGISTRADO                  */
 /****************************************************************/
 int sateliteRegistrado(int8_t id)
   { 

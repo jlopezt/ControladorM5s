@@ -8,7 +8,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Termostatix"
-#define VERSION           "v3.5.1" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6" 
+#define VERSION           "v3.6.1" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6"
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -172,6 +172,8 @@ void setup()
   
   //Inicializo el core del M5
   M5.begin();
+  M5.Power.begin();
+  
   //Serial.begin(115200); //No debe estar con la nueva version de la libreria de M5
   Wire.begin();
 
@@ -344,42 +346,42 @@ void  loop(void)
   M5.update();
 
 int paso=0;
-//Serial.printf("paso: %i\n",paso++);
+//Serial.printf("Inicio - paso: %i\n",paso++);
   //------------- EJECUCION DE TAREAS --------------------------------------  
   //Acciones a realizar en el bucle   
   //Prioridad 0: OTA es prioritario.
   if ((vuelta % FRECUENCIA_OTA)==0) ArduinoOTA.handle(); //Gestion de actualizacion OTA
-//Serial.printf("paso: %i\n",paso++);
+//Serial.printf("OTA - paso: %i\n",paso++);
   //Prioridad 1: Funciones de pantalla.
   if ((vuelta % FRECUENCIA_PANTALLA)==0) pintaPantalla(); //Pinta los datos en la pantalla
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("Pantalla - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_HORA)==0) pintaFechaHora(); //Actualiza la fecha y la hora en la pantalla principal 
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("Fecha_Hora - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_BOTONES)==0) atiendeBotones();
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("Botones - paso: %i\n",paso++);  
   //Prioridad 2: Funciones de control.
   if ((vuelta % FRECUENCIA_LOGICA_CONTROL)==0) logicaControl(); //actua sobre los motores  
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("Logica control - paso: %i\n",paso++);  
   //if ((vuelta % FRECUENCIA_LOGICA_CONTROL)==0) actualizaReles(); //actua sobre los motores   
   if ((vuelta % FRECUENCIA_MQTT)==0) atiendeMQTT();    
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("MQTT - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SATELITE_TIMEOUT)==0) sateliteTimeOut(SATELITE_TIME_OUT); //verifica si algun saletile no comunica hace mucho
-//Serial.printf("enviaDatos paso: %i\n",paso++);  
+//Serial.printf("Satelite TO - paso: %i\n",paso++);  
   //Prioridad 3: Interfaces externos de consulta
   if ((vuelta % FRECUENCIA_ENVIA_DATOS)==0) enviaDatos(debugGlobal); //envia datos de estado al broker MQTT  
 #ifdef WUNDERGROUND  
   if ((vuelta % FRECUENCIA_ENVIA_WU)==0) UploadDataToWU();
 #endif    
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("WUnderground - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) webServer(debugGlobal); //atiende el servidor web  
   if ((vuelta % FRECUENCIA_SERVIDOR_WEB)==0) atiendeWebSocket(debugGlobal); //atiende el servidor web 
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("Web - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_ORDENES)==0) while(HayOrdenes(debugGlobal)) EjecutaOrdenes(debugGlobal); //Lee ordenes via serie
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("ORdenes - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_SALVAR)==0) salvaConfiguracion();
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("Salva config - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_WIFI_WATCHDOG)==0) WifiWD();  
-//Serial.printf("paso: %i\n",paso++);  
+//Serial.printf("WiFi Watchdog - paso: %i\n",paso++);  
   if ((vuelta % FRECUENCIA_FREEHEAP)==0) enviarMQTT("freeheap", "{\"IP\": \"" + String(getIP(debugGlobal)) + "\" , \"Uptime\":" + String(uptime())+ ", \"freeHeap\": " + String(ESP.getFreeHeap()) + ", \"potencia\": \"" + String(WiFi.RSSI()) + "\", \"lastResetReason0\": " + rtc_get_reset_reason(0) + ", \"lastResetReason1\": " + rtc_get_reset_reason(1) + "}");  
   //------------- FIN EJECUCION DE TAREAS ---------------------------------  
 //Serial.println("Fin");
