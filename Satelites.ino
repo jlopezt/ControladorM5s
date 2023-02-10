@@ -602,7 +602,7 @@ String generaJson(void)
   
   JsonObject& medidas = root.createNestedObject("medidas");
   medidas["temperatura"] = getTemperaturaPromedio();
-  medidas["consigna"] = getConsigna();
+  medidas["consigna"] = getConsigna(getModoManual());
   medidas["humedad"] = getHumedadPromedio();
   medidas["presion"] = getPresionPromedio();
   medidas["altitud"] = getAltitudPromedio();

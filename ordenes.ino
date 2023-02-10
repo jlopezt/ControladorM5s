@@ -494,7 +494,7 @@ void func_comando_numSat(int iParametro, char* sParametro, float fParametro)//"n
 
 void func_comando_consigna(int iParametro, char* sParametro, float fParametro)//"consigna") 
   {
-  Serial.printf("La temperatura consigna es %04.1f\n",getConsigna());  
+  Serial.printf("La temperatura consigna es %04.1f\n",getConsigna(getModoManual()));  
   }
 
 void func_comando_consignas(int iParametro, char* sParametro, float fParametro)//"consignas") 

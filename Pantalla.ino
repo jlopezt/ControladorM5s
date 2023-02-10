@@ -296,11 +296,11 @@ void pintaPantalla(void)
       break;
     case CONSIGNA: 
       //consigna
-      tempro=getConsigna();
+      tempro=getConsigna(getModoManual());
       texto= "Cons: " + String(tempro,1) + "C";   
       break;
     case REPOSO:
-      tempro=getConsigna();
+      tempro=getConsigna(getModoManual());
       texto= "Cons: " + String(tempro,1) + "C";   
       break;    
     case INFO:
@@ -401,7 +401,7 @@ void pintaLayout2(String valor, int satelite, String alarma="")//Informacion de 
 
   M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to top centre //M5.Lcd.setTextDatum(MC_DATUM);// Set text datum to middle centre
   M5.Lcd.setFreeFont(FMBO24);                 // Select the font
-  M5.Lcd.drawString((String(getConsigna(),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font  
+  M5.Lcd.drawString((String(getConsigna(getModoManual()),1)+"C").c_str(), ANCHO_TOTAL/2, y0+alto/2, GFXFF);// Print the string name of the font  
 
   //Modo de calefaccion
   pintaModoCalefaccion();
@@ -457,7 +457,7 @@ void pintaLayout3(String valor, int satelite, String alarma="")//Modo reposo
   spr.setTextColor(TFT_WHITE, TFT_BLACK);// Set text colour to white with black background
   spr.setTextDatum(MC_DATUM);// Set text datum to middle centre
   spr.setFreeFont(FF18);                 // Select the font
-  spr.drawString((String(getConsigna(),1)+"C (" + getModoManualTxt() + ")").c_str(), ANCHO_TOTAL/2, y0+alto, GFXFF);// Print the string name of the font
+  spr.drawString((String(getConsigna(getModoManual()),1)+"C (" + getModoManualTxt() + ")").c_str(), ANCHO_TOTAL/2, y0+alto, GFXFF);// Print the string name of the font
 
   //Humedad y Presion
   x0=MARGEN_IZQUIERDO;

@@ -260,7 +260,12 @@ boolean generaConfiguracionMapa(void)
   
   String cad="";
   root.printTo(cad);
-  if(!salvaFichero(MAPA_CONFIG_FILE, MAPA_CONFIG_BAK_FILE, cad)) Serial.printf("Error al salvar el fichero de Mapa de consignas\n");
+  if(!salvaFichero(MAPA_CONFIG_FILE, MAPA_CONFIG_BAK_FILE, cad)){ 
+    Serial.printf("Error al salvar el fichero de Mapa de consignas\n");
+    return false;
+    }
+
+  return true;
   }  
   
 void leeFicheroTemperaturas(void)
@@ -308,7 +313,8 @@ boolean parseaConfiguracionTemperaturas(String contenido)
 void logicaControl(void)
   {
   //En funcion del modo de calefaccion ejecuta una salida u otra
-  switch(getModoManual())
+  uint8_t modo = getModoManual();
+  switch(modo)
     {
     case MODO_OFF://Apagado manual de la caldera
       decrementaDownCounter();  //Decremento el contador de ticks en modo manual, si esta a cero paso a auto
@@ -319,9 +325,11 @@ void logicaControl(void)
     case MODO_ON://Encendido manual de la caldera
       decrementaDownCounter();  //Decremento el contador de ticks en modo manual, si esta a cero paso a auto
 
+      /*
       setEstadoRele(SEGURIDAD,1);
       setEstadoRele(CALDERA,1);
       break;
+      */
     case MODO_AUTO://Logica de control en funcion de la temperatura promedio
       if(pesoSatelitesLeidos(debugGlobal))//numeroSatelitesLeidos(debugGlobal))
         {
@@ -336,12 +344,12 @@ void logicaControl(void)
 
         if(estadoCaldera==1)//calentando
           {
-          if(temperaturaPromedio<getConsigna()+umbral) setEstadoRele(CALDERA,1);
+          if(temperaturaPromedio<getConsigna(modo)+umbral) setEstadoRele(CALDERA,1);
           else setEstadoRele(CALDERA,0);
           }
         else
           {
-          if(temperaturaPromedio>getConsigna()-umbral) setEstadoRele(CALDERA,0);
+          if(temperaturaPromedio>getConsigna(modo)-umbral) setEstadoRele(CALDERA,0);
           else setEstadoRele(CALDERA,1);
           }        
         /*
@@ -463,7 +471,20 @@ float getConsigna(void)
   //cojo el byte del mapa y hago AND con la mascara del dia, si es 1 devuelve la tem de dia y si es 0 la de noche
   return ((mapa[intervalo]&diasSemana[diaSemana()-1])?consigna.dia:consigna.noche);      
   }
-  
+
+float getConsigna(uint8_t modo){
+  switch (modo){
+    case MODO_OFF:
+      return 0.0;
+      break;
+    case MODO_ON:
+      return getConsignaDia();
+      break;
+    case MODO_AUTO:
+      return getConsigna();
+      break;
+  }
+}
 float getConsignaDia(void) {return consigna.dia;}
 float getConsignaNoche(void){return consigna.noche;}
     
@@ -640,9 +661,9 @@ String generaJsonDatos(void)
   JsonObject& root = jsonBuffer.createObject();
   root["titulo"] = NOMBRE_FAMILIA;
   root["medida"] = getTemperaturaPromedio();
-  root["consigna"] = getConsigna();
-  root["humedad"] = getHumedadPromedio();
   root["modo"] = getModoManual();
+  root["consigna"] = getConsigna(root["modo"]);
+  root["humedad"] = getHumedadPromedio();
   root["tics"] = getDownCounter();
   
   JsonArray& jsonHhabitaciones = root.createNestedArray("habitaciones");    
