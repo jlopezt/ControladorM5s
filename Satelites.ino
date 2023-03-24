@@ -9,6 +9,9 @@
 #ifndef NO_LEIDO
 #define NO_LEIDO      -100
 #endif
+#ifndef LECTURA_ERROR
+#define LECTURA_ERROR 125
+#endif
 #define TEMPERATURA    1
 #define HUMEDAD        2
 #define LUZ            3
@@ -428,7 +431,7 @@ float promediaTemperatura(void)
   
   for(int8_t i=0;i<MAX_SATELITES;i++)
     {
-    if(sateliteRegistrado(i) && habitaciones[i].temperatura!=NO_LEIDO)
+    if(sateliteRegistrado(i) && habitaciones[i].temperatura!=NO_LEIDO && habitaciones[i].temperatura!=LECTURA_ERROR)
       {
       promedio+=habitaciones[i].temperatura*habitaciones[i].peso[hora_actual];
       pesoTotal+=habitaciones[i].peso[hora_actual];

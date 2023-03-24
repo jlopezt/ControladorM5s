@@ -495,19 +495,23 @@ float getConsignaNoche(void){return consigna.noche;}
 /* {"dia": "22.3","noche":"15.1"}                     */
 /*                                                    */
 /******************************************************/
-float setConsigna(float valor)
-  {
+float setConsigna(float valor){
   int8_t intervalo=0;//intervalo de 30 mintuntos en el que estamos    
-
   //Calculo el intervalo
   intervalo=2*hora();           //multiplico las horas por 2, intervalo por 30 minutos
   if(minuto()>=30) intervalo++; //si es mas alla de y media paso al siguiente intervalo
 
-  //cojo el byte del mapa y hago AND con la mascara del dia, si es 1 modifica la tem de dia y si es 0 la de noche
-  if(mapa[intervalo]&diasSemana[diaSemana()-1])consigna.dia=valor;
-  else consigna.noche=valor;  
-
   ficherosModificados = ficherosModificados | FICHERO_CONSIGNAS_MODIFICADO;
+
+  //cojo el byte del mapa y hago AND con la mascara del dia, si es 1 modifica la tem de dia y si es 0 la de noche
+  if(mapa[intervalo]&diasSemana[diaSemana()-1]){
+    consigna.dia=valor;
+    return consigna.dia;
+    }
+  else {
+    consigna.noche=valor;  
+    return consigna.noche;
+    }
   }
   
 float setConsignaD(float c) 
