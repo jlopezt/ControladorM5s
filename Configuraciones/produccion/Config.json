@@ -4,5 +4,6 @@
   "limiteSleep":20000, 
   "Brillo": 10,
   "colorFondo": 31712,
-  "colorTitulo": 31727
+  "colorTitulo": 31727,
+  "satelite_timeout": 3100000
 }

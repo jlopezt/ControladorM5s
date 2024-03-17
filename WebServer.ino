@@ -684,7 +684,8 @@ bool handleFileRead(String path)
     if (SPIFFS.exists(pathWithGz)) path += ".gz";
                                                
     File file = SPIFFS.open(path, "r");                    // Open the file
-    size_t sent = server.streamFile(file, contentType);    // Send it to the client
+    //size_t sent = server.streamFile(file, contentType);    // Send it to the client
+    server.streamFile(file, contentType);    // Send it to the client
     file.close();                                          // Close the file again
     //Serial.println(String("\tSent file: ") + path);
     return true;

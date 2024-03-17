@@ -5,7 +5,9 @@
  ***********************************************************/
 #define MES_CAMBIO_HORARIO_UP   3 //marzo
 #define MES_CAMBIO_HORARIO_DOWN 10 //octubre
+/************Lo tapo por warning de redefinicion en Logica.ino
 #define DOMINGO 7
+**************************************************************/
 
 String Semana[7]={"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
 

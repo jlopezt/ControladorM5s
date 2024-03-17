@@ -306,7 +306,7 @@ void inicializaOrden(void)
     comandos[i].p_func_comando=func_comando_vacio;  
     }
 
-  func_comando_help(0,"",0.0);  
+  func_comando_help(0,(char*)"",0.0);  
   //for(int8_t i=0;i<MAX_COMANDOS;i++) if (comandos[i].comando!="vacio") Serial.printf("Comando %i: [%s]\n",i, comandos[i].comando.c_str());
   }
 
@@ -392,7 +392,7 @@ void func_comando_info(int iParametro, char* sParametro, float fParametro)//"inf
 
 void func_comando_fexist(int iParametro, char* sParametro, float fParametro)//"fexist")
   {
-  if (sParametro=="") Serial.println("Es necesario indicar un nombre de fichero");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar un nombre de fichero");
   else
     {
     if(SPIFFS.exists(sParametro)) Serial.printf("El fichero %s existe.\n",sParametro);
@@ -408,7 +408,7 @@ void func_comando_finfo(int iParametro, char* sParametro, float fParametro)//"fi
 /*NO CONTROLADO EL DESBORDE DEL BUFFER DE sParametro*/
 void func_comando_fcreate(int iParametro, char* sParametro, float fParametro)//"fcreate")
   {
-  if (sParametro=="") Serial.println("Es necesario indicar un nombre de fichero");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar un nombre de fichero");
   else
     { 
     String p=String(sParametro); 
@@ -427,7 +427,7 @@ void func_comando_fcreate(int iParametro, char* sParametro, float fParametro)//"
 
 void func_comando_fopen(int iParametro, char* sParametro, float fParametro)//"fopen")
   {
-  if (sParametro=="") Serial.println("Es necesario indicar un nombre de fichero");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar un nombre de fichero");
   else
     {
     File f = SPIFFS.open(sParametro, "r");
@@ -448,7 +448,7 @@ void func_comando_fopen(int iParametro, char* sParametro, float fParametro)//"fo
 
 void func_comando_fremove(int iParametro, char* sParametro, float fParametro)//"fremove")
   {
-  if (sParametro=="") Serial.println("Es necesario indicar un nombre de fichero");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar un nombre de fichero");
   else
     { 
     if (SPIFFS.remove(sParametro)) Serial.printf("Fichero %s borrado\n",sParametro);
@@ -546,7 +546,7 @@ void func_comando_qSat(int iParametro, char* sParametro, float fParametro)//"qSa
 
 void func_comando_hora(int iParametro, char* sParametro, float fParametro)//"hora") 
   {
-  if (sParametro=="") Serial.println("Es necesario indicar la hora a configurar");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar la hora a configurar");
   else
     {        
     //Tomo la hora actual
@@ -565,7 +565,7 @@ void func_comando_hora(int iParametro, char* sParametro, float fParametro)//"hor
 
 void func_comando_minuto(int iParametro, char* sParametro, float fParametro)//"minuto")
   {
-  if (sParametro=="") Serial.println("Es necesario indicar los minutos a configurar");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar los minutos a configurar");
   else
     {
     //Tomo la hora actual
@@ -584,7 +584,7 @@ void func_comando_minuto(int iParametro, char* sParametro, float fParametro)//"m
 
 void func_comando_segundo(int iParametro, char* sParametro, float fParametro)//"segundo")
   {
-  if (sParametro=="") Serial.println("Es necesario indicar los segundos a configurar");
+  if (String(sParametro)=="") Serial.println("Es necesario indicar los segundos a configurar");
   else
     {
     //Tomo la hora actual
@@ -608,7 +608,7 @@ void func_comando_echo(int iParametro, char* sParametro, float fParametro)//"ech
 
 void func_comando_debug(int iParametro, char* sParametro, float fParametro)//"debug")
   {
-  debugGlobal=(++debugGlobal) % 2;
+  debugGlobal=(debugGlobal==0?1:0);//(++debugGlobal) % 2;
   if (debugGlobal) Serial.println("debugGlobal esta on");
   else Serial.println("debugGlobal esta off");
   }
@@ -633,13 +633,13 @@ void func_comando_brilloPantalla(int iParametro, char* sParametro, float fParame
   
 void func_comando_limiteSleep(int iParametro, char* sParametro, float fParametro)//tipoPantalla
   {
-  if (sParametro[0]!=0) limiteSleep=iParametro;  
-  Serial.printf("Limite para ir a pantalla de sleep = %i\n",limiteSleep);
+  if (sParametro[0]!=0) limiteSleep=(time_t)iParametro;  
+  Serial.printf("Limite para ir a pantalla de sleep = %ld\n",limiteSleep);
   }
 
 void func_comando_uptime(int iParametro, char* sParametro, float fParametro)//tipoPantalla
   {
-  Serial.printf("Uptime: %i ms\n",uptime());
+  Serial.printf("Uptime: %ld ms\n",uptime());
   }
 
 void func_comando_if_json(int iParametro, char* sParametro, float fParametro)//tipoPantalla

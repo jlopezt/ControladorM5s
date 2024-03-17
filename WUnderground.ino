@@ -114,7 +114,7 @@ boolean UploadDataToWU(){
                  "&humidity=" + hum +
                #endif
                #ifdef SW_dewptf
-                 "&dewptf="+ tempCtoF(getTemperaturaRocio(temp,hum));  
+                 "&dewptf="+ tempCtoF(getTemperaturaRocio(temp,hum)) +
                #endif
                /*************               
                #ifdef SW_baromin

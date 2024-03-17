@@ -197,7 +197,7 @@ boolean leeFicheroMapa(void)
   else 
     {
     Serial.println("Configuracion del mapa por defecto");
-    mapa[0 ]=0;mapa[1 ]=0;mapa[2 ]=0;mapa[3 ]=0;mapa[4 ]=0;mapa[5 ]=0;mapa[6 ]=0;mapa[7 ]=0;mapa[8 ]=0;mapa[9 ]=0;mapa[10]=0;mapa[11]=0;mapa[12]=0;mapa[13]=31;mapa[14]=31;mapa[15]=31;mapa[16]=31;mapa[17]=96;mapa[18]=96;mapa[19]=96;mapa[20]=96;mapa[21]=96;mapa[22]=96;mapa[23]=96;mapa[24]=96;mapa[25]=96;mapa[26]=0;mapa[27]=0;mapa[28]=0;mapa[29]=0;mapa[30]=0;mapa[31]=0;mapa[32]=0;mapa[33]=0;mapa[34]=127;mapa[35]=127;mapa[36]=127;mapa[37]=127;mapa[38]=127;mapa[39]=127;mapa[40]=127;mapa[41]=127;mapa[42]=127;mapa[43]=127;mapa[44]=127;mapa[45]=127;mapa[46]=127;mapa[48]=127;
+    mapa[0 ]=0;mapa[1 ]=0;mapa[2 ]=0;mapa[3 ]=0;mapa[4 ]=0;mapa[5 ]=0;mapa[6 ]=0;mapa[7 ]=0;mapa[8 ]=0;mapa[9 ]=0;mapa[10]=0;mapa[11]=0;mapa[12]=0;mapa[13]=31;mapa[14]=31;mapa[15]=31;mapa[16]=31;mapa[17]=96;mapa[18]=96;mapa[19]=96;mapa[20]=96;mapa[21]=96;mapa[22]=96;mapa[23]=96;mapa[24]=96;mapa[25]=96;mapa[26]=0;mapa[27]=0;mapa[28]=0;mapa[29]=0;mapa[30]=0;mapa[31]=0;mapa[32]=0;mapa[33]=0;mapa[34]=127;mapa[35]=127;mapa[36]=127;mapa[37]=127;mapa[38]=127;mapa[39]=127;mapa[40]=127;mapa[41]=127;mapa[42]=127;mapa[43]=127;mapa[44]=127;mapa[45]=127;mapa[46]=127;//mapa[48]=127;
     return false;
     //mapa[48]=(0,0,0,0,0,0,0,0,0,0,0,0,0,31,31,31,31,96,96,96,96,96,96,96,96,96,0,0,0,0,0,0,0,0,127,127,127,127,127,127,127,127,127,127,127,127,127,127);
     }
@@ -484,6 +484,8 @@ float getConsigna(uint8_t modo){
       return getConsigna();
       break;
   }
+
+  return 0.0;
 }
 float getConsignaDia(void) {return consigna.dia;}
 float getConsignaNoche(void){return consigna.noche;}

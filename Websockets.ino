@@ -46,5 +46,7 @@ void webSocketEvent(uint8_t num, WStype_t msgType, uint8_t * payload, size_t len
         }
       else webSocket.sendTXT(num, "Error");
       break;
+    default:
+      break;      
     }
   }

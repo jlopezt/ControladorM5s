@@ -12,9 +12,11 @@
 #ifndef LECTURA_ERROR
 #define LECTURA_ERROR 125
 #endif
+/************ Lo tapo por warning de redefinicion en ControladorM5s.ino
 #define TEMPERATURA    1
 #define HUMEDAD        2
 #define LUZ            3
+************************************************************************/
 
 #define NOMBRES_CONFIG_FILE "/TermometrosConfig.json"
 
@@ -281,7 +283,7 @@ int consultaSatelite(int8_t id)
     for(int8_t h=0;h<HORAS_EN_DIA;h++) Serial.printf(" %i:%i | ",h,habitaciones[id].peso[h]);
     Serial.println();
     
-    Serial.printf("Lectura: %i: tiempo: %i\n", habitaciones[id].lectura,millis()-habitaciones[id].lectura);
+    Serial.printf("Lectura: %lu: tiempo: %lu\n", habitaciones[id].lectura,millis()-habitaciones[id].lectura);
     }
    else Serial.printf("El satelite %i no se ha identificado.\n",id);
 
@@ -300,7 +302,7 @@ void sateliteLeido(int8_t id)
 /***************************************************************/
 /*Devuelve la hora (milisegundos) en la que se recibio la      */
 /*ultima lectura en bus desde el satelite                      */
-/* -1 si no se ha leido nunca
+/* -1 si no se ha leido nunca                                  */
 /***************************************************************/
 unsigned long sateliteUltimaLectura(int8_t id)
   {
@@ -313,7 +315,7 @@ unsigned long sateliteUltimaLectura(int8_t id)
 /* Devuelve el nombre de una habitacion                         */
 /* comprueba si el id esta registrado                           */
 /****************************************************************/
-void sateliteTimeOut(unsigned long time_out)
+void sateliteTimeOut(uint16_t time_out)//(unsigned long time_out)
   {
   unsigned long ahora=millis();
   
@@ -441,7 +443,7 @@ float promediaTemperatura(void)
   if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
   
   //si llega aqui es que ha pasado algo raro
-  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("satelites registrados %i | peso total %f\n",numeroSatelites(false),pesoTotal);
   Serial.printf("************************\n");
   for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, temp: %f, peso: %i\n",i,habitaciones[i].temperatura,habitaciones[i].peso[hora_actual]);
   Serial.printf("************************\n");  
@@ -472,7 +474,7 @@ float promediaHumedad(void)
   if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
   
   //si llega aqui es que ha pasado algo raro
-  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("satelites registrados %i | peso total %f\n",numeroSatelites(false),pesoTotal);
   Serial.printf("************************\n");
   for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, humedad: %f, peso: %i\n",i,habitaciones[i].humedad,habitaciones[i].peso[hora_actual]);
   Serial.printf("************************\n");  
@@ -505,7 +507,7 @@ float promediaPresion(void)
   if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
   
   //si llega aqui es que ha pasado algo raro
-  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("satelites registrados %i | peso total %f\n",numeroSatelites(false),pesoTotal);
   Serial.printf("************************\n");
   for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, presion: %f, peso: %i\n",i,habitaciones[i].presion,habitaciones[i].peso[hora_actual]);
   Serial.printf("************************\n");  
@@ -541,7 +543,7 @@ float promediaAltitud(void)
   if(pesoTotal!=0 && numeroSatelites(0)) return roundf((promedio/pesoTotal)*10)/10;
   
   //si llega aqui es que ha pasado algo raro
-  Serial.printf("satelites registrados %i | peso total %i\n",numeroSatelites(false),pesoTotal);
+  Serial.printf("satelites registrados %i | peso total %f\n",numeroSatelites(false),pesoTotal);
   Serial.printf("************************\n");
   for (int8_t i=0;i<MAX_SATELITES;i++) if(sateliteRegistrado(i)) Serial.printf("Satelite %i, presion: %f, peso: %i\n",i,habitaciones[i].presion,habitaciones[i].peso[hora_actual]);
   Serial.printf("************************\n");  

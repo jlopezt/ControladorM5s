@@ -8,7 +8,7 @@
 /***************************** Defines *****************************/
 //Defines generales
 #define NOMBRE_FAMILIA    "Termostatix"
-#define VERSION           "v3.6.2" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6"
+#define VERSION           "v3.6.3" // (OTA|MQTT|LOGIC+|WEBSOCKETS) M5Stack v0.3.6"
 #define SEPARADOR         '|'
 #define SUBSEPARADOR      '#'
 #define KO                -1
@@ -16,7 +16,7 @@
 #define HORAS_EN_DIA      24
 #define SEGUNDOS_EN_HORA  3600
 #define MAX_VUELTAS       UINT16_MAX //32767
-#define SATELITE_TIME_OUT 100000 //Milisegundos transcurridos entre dos peticiones del controlador antes de intentar registrarse
+#define SATELITE_TIME_OUT 3100000 //Aumentado por termometros zigbee de 100000 a 3100000 //Milisegundos transcurridos entre dos peticiones del controlador antes de intentar registrarse
 
 #define TOP_TRAZA          1
 #define INC_TRAZA          14
@@ -133,12 +133,13 @@ time_t TimeOut=DEFAULT_TIME_OUT;
 int brilloPantalla=DEFAULT_BRILLO_PANTALLA;
 uint16_t colorFondo=COLOR_FONDO;
 uint16_t colorTitulo=COLOR_TITULO;
+uint32_t satelite_timeout=(uint32_t)SATELITE_TIME_OUT;
+time_t limiteSleep=VETE_A_DORMIR;//0;
 //************ Fin valores configurables *************//
 
 /*-----------------Variables comunes---------------*/
 String nombre_dispositivo="";//Nombre del dispositivo, por defecto el de la familia
 time_t SleepBucle=0;
-time_t limiteSleep=0;
 
 unsigned int vuelta = UINT16_MAX-50; //vueltas de loop del core 0
 
@@ -345,7 +346,7 @@ void  loop(void)
 
   M5.update();
 
-int paso=0;
+//int paso=0;
 //Serial.printf("Inicio - paso: %i\n",paso++);
   //------------- EJECUCION DE TAREAS --------------------------------------  
   //Acciones a realizar en el bucle   
@@ -365,7 +366,7 @@ int paso=0;
   //if ((vuelta % FRECUENCIA_LOGICA_CONTROL)==0) actualizaReles(); //actua sobre los motores   
   if ((vuelta % FRECUENCIA_MQTT)==0) atiendeMQTT();    
 //Serial.printf("MQTT - paso: %i\n",paso++);  
-  if ((vuelta % FRECUENCIA_SATELITE_TIMEOUT)==0) sateliteTimeOut(SATELITE_TIME_OUT); //verifica si algun saletile no comunica hace mucho
+  if ((vuelta % FRECUENCIA_SATELITE_TIMEOUT)==0) sateliteTimeOut(satelite_timeout); //verifica si algun saletile no comunica hace mucho
 //Serial.printf("Satelite TO - paso: %i\n",paso++);  
   //Prioridad 3: Interfaces externos de consulta
   if ((vuelta % FRECUENCIA_ENVIA_DATOS)==0) enviaDatos(debugGlobal); //envia datos de estado al broker MQTT  
@@ -412,11 +413,6 @@ boolean inicializaConfiguracion(boolean debug)
     
   if (debug) Serial.println("Recupero configuracion de archivo...");
 
-  //cargo el valores por defecto
-  TimeOut=DEFAULT_TIME_OUT;
-  brilloPantalla=DEFAULT_BRILLO_PANTALLA;
-  limiteSleep=VETE_A_DORMIR;
-
   if(!leeFichero(GLOBAL_CONFIG_FILE, cad))
     {
     Serial.printf("No existe fichero de configuracion global\n");
@@ -444,13 +440,14 @@ boolean parseaConfiguracionGlobal(String contenido)
     if (json.containsKey("nombre_dispositivo")) nombre_dispositivo=String((const char *)json["nombre_dispositivo"]);    
     if(nombre_dispositivo=="") nombre_dispositivo=String(NOMBRE_FAMILIA);
  
-    TimeOut = json.get<int>("TimeOut");
-    limiteSleep = json.get<int>("limiteSleep");
-    brilloPantalla = json.get<int>("Brillo");
+    if (json.containsKey("TimeOut")) TimeOut = json.get<int>("TimeOut");
+    if (json.containsKey("limiteSleep")) limiteSleep = json.get<unsigned long>("limiteSleep");
+    if (json.containsKey("brilloPantalla")) brilloPantalla = json.get<int>("Brillo");
     if (json.containsKey("colorFondo")) colorFondo = json.get<int>("colorFondo");
     if (json.containsKey("colorTitulo")) colorTitulo = json.get<int>("colorTitulo");
-    
-    Serial.printf("Configuracion leida:\nTimeOut: %i\nsleep: %i\nBrillo: %i\nFondo: %i\Titulo: %i\n",TimeOut,limiteSleep,brilloPantalla,colorFondo,colorTitulo);
+    if (json.containsKey("satelite_timeout")) satelite_timeout=json.get<int>("satelite_timeout");
+
+    Serial.printf("Configuracion leida:\nTimeOut: %ld\nsleep: %ld\nBrillo: %i\nFondo: %i\nTitulo: %i\nsatelite_timeout: %i\n",TimeOut,limiteSleep,brilloPantalla,colorFondo,colorTitulo,satelite_timeout);
     return true;     
 //************************************************************************************************
     }

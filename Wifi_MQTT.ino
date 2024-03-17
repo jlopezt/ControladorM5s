@@ -238,8 +238,7 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   {  
   char mensaje[length+1];    
   int id;  
-  int estado;
-
+  
   if(debugGlobal) Serial.printf("topic: %s\nPayload: [%s]\nlongitud: %i\n",topic,(const char*)payload,length);
 
   //copio el payload en la cadena mensaje
@@ -275,7 +274,7 @@ void procesaTopicMedidas(char* topic, byte* payload, unsigned int length)
   habitaciones[id].luz = root.get<float>("Luz");
   habitaciones[id].presion = root.get<float>("Presion");
   habitaciones[id].altitud = root.get<float>("Altitud");
-  if(debugGlobal) Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %l0.2f\nHmedad: %l0.2f\nLuz: %l0.2f\nPresion: %l0.2f\nAltitud: %l0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz,habitaciones[id].presion,habitaciones[id].altitud);
+  if(debugGlobal) Serial.printf("Medida leida:\nSatelite: %i\nTemperatura: %0.2f\nHmedad: %0.2f\nLuz: %0.2f\nPresion: %0.2f\nAltitud: %0.2f\n",id,habitaciones[id].temperatura,habitaciones[id].humedad,habitaciones[id].luz,habitaciones[id].presion,habitaciones[id].altitud);
   /**********************Fin JSON***********************/    
   }
 
@@ -418,6 +417,8 @@ boolean conectaMQTT(void)
     if(intentos++>=2) return (false);
     delay(timeReconnectMQTT);      
     }
+
+    return(false);
   }
 
 /********************************************/
@@ -450,7 +451,7 @@ boolean enviarMQTT(String topic, String payload)
       return(clienteMQTT.endPublish()); //int endPublish();
       }
     }
-  else return (false);
+  return (false);
   }
 
 /********************************************/
@@ -480,8 +481,10 @@ void enviaDatos(boolean debug)
     if(debug)Serial.println("Inicio envio de json al broker.");
     
     //Lo envio al bus    
-    if(enviarMQTT(topic, payload)) if(debug)Serial.println("Enviado json al broker con exito.");
-    else if(debug)Serial.println("¡¡Error al enviar json al broker!!");
+    if(enviarMQTT(topic, payload)) {
+      if(debug)Serial.println("Enviado json al broker con exito.");
+      else if(debug)Serial.println("¡¡Error al enviar json al broker!!");
+      }
     }
   else if(debugGlobal) Serial.printf("No publico estado. Publicar estado es %i\n",publicarEstado);  
   }
